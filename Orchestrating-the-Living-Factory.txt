@@ -1,0 +1,195 @@
+# Orchestrating the Living Factory (Scale & Logistics)
+
+## Objective
+
+This case study assesses your ability to define a product strategy and industrial roadmap that transitions a manual "human-on-a-cart" operation into a high-throughput, software-defined factory.
+
+You will demonstrate your skills in:
+- Industrial Engineering (IE)
+- Facility layout
+- Throughput optimization
+- Labor economics
+- Leveraging AI to manage the logistics of 500,000 biological units in motion
+
+---
+
+# Scenario
+
+Ohalo is scaling its "Seed Production Factory."
+
+Unlike a standard warehouse, the "inventory" is alive and must hit strict biological deadlines to remain viable.
+
+---
+
+## The Current State
+
+### Logistics
+- All movement is manual
+- Technicians push rolling carts between:
+  - Buffer Warehouse
+  - Pollination Zone
+- Each cart carries 50 plants
+
+### Transition Leak
+- Typical pollination session:
+  - 5 plants
+  - 45 minutes total
+- Of that:
+  - 15 minutes (33%) is dead time spent on:
+    - Prep
+    - Moving carts
+
+### Scale Cliff
+- Projected volume:
+  - 500,000 plants/week within 6–9 months
+- Without automation:
+  - ~$1M labor spend
+  - Physical gridlock risk
+
+### Biological Clock
+- Flowering/pollination plants have a strict 48-hour viability window
+- If not moved from storage to light + irrigation within 48 hours:
+  - Breeding cycle risks failure
+
+---
+
+## The Friction Point
+
+### Labor Waste
+~33% of highly skilled labor is spent on simple material movement.
+
+### Biological Risk
+Priority flowering plants must be moved and processed within a strict 48-hour window or breeding cycles become at risk.
+
+---
+
+# The Task (Time-Boxed: 2 Hours)
+
+---
+
+## 1. AI-Powered Opportunity Analysis & ROI (45 mins)
+
+Analyze labor and material movement efficiency opportunities and risks.
+
+### Trade-off Analysis
+Compare ROI of:
+- Automating a workstation
+  - Robotic pollinator
+  - Automated cutting station
+- Automating logistics
+  - Goods-to-Person systems
+  - Conveyors
+  - Autonomous movement systems
+  - Systems eliminating the 33% movement leak
+
+### Output
+Identify:
+- Which investment moves the needle most on total facility throughput
+- Recommended roadmap:
+  - Build vs buy
+  - Automation sequencing
+
+---
+
+## 2. Industrial Layout & Material Flow (45 mins)
+
+Design the physical layout and flow for 500,000 plants/week.
+
+### Industrial Engineering Focus
+Create a high-density layout for the Buffer Warehouse.
+
+Requirements:
+- Organize 500k units efficiently
+- Ensure urgent flowering plants are always accessible
+
+### Ergonomics
+Transition from:
+- "Technician walks to plant"
+
+To:
+- "System delivers plant to technician"
+
+### Logical Leverage
+Describe logic used to:
+- Minimize travel distance
+- Optimize total facility movement
+
+---
+
+## 3. PRD: The "Facility Orchestrator" (30 mins)
+
+Write a 1–2 page PRD focused on the top opportunity identified in the ROI analysis.
+
+The PRD should include:
+- Hardware automation
+- Software orchestration layer
+
+### Key Feature
+#### Biological Priority Queue
+Automatically triggers movement tasks based on biological timing deadlines.
+
+### Bits-to-Atoms Synchronization
+Define how software ensures:
+- Digital record of a "Cross" (pollination)
+- Remains perfectly synced with:
+  - Physical plant
+  - Location
+  - State transitions
+  - Automated movement systems
+
+---
+
+# Baseline Data for Analysis
+
+| Metric | Value |
+|---|---|
+| Target Volume | 500,000 plants/week |
+| Movement Leak | 33% of pollination labor spent on transit/prep |
+| Projected Burn | $1M labor spend over 6–9 months |
+| Biological Deadline | 48-hour move-or-fail window |
+| Priority Plants | 20% of plant volume |
+
+---
+
+# Presentation & Deliverables
+
+Prepare a brief presentation for Engineering and Operations leadership.
+
+Deliverables:
+
+## Strategy
+- ROI-based recommendation:
+  - Logistics automation vs workstation automation
+  - Where to automate first
+
+## Layout
+- Diagram/sketch:
+  - Buffer warehouse
+  - Pollination flow
+  - Plant movement
+
+## PRD
+- One-page spec:
+  - Facility Orchestrator software
+
+---
+
+# Evaluation Criteria
+
+## Product & Strategic Thinking
+- Ability to identify high-ROI opportunities
+- Ability to design for throughput scaling
+
+## Industrial Engineering Instincts
+- High-density layout thinking
+- Respect for biological timing constraints
+
+## Strategic Use of Modern Tools / AI
+- AI-assisted path optimization
+- Realistic transition strategy:
+  - Manual carts → automated movement
+
+## Technical Communication
+Ability to:
+- Present clearly to engineering and operations stakeholders
+- Translate "bench reality" into actionable system requirements

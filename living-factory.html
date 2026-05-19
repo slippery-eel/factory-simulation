@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Living Factory — Ohalo Seed Production</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0f172a;
+      color: #e2e8f0;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 14px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 16px 40px;
+      gap: 16px;
+    }
+
+    header { text-align: center; }
+    h1 { font-size: 20px; font-weight: 700; color: #e2e8f0; letter-spacing: 0.04em; }
+    .subtitle { font-size: 12px; color: #64748b; margin-top: 3px; }
+
+    /* ── Alert banner ── */
+    .alert-banner {
+      width: 100%; max-width: 1240px;
+      background: #7f1d1d;
+      border: 1px solid #ef4444;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fca5a5;
+      display: none;
+      animation: pulse-border 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse-border {
+      0%, 100% { border-color: #ef4444; }
+      50%       { border-color: #fca5a5; }
+    }
+
+    /* ── Controls ── */
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 20px;
+      align-items: flex-end;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 14px 18px;
+      width: 100%;
+      max-width: 1240px;
+    }
+
+    .ctrl-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .ctrl-section-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .ctrl-row {
+      display: flex;
+      gap: 14px;
+      align-items: flex-end;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .control-group label {
+      font-size: 10px;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .control-group input[type="number"] {
+      width: 84px;
+      background: #0f172a;
+      border: 1px solid #475569;
+      border-radius: 6px;
+      color: #e2e8f0;
+      font-size: 14px;
+      padding: 5px 8px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .control-group input[type="number"]:focus { border-color: #3b82f6; }
+
+    .rate-convert {
+      font-size: 10px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+
+    /* Labor utilization slider */
+    .util-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .util-group label {
+      font-size: 10px;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .util-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    input[type="range"] {
+      width: 140px;
+      accent-color: #a78bfa;
+      cursor: pointer;
+    }
+
+    .util-pct {
+      font-size: 14px;
+      font-weight: 700;
+      color: #a78bfa;
+      min-width: 40px;
+    }
+
+    .util-hint {
+      font-size: 10px;
+      color: #475569;
+      margin-top: 2px;
+    }
+
+    .divider {
+      width: 1px; height: 48px;
+      background: #334155;
+      align-self: center;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      align-self: flex-end;
+      margin-left: auto;
+    }
+
+    button {
+      padding: 7px 18px;
+      border-radius: 6px;
+      border: none;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+
+    button:active { transform: scale(0.97); }
+
+    #startBtn { background: #3b82f6; color: #fff; }
+    #startBtn.paused { background: #f59e0b; }
+    #resetBtn { background: #334155; color: #cbd5e1; }
+    #resetBtn:hover { background: #475569; }
+
+    /* ── SVG Diagram ── */
+    .diagram-wrapper {
+      width: 100%;
+      max-width: 1240px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    #diagram { width: 100%; height: auto; display: block; }
+
+    /* ── Data Panel ── */
+    .data-panel {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      width: 100%;
+      max-width: 1240px;
+    }
+
+    .data-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 12px 14px;
+      transition: border-color 0.3s;
+    }
+
+    .data-card.warn  { border-color: #f59e0b; }
+    .data-card.alert { border-color: #ef4444; }
+    .data-card.good  { border-color: #10b981; }
+
+    .data-card .label {
+      font-size: 10px;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+
+    .data-card .value {
+      font-size: 20px;
+      font-weight: 700;
+      color: #e2e8f0;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .data-card .unit {
+      font-size: 10px;
+      color: #64748b;
+      margin-left: 3px;
+    }
+
+    .data-card .sub {
+      font-size: 10px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+
+    /* ── Throughput chart ── */
+    .chart-wrapper {
+      width: 100%; max-width: 1240px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 12px 16px 10px;
+    }
+
+    #throughputChart {
+      width: 100%;
+      height: 180px;
+      display: block;
+    }
+
+    /* ── Schedule visualizer ── */
+    .sched-wrapper {
+      width: 100%; max-width: 1240px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 10px 16px 14px;
+    }
+
+    .sched-track {
+      position: relative;
+      display: flex;
+      height: 22px;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 5px;
+    }
+
+    .sched-day {
+      flex: 1;
+      position: relative;
+      background: #0f172a;
+      border-right: 1px solid #1e2d3d;
+    }
+    .sched-day:last-child { border-right: none; }
+
+    .sched-fill {
+      position: absolute;
+      left: 0; top: 0; height: 100%;
+      width: 0;
+      background: #064e3b;
+      transition: width 0.25s ease;
+    }
+
+    .sched-cursor {
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 2px;
+      background: #f1f5f9;
+      pointer-events: none;
+      transform: translateX(-50%);
+      z-index: 2;
+      box-shadow: 0 0 5px rgba(241, 245, 249, 0.5);
+    }
+
+    .sched-day-labels {
+      display: flex;
+    }
+
+    .sched-day-labels span {
+      flex: 1;
+      text-align: center;
+      font-size: 9px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #475569;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Living Factory Simulation</h1>
+  <p class="subtitle">Ohalo Seed Production &mdash; Buffer Warehouse &rarr; Pollination Zone &mdash; 500,000 plants / week</p>
+</header>
+
+<!-- Alert -->
+<div id="alert-banner" class="alert-banner">
+  &#9888; DEADLINE FAILURE &mdash; Priority plants exceeded 48 sim-hour biological window. Breeding cycle at risk.
+</div>
+
+<!-- Controls -->
+<div class="controls">
+  <div class="ctrl-section">
+    <div class="ctrl-section-label">Material Flows</div>
+    <div class="ctrl-row">
+      <div class="control-group">
+        <label>F1 Inflow (k plants/wk)</label>
+        <input type="number" id="f1Rate" min="0" max="5000" value="500" step="25">
+        <div class="rate-convert" id="f1-convert">= 6.25 k/hr</div>
+      </div>
+      <div class="control-group">
+        <label>F3 Completion (k plants/wk)</label>
+        <input type="number" id="f3Rate" min="0" max="5000" value="500" step="25">
+        <div class="rate-convert" id="f3-convert">= 6.25 k/hr</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="ctrl-section">
+    <div class="ctrl-section-label">Pollination Station</div>
+    <div class="ctrl-row">
+      <div class="control-group">
+        <label>Station Capacity (k plants/wk)</label>
+        <input type="number" id="stationCap" min="1" max="50000" value="752" step="25">
+        <div class="rate-convert" id="stationCap-convert">= 9.40 k/hr</div>
+      </div>
+      <div class="util-group">
+        <label>Labor Utilization (Automation Lever)</label>
+        <div class="util-row">
+          <input type="range" id="laborUtil" min="0" max="100" value="67" step="1">
+          <span class="util-pct" id="utilDisplay">67%</span>
+        </div>
+        <div class="util-hint">67% = current state &nbsp;|&nbsp; 100% = with logistics automation</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="ctrl-section">
+    <div class="ctrl-section-label">Schedule &amp; Simulation</div>
+    <div class="ctrl-row">
+      <div class="control-group">
+        <label>Days / week</label>
+        <input type="number" id="daysPerWeek" min="1" max="7" value="5" step="1">
+      </div>
+      <div class="control-group">
+        <label>Shifts / day</label>
+        <input type="number" id="shiftsPerDay" min="1" max="3" value="2" step="1">
+      </div>
+      <div class="control-group">
+        <label>Hours / shift</label>
+        <input type="number" id="hoursPerShift" min="1" max="24" value="8" step="1">
+      </div>
+      <div class="control-group">
+        <label>Sim Speed (sim-hrs / 5s)</label>
+        <input type="number" id="simSpeed" min="1" max="100" value="8" step="1">
+      </div>
+    </div>
+    <div class="util-hint" style="margin-top:4px">default 8 sim-hrs/5s = 1 shift per 5 real-seconds &nbsp;|&nbsp; F2 only runs during scheduled shifts</div>
+  </div>
+
+  <div class="btn-group">
+    <button id="startBtn">Start</button>
+    <button id="resetBtn">Reset</button>
+  </div>
+</div>
+
+<!-- Schedule Visualizer -->
+<div class="sched-wrapper">
+  <div class="sched-track">
+    <div class="sched-day" id="sched-d0"><div class="sched-fill" id="sched-f0"></div></div>
+    <div class="sched-day" id="sched-d1"><div class="sched-fill" id="sched-f1"></div></div>
+    <div class="sched-day" id="sched-d2"><div class="sched-fill" id="sched-f2"></div></div>
+    <div class="sched-day" id="sched-d3"><div class="sched-fill" id="sched-f3"></div></div>
+    <div class="sched-day" id="sched-d4"><div class="sched-fill" id="sched-f4"></div></div>
+    <div class="sched-day" id="sched-d5"><div class="sched-fill" id="sched-f5"></div></div>
+    <div class="sched-day" id="sched-d6"><div class="sched-fill" id="sched-f6"></div></div>
+    <div class="sched-cursor" id="sched-cursor"></div>
+  </div>
+  <div class="sched-day-labels">
+    <span id="sched-lbl-0">Mon</span>
+    <span id="sched-lbl-1">Tue</span>
+    <span id="sched-lbl-2">Wed</span>
+    <span id="sched-lbl-3">Thu</span>
+    <span id="sched-lbl-4">Fri</span>
+    <span id="sched-lbl-5">Sat</span>
+    <span id="sched-lbl-6">Sun</span>
+  </div>
+</div>
+
+<!-- SVG Diagram -->
+<div class="diagram-wrapper">
+<svg id="diagram" viewBox="0 0 1200 470" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="arr-f1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 Z" fill="#60a5fa"/>
+  </marker>
+  <marker id="arr-f2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 Z" fill="#a78bfa"/>
+  </marker>
+  <marker id="arr-f3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 Z" fill="#34d399"/>
+  </marker>
+
+  <!-- Clip paths for each stock fill area -->
+  <clipPath id="clip-s1"><rect x="18"  y="153" width="82"  height="194"/></clipPath>
+  <clipPath id="clip-s2"><rect x="213" y="103" width="174" height="294"/></clipPath>
+  <clipPath id="clip-s3"><rect x="603" y="133" width="124" height="234"/></clipPath>
+  <clipPath id="clip-s4"><rect x="873" y="163" width="114" height="174"/></clipPath>
+</defs>
+
+<!-- Centerline guide -->
+<line x1="0" y1="250" x2="1200" y2="250" stroke="#1e3a5f" stroke-width="1" stroke-dasharray="4 8"/>
+
+<!-- ═══════════════════ FLOW PATHS ═══════════════════ -->
+
+<!-- F1: Propagation → Buffer Warehouse -->
+<path id="path-f1" d="M 105 250 C 145 250 174 250 208 250"
+  stroke="#60a5fa" stroke-width="2.5" fill="none"
+  stroke-dasharray="6 4" marker-end="url(#arr-f1)"/>
+
+<!-- F2: Buffer Warehouse → Pollination Zone -->
+<path id="path-f2" d="M 392 250 C 462 250 532 250 598 250"
+  stroke="#a78bfa" stroke-width="2.5" fill="none"
+  stroke-dasharray="6 4" marker-end="url(#arr-f2)"/>
+
+<!-- F3: Pollination Zone → Post-Pollination -->
+<path id="path-f3" d="M 732 250 C 778 250 836 250 868 250"
+  stroke="#34d399" stroke-width="2.5" fill="none"
+  stroke-dasharray="6 4" marker-end="url(#arr-f3)"/>
+
+<!-- ═══════════════════ S1 — PROPAGATION ═══════════════════ -->
+<rect x="15" y="150" width="88" height="200" rx="5"
+  id="s1-outer" fill="#0f172a" stroke="#334155" stroke-width="2"/>
+<rect id="s1-fill" x="18" y="347" width="82" height="0"
+  fill="#1d4ed8" clip-path="url(#clip-s1)"/>
+<rect id="s1-shimmer" x="18" y="347" width="82" height="3"
+  fill="#93c5fd" opacity="0" clip-path="url(#clip-s1)"/>
+<line x1="15" y1="153" x2="103" y2="153" stroke="#334155" stroke-width="1" stroke-dasharray="3 3"/>
+<text x="59" y="138" text-anchor="middle" fill="#94a3b8" font-size="11" font-weight="700">PROPAGATION</text>
+<text id="s1-qty" x="59" y="370" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="700" font-family="monospace">800</text>
+<text x="59" y="382" text-anchor="middle" fill="#64748b" font-size="9">units</text>
+
+<!-- ═══════════════════ S2 — BUFFER WAREHOUSE ═══════════════════ -->
+<rect x="210" y="100" width="180" height="300" rx="5"
+  id="s2-outer" fill="#0f172a" stroke="#334155" stroke-width="2"/>
+<!-- Regular plants fill (blue, from bottom) -->
+<rect id="s2-reg-fill" x="213" y="397" width="174" height="0"
+  fill="#1d4ed8" clip-path="url(#clip-s2)"/>
+<!-- Priority plants fill (gold, stacked on top of regular) -->
+<rect id="s2-pri-fill" x="213" y="397" width="174" height="0"
+  fill="#d97706" clip-path="url(#clip-s2)"/>
+<!-- Shimmer on top of all fill -->
+<rect id="s2-shimmer" x="213" y="397" width="174" height="3"
+  fill="#fde68a" opacity="0" clip-path="url(#clip-s2)"/>
+<line x1="210" y1="103" x2="390" y2="103" stroke="#334155" stroke-width="1" stroke-dasharray="3 3"/>
+<text x="300" y="88" text-anchor="middle" fill="#94a3b8" font-size="11" font-weight="700">BUFFER WAREHOUSE</text>
+<text id="s2-qty" x="300" y="418" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="700" font-family="monospace">200</text>
+<text id="s2-pri-label" x="300" y="430" text-anchor="middle" fill="#f59e0b" font-size="9">40 priority (20%)</text>
+
+<!-- 48-hr deadline progress bar (below S2) -->
+<rect x="213" y="440" width="174" height="8" rx="3"
+  fill="#0f172a" stroke="#334155" stroke-width="1"/>
+<rect id="deadline-bar" x="213" y="440" width="0" height="8" rx="3"
+  fill="#10b981"/>
+<text id="deadline-text" x="213" y="456" fill="#475569" font-size="9">Priority age: 0h / 48h</text>
+<text id="deadline-label" x="387" y="456" text-anchor="end" fill="#475569" font-size="9">0%</text>
+
+<!-- ═══════════════════ S3 — POLLINATION ZONE ═══════════════════ -->
+<rect x="600" y="130" width="130" height="240" rx="5"
+  id="s3-outer" fill="#0f172a" stroke="#334155" stroke-width="2"/>
+<rect id="s3-fill" x="603" y="367" width="124" height="0"
+  fill="#6d28d9" clip-path="url(#clip-s3)"/>
+<rect id="s3-shimmer" x="603" y="367" width="124" height="3"
+  fill="#ddd6fe" opacity="0" clip-path="url(#clip-s3)"/>
+<line x1="600" y1="133" x2="730" y2="133" stroke="#334155" stroke-width="1" stroke-dasharray="3 3"/>
+<text x="665" y="118" text-anchor="middle" fill="#94a3b8" font-size="11" font-weight="700">POLLINATION ZONE</text>
+<text id="s3-qty" x="665" y="388" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="700" font-family="monospace">20</text>
+<text x="665" y="400" text-anchor="middle" fill="#64748b" font-size="9">units</text>
+
+<!-- ═══════════════════ S4 — POST-POLLINATION ═══════════════════ -->
+<rect x="870" y="160" width="120" height="180" rx="5"
+  id="s4-outer" fill="#0f172a" stroke="#334155" stroke-width="2"/>
+<rect id="s4-fill" x="873" y="337" width="114" height="0"
+  fill="#065f46" clip-path="url(#clip-s4)"/>
+<rect id="s4-shimmer" x="873" y="337" width="114" height="3"
+  fill="#a7f3d0" opacity="0" clip-path="url(#clip-s4)"/>
+<line x1="870" y1="163" x2="990" y2="163" stroke="#334155" stroke-width="1" stroke-dasharray="3 3"/>
+<text x="930" y="148" text-anchor="middle" fill="#94a3b8" font-size="11" font-weight="700">POST-POLLINATION</text>
+<text id="s4-qty" x="930" y="355" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="700" font-family="monospace">0</text>
+<text x="930" y="367" text-anchor="middle" fill="#64748b" font-size="9">completed</text>
+
+<!-- ═══════════════════ FLOW LABELS ═══════════════════ -->
+<text x="156" y="236" text-anchor="middle" fill="#60a5fa" font-size="10" font-weight="600">
+  F1: <tspan id="f1-lbl">0.0</tspan> k/hr
+</text>
+<text x="495" y="236" text-anchor="middle" fill="#a78bfa" font-size="10" font-weight="600">
+  F2: <tspan id="f2-lbl">0.0</tspan> k/hr
+  <tspan id="f2-pri-lbl" fill="#f59e0b"> (▲<tspan id="f2-pri-val">0.0</tspan> priority)</tspan>
+</text>
+<text x="800" y="236" text-anchor="middle" fill="#34d399" font-size="10" font-weight="600">
+  F3: <tspan id="f3-lbl">0.0</tspan> k/hr
+</text>
+
+<!-- Station utilization readout above F2 -->
+<text id="util-lbl" x="495" y="224" text-anchor="middle" fill="#64748b" font-size="9">
+  Station util: <tspan id="util-val">67%</tspan>
+  &nbsp;|&nbsp; Effective: <tspan id="eff-val">6.25</tspan> / <tspan id="cap-val">9.4</tspan> k/hr
+</text>
+
+<!-- Shift status indicator (below F2 centerline) -->
+<text id="shift-status" x="495" y="266" text-anchor="middle" font-size="9" font-weight="700" fill="#10b981">ON SHIFT</text>
+
+<!-- Particles layer -->
+<g id="particles"></g>
+
+</svg>
+</div>
+
+<!-- Data Panel -->
+<div class="data-panel">
+  <!-- Row 1: Stocks -->
+  <div class="data-card" id="card-buf">
+    <div class="label">Buffer Warehouse</div>
+    <div class="value"><span id="dp-buf">250</span><span class="unit">k plants</span></div>
+    <div class="sub" id="dp-buf-pct">31% full</div>
+  </div>
+  <div class="data-card" id="card-pri">
+    <div class="label">Priority in Buffer</div>
+    <div class="value"><span id="dp-pri">50</span><span class="unit">k plants</span></div>
+    <div class="sub" id="dp-pri-pct">20% of buffer</div>
+  </div>
+  <div class="data-card" id="card-poll">
+    <div class="label">Pollination Zone</div>
+    <div class="value"><span id="dp-poll">5.0</span><span class="unit">k plants</span></div>
+    <div class="sub" id="dp-poll-pct">10% full</div>
+  </div>
+  <div class="data-card" id="card-post">
+    <div class="label">Post-Pollination</div>
+    <div class="value"><span id="dp-post">0</span><span class="unit">k plants</span></div>
+    <div class="sub">cumulative completed</div>
+  </div>
+
+  <!-- Row 2: Flows & station -->
+  <div class="data-card">
+    <div class="label">F1 Inflow Actual</div>
+    <div class="value"><span id="dp-f1">0.0</span><span class="unit">k/hr</span></div>
+    <div class="sub" id="dp-f1-sub">target: — k/hr</div>
+  </div>
+  <div class="data-card">
+    <div class="label">F2 Effective Rate</div>
+    <div class="value"><span id="dp-f2">0.0</span><span class="unit">k/hr</span></div>
+    <div class="sub" id="dp-f2-sub">of <span id="dp-f2-cap">9.4</span> theoretical</div>
+  </div>
+  <div class="data-card" id="card-util">
+    <div class="label">Station Utilization</div>
+    <div class="value"><span id="dp-util">67</span><span class="unit">%</span></div>
+    <div class="sub">labor time on pollination</div>
+  </div>
+  <div class="data-card">
+    <div class="label">F3 Completion Actual</div>
+    <div class="value"><span id="dp-f3">0.0</span><span class="unit">k/hr</span></div>
+    <div class="sub">—</div>
+  </div>
+
+  <!-- Row 3: Biological clock + throughput -->
+  <div class="data-card">
+    <div class="label">Sim Time</div>
+    <div class="value"><span id="dp-time">0.0</span><span class="unit">sim-hrs</span></div>
+    <div class="sub" id="dp-speed-sub">8 sim-hrs / 5 real-secs</div>
+  </div>
+  <div class="data-card" id="card-age">
+    <div class="label">Priority Age</div>
+    <div class="value"><span id="dp-age">0.0</span><span class="unit">/ 48 h</span></div>
+    <div class="sub">oldest priority cohort</div>
+  </div>
+  <div class="data-card" id="card-fail">
+    <div class="label">Deadline Failures</div>
+    <div class="value"><span id="dp-fail">0</span><span class="unit">k plants</span></div>
+    <div class="sub">priority plants lost</div>
+  </div>
+  <div class="data-card" id="card-wkly">
+    <div class="label">Weekly Throughput</div>
+    <div class="value"><span id="dp-wkly">0</span><span class="unit">k plants/wk</span></div>
+    <div class="sub" id="dp-wkly-sub">Target: 500k</div>
+  </div>
+</div>
+
+<!-- Throughput Chart -->
+<div class="chart-wrapper">
+  <canvas id="throughputChart"></canvas>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  GEOMETRY CONSTANTS
+// ═══════════════════════════════════════════════════════════
+const STOCKS_GEO = [
+  // S1 Propagation
+  { fillX: 18,  fillW: 82,  fillBottom: 347, fillHeight: 194, cx: 59  },
+  // S2 Buffer Warehouse
+  { fillX: 213, fillW: 174, fillBottom: 397, fillHeight: 294, cx: 300 },
+  // S3 Pollination Zone
+  { fillX: 603, fillW: 124, fillBottom: 367, fillHeight: 234, cx: 665 },
+  // S4 Post-Pollination
+  { fillX: 873, fillW: 114, fillBottom: 337, fillHeight: 174, cx: 930 },
+];
+
+// ═══════════════════════════════════════════════════════════
+//  SIMULATION CONSTANTS
+// ═══════════════════════════════════════════════════════════
+const BUFFER_CAP     = 800;
+const POLL_CAP       = 50;
+const PRIORITY_RATIO = 0.2;
+const DEADLINE_HRS   = 48;
+const WARN_HRS       = 40;
+const PARTICLE_SEC   = 2.5;
+const PROPAG_RATIO   = 0.8;
+const TARGET_WEEKLY  = 500;   // k plants / week
+
+// ═══════════════════════════════════════════════════════════
+//  USER PARAMETERS (separate from sim state — reset-safe)
+// ═══════════════════════════════════════════════════════════
+const params = {
+  f1Rate:        6.25,  // k plants / sim-hr (derived from weekly input)
+  stationCap:    9.4,   // k plants / sim-hr at 100% utilization (derived from weekly input)
+  laborUtil:     0.667,
+  f3Rate:        6.25,  // k plants / sim-hr (derived from weekly input)
+  simSpeed:      8,     // sim-hrs per 5 real-seconds (8 = 1 shift per 5s)
+  daysPerWeek:   5,
+  shiftsPerDay:  2,
+  hoursPerShift: 8,     // replaces HOURS_PER_SHIFT constant
+};
+
+// ═══════════════════════════════════════════════════════════
+//  SIM STATE
+// ═══════════════════════════════════════════════════════════
+function freshState() {
+  return {
+    bufReg:          200,  // k plants regular
+    bufPri:          50,   // k plants priority — recomputed each tick from cohorts
+    poll:            5,    // k plants in pollination zone
+    postPoll:        0,
+    prAge:           0,    // display: age of oldest live cohort (sim-hrs); recomputed each tick
+    failures:        0,
+    elapsed:         0,    // sim-hours
+    shiftOn:         true, // current shift status; recomputed each tick
+    running:         false,
+    nextId:          0,
+    particles:       [],
+    spawnAccum:      [0, 0, 0, 0],  // f1, f2-pri, f2-reg, f3
+    flows:           { f1: 0, f2: 0, f2pri: 0, f2reg: 0, f3: 0 },
+    priorityCohorts: [{ amount: 50, deadline: DEADLINE_HRS }],  // initial 50 k-plants, arrive at t=0
+    priArrivalAccum: 0,  // fractional k-plants accumulating toward next cohort
+    throughputLog:   [],  // [{elapsed, rate}] sampled every 0.5 sim-hrs
+    sampleAccum:     0,   // sim-hours since last sample
+  };
+}
+
+let sim = freshState();
+
+// ═══════════════════════════════════════════════════════════
+//  DOM REFS
+// ═══════════════════════════════════════════════════════════
+const dom = {
+  // SVG stocks
+  s1fill:    document.getElementById('s1-fill'),
+  s1shimmer: document.getElementById('s1-shimmer'),
+  s1qty:     document.getElementById('s1-qty'),
+  s1outer:   document.getElementById('s1-outer'),
+
+  s2regFill: document.getElementById('s2-reg-fill'),
+  s2priFill: document.getElementById('s2-pri-fill'),
+  s2shimmer: document.getElementById('s2-shimmer'),
+  s2qty:     document.getElementById('s2-qty'),
+  s2priLabel:document.getElementById('s2-pri-label'),
+  s2outer:   document.getElementById('s2-outer'),
+
+  s3fill:    document.getElementById('s3-fill'),
+  s3shimmer: document.getElementById('s3-shimmer'),
+  s3qty:     document.getElementById('s3-qty'),
+  s3outer:   document.getElementById('s3-outer'),
+
+  s4fill:    document.getElementById('s4-fill'),
+  s4shimmer: document.getElementById('s4-shimmer'),
+  s4qty:     document.getElementById('s4-qty'),
+  s4outer:   document.getElementById('s4-outer'),
+
+  // deadline bar
+  deadlineBar:   document.getElementById('deadline-bar'),
+  deadlineLabel: document.getElementById('deadline-label'),
+  deadlineText:  document.getElementById('deadline-text'),
+
+  // flow labels in SVG
+  f1lbl:    document.getElementById('f1-lbl'),
+  f2lbl:    document.getElementById('f2-lbl'),
+  f2priVal: document.getElementById('f2-pri-val'),
+  f3lbl:    document.getElementById('f3-lbl'),
+  utilVal:  document.getElementById('util-val'),
+  effVal:   document.getElementById('eff-val'),
+  capVal:   document.getElementById('cap-val'),
+
+  // particles group
+  particles: document.getElementById('particles'),
+
+  // data panel
+  dpBuf:      document.getElementById('dp-buf'),
+  dpBufPct:   document.getElementById('dp-buf-pct'),
+  dpPri:      document.getElementById('dp-pri'),
+  dpPriPct:   document.getElementById('dp-pri-pct'),
+  dpPoll:     document.getElementById('dp-poll'),
+  dpPollPct:  document.getElementById('dp-poll-pct'),
+  dpPost:     document.getElementById('dp-post'),
+  dpF1:       document.getElementById('dp-f1'),
+  dpF1sub:    document.getElementById('dp-f1-sub'),
+  dpF2:       document.getElementById('dp-f2'),
+  dpF2sub:    document.getElementById('dp-f2-sub'),
+  dpF2cap:    document.getElementById('dp-f2-cap'),
+  dpUtil:     document.getElementById('dp-util'),
+  dpF3:       document.getElementById('dp-f3'),
+  dpTime:     document.getElementById('dp-time'),
+  dpSpeedSub: document.getElementById('dp-speed-sub'),
+  dpAge:      document.getElementById('dp-age'),
+  dpFail:     document.getElementById('dp-fail'),
+  dpRoi:      document.getElementById('dp-roi'),
+
+  // data cards (for border color)
+  cardBuf:  document.getElementById('card-buf'),
+  cardPri:  document.getElementById('card-pri'),
+  cardPoll: document.getElementById('card-poll'),
+  cardAge:  document.getElementById('card-age'),
+  cardFail: document.getElementById('card-fail'),
+  cardUtil: document.getElementById('card-util'),
+
+  // controls
+  f1RateInput:      document.getElementById('f1Rate'),
+  f1Convert:        document.getElementById('f1-convert'),
+  stationCapInput:    document.getElementById('stationCap'),
+  stationCapConvert:  document.getElementById('stationCap-convert'),
+  laborUtilInput:     document.getElementById('laborUtil'),
+  utilDisplay:        document.getElementById('utilDisplay'),
+  f3RateInput:        document.getElementById('f3Rate'),
+  f3Convert:          document.getElementById('f3-convert'),
+  simSpeedInput:      document.getElementById('simSpeed'),
+  daysPerWeekInput:   document.getElementById('daysPerWeek'),
+  shiftsPerDayInput:  document.getElementById('shiftsPerDay'),
+  hoursPerShiftInput: document.getElementById('hoursPerShift'),
+  shiftStatusEl:      document.getElementById('shift-status'),
+  startBtn:         document.getElementById('startBtn'),
+  resetBtn:         document.getElementById('resetBtn'),
+  alertBanner:      document.getElementById('alert-banner'),
+  schedCursor:      document.getElementById('sched-cursor'),
+  chartCanvas:      document.getElementById('throughputChart'),
+
+  // data cards
+  cardWkly: document.getElementById('card-wkly'),
+  dpWkly:   document.getElementById('dp-wkly'),
+  dpWklySub:document.getElementById('dp-wkly-sub'),
+  dpSpeedSub:document.getElementById('dp-speed-sub'),
+};
+
+const svgPaths = [
+  document.getElementById('path-f1'),
+  document.getElementById('path-f2'),
+  document.getElementById('path-f3'),
+];
+
+const schedDays   = Array.from({length: 7}, (_, i) => document.getElementById(`sched-d${i}`));
+const schedFills  = Array.from({length: 7}, (_, i) => document.getElementById(`sched-f${i}`));
+const schedLabels = Array.from({length: 7}, (_, i) => document.getElementById(`sched-lbl-${i}`));
+
+// ═══════════════════════════════════════════════════════════
+//  SHIFT SCHEDULE HELPER
+// ═══════════════════════════════════════════════════════════
+function isShiftActive() {
+  const posInWeek  = sim.elapsed % (7 * 24);
+  const dayIdx     = Math.floor(posInWeek / 24);
+  const posInDay   = posInWeek % 24;
+  const workHrsDay = Math.min(params.shiftsPerDay * params.hoursPerShift, 24);
+  return dayIdx < params.daysPerWeek && posInDay < workHrsDay;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  SIMULATION LOGIC
+// ═══════════════════════════════════════════════════════════
+function updateSimulation(wallDt) {
+  // simSpeed = sim-hrs per 5 real-seconds → sim-hrs per real-second = simSpeed/5
+  const simDtHrs = wallDt * params.simSpeed / 5;
+
+  const shiftOn   = isShiftActive();
+  sim.shiftOn     = shiftOn;
+
+  // ── F1: Propagation → Buffer (shift-gated with F2) ──
+  const bufTotal = sim.bufReg + sim.bufPri;
+  const bufFree  = BUFFER_CAP - bufTotal;
+  const f1Max    = shiftOn ? Math.min(params.f1Rate, bufFree / simDtHrs) : 0;
+  sim.flows.f1   = Math.max(0, f1Max);
+
+  const f1Pri = sim.flows.f1 * PRIORITY_RATIO;
+  const f1Reg = sim.flows.f1 * (1 - PRIORITY_RATIO);
+
+  // ── Priority arrivals → cohort queue (1 k-plant batches) ──
+  sim.priArrivalAccum += f1Pri * simDtHrs;
+  while (sim.priArrivalAccum >= 1) {
+    sim.priArrivalAccum -= 1;
+    sim.priorityCohorts.push({ amount: 1, deadline: sim.elapsed + DEADLINE_HRS });
+  }
+
+  // ── Expire overdue cohorts (biological clock runs regardless of shift) ──
+  sim.priorityCohorts = sim.priorityCohorts.filter(c => {
+    if (c.deadline <= sim.elapsed) { sim.failures += c.amount; return false; }
+    return true;
+  });
+
+  // ── Sort: most urgent (earliest deadline) first ──
+  sim.priorityCohorts.sort((a, b) => a.deadline - b.deadline);
+
+  // ── Derive bufPri for capacity calculation ──
+  sim.bufPri = sim.priorityCohorts.reduce((s, c) => s + c.amount, 0) + sim.priArrivalAccum;
+
+  // ── F2: Buffer → Pollination (only during active shifts) ──
+  const f2Effective = shiftOn ? params.stationCap * params.laborUtil : 0;
+  const pollFree    = (POLL_CAP - sim.poll) / simDtHrs;
+  const f2MaxByBuf  = (sim.bufReg + sim.bufPri) / simDtHrs;
+  sim.flows.f2 = Math.max(0, Math.min(f2Effective, pollFree, f2MaxByBuf));
+
+  // ── Dispatch: priority cohorts first (earliest deadline), then regular ──
+  let toMove   = sim.flows.f2 * simDtHrs;
+  let priMoved = 0;
+  for (const c of sim.priorityCohorts) {
+    if (toMove <= 1e-9) break;
+    const take = Math.min(c.amount, toMove);
+    c.amount -= take; priMoved += take; toMove -= take;
+  }
+  sim.priorityCohorts = sim.priorityCohorts.filter(c => c.amount > 1e-9);
+  const regMoved = sim.flows.f2 * simDtHrs - priMoved;
+
+  sim.flows.f2pri = simDtHrs > 0 ? priMoved / simDtHrs : 0;
+  sim.flows.f2reg = simDtHrs > 0 ? regMoved / simDtHrs : 0;
+
+  // ── F3: Pollination Zone → Post-Pollination ──
+  sim.flows.f3 = Math.max(0, Math.min(params.f3Rate, sim.poll / simDtHrs));
+
+  // ── Update stocks ──
+  sim.bufReg   = Math.max(0, sim.bufReg + f1Reg * simDtHrs - regMoved);
+  sim.bufPri   = Math.max(0, sim.priorityCohorts.reduce((s, c) => s + c.amount, 0) + sim.priArrivalAccum);
+  sim.poll     = Math.max(0, Math.min(POLL_CAP, sim.poll + (sim.flows.f2 - sim.flows.f3) * simDtHrs));
+  sim.postPoll = sim.postPoll + sim.flows.f3 * simDtHrs;
+
+  // ── Derive prAge: age of oldest surviving cohort (for display) ──
+  sim.prAge = sim.priorityCohorts.length > 0
+    ? sim.elapsed - (sim.priorityCohorts[0].deadline - DEADLINE_HRS)
+    : 0;
+
+  sim.elapsed += simDtHrs;
+
+  // ── Throughput sampling (every 0.5 sim-hrs) ──
+  sim.sampleAccum += simDtHrs;
+  if (sim.sampleAccum >= 0.5) {
+    sim.sampleAccum -= 0.5;
+    sim.throughputLog.push({ elapsed: sim.elapsed, rate: sim.flows.f3 });
+    if (sim.throughputLog.length > 1008) sim.throughputLog.shift();  // 336 display + 168 avg buffer = 504 hrs
+  }
+
+  // ── Spawn particles (rate × simDtHrs = k plants this tick) ──
+  sim.spawnAccum[0] += sim.flows.f1    * simDtHrs;
+  while (sim.spawnAccum[0] >= 1) { sim.spawnAccum[0] -= 1; spawnParticle(0, false); }
+
+  sim.spawnAccum[1] += sim.flows.f2pri * simDtHrs;
+  while (sim.spawnAccum[1] >= 1) { sim.spawnAccum[1] -= 1; spawnParticle(1, true); }
+
+  sim.spawnAccum[2] += sim.flows.f2reg * simDtHrs;
+  while (sim.spawnAccum[2] >= 1) { sim.spawnAccum[2] -= 1; spawnParticle(1, false); }
+
+  sim.spawnAccum[3] += sim.flows.f3    * simDtHrs;
+  while (sim.spawnAccum[3] >= 1) { sim.spawnAccum[3] -= 1; spawnParticle(2, false); }
+
+  // ── Advance particles ────────────────────────────────────
+  const bufRatio  = (sim.bufReg + sim.bufPri) / BUFFER_CAP;
+  const pollRatio = sim.poll / POLL_CAP;
+  const crowding  = [bufRatio, pollRatio, 0];
+
+  const toRemove = [];
+  for (const p of sim.particles) {
+    const speed = (1 / PARTICLE_SEC) * (1 - 0.65 * crowding[p.flow]);
+    p.t += speed * wallDt;
+    if (p.t >= 1) toRemove.push(p);
+  }
+  for (const p of toRemove) removeParticle(p);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  PARTICLE MANAGEMENT
+// ═══════════════════════════════════════════════════════════
+function spawnParticle(flowIndex, isPriority) {
+  const id = sim.nextId++;
+
+  let el;
+  if (isPriority) {
+    // Gold diamond
+    el = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    el.setAttribute('fill', '#f59e0b');
+    el.setAttribute('stroke', '#fde68a');
+    el.setAttribute('stroke-width', '1.5');
+    el.setAttribute('opacity', '0.95');
+  } else {
+    el = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    const colors = ['#3b82f6', '#7c3aed', '#059669'];
+    const strokes= ['#93c5fd', '#c4b5fd', '#6ee7b7'];
+    el.setAttribute('r', '6');
+    el.setAttribute('fill', colors[flowIndex]);
+    el.setAttribute('stroke', strokes[flowIndex]);
+    el.setAttribute('stroke-width', '1.5');
+    el.setAttribute('opacity', '0.9');
+  }
+
+  dom.particles.appendChild(el);
+  const p = { id, flow: flowIndex, isPriority, t: 0, el };
+  sim.particles.push(p);
+}
+
+function removeParticle(p) {
+  const idx = sim.particles.indexOf(p);
+  if (idx !== -1) sim.particles.splice(idx, 1);
+  if (p.el.parentNode) p.el.parentNode.removeChild(p.el);
+}
+
+function clearAllParticles() {
+  for (const p of sim.particles) {
+    if (p.el.parentNode) p.el.parentNode.removeChild(p.el);
+  }
+  sim.particles.length = 0;
+  sim.spawnAccum[0] = sim.spawnAccum[1] = sim.spawnAccum[2] = sim.spawnAccum[3] = 0;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  RENDERING
+// ═══════════════════════════════════════════════════════════
+function stockColor(ratio) {
+  if (ratio > 0.9) return '#ef4444';
+  if (ratio < 0.1) return '#f59e0b';
+  return null;  // use stock's own color
+}
+
+function renderFrame() {
+  const bufTotal = sim.bufReg + sim.bufPri;
+  const bufRatio  = bufTotal  / BUFFER_CAP;
+  const pollRatio = sim.poll  / POLL_CAP;
+  const postRatio = Math.min(sim.postPoll / 2000, 1);
+
+  // ── S1 Propagation (constant 80%) ──
+  const g1 = STOCKS_GEO[0];
+  const h1 = PROPAG_RATIO * g1.fillHeight;
+  const y1 = g1.fillBottom - h1;
+  dom.s1fill.setAttribute('y', y1);
+  dom.s1fill.setAttribute('height', h1);
+  dom.s1fill.setAttribute('fill', '#1d4ed8');
+  dom.s1shimmer.setAttribute('y', y1);
+  dom.s1shimmer.setAttribute('opacity', '0.5');
+  dom.s1qty.textContent = '∞';
+
+  // ── S2 Buffer Warehouse (dual fill) ──
+  const g2 = STOCKS_GEO[1];
+  const regRatio = sim.bufReg / BUFFER_CAP;
+  const priRatio = sim.bufPri / BUFFER_CAP;
+  const regH = regRatio * g2.fillHeight;
+  const priH = priRatio * g2.fillHeight;
+  const regY = g2.fillBottom - regH;
+  const priY = regY - priH;
+
+  dom.s2regFill.setAttribute('y', regY);
+  dom.s2regFill.setAttribute('height', regH);
+  dom.s2priFill.setAttribute('y', priY);
+  dom.s2priFill.setAttribute('height', priH);
+  dom.s2shimmer.setAttribute('y', Math.min(priY, regY));
+  dom.s2shimmer.setAttribute('opacity', (regH + priH) > 5 ? '0.5' : '0');
+
+  const s2borderCol = bufRatio > 0.9 ? '#ef4444' : bufRatio < 0.1 ? '#f59e0b' : '#334155';
+  dom.s2outer.setAttribute('stroke', s2borderCol);
+  dom.s2qty.textContent = bufTotal.toFixed(0);
+  const priPct = bufTotal > 0 ? (sim.bufPri / bufTotal * 100).toFixed(0) : 0;
+  dom.s2priLabel.textContent = `${sim.bufPri.toFixed(0)} priority (${priPct}%)`;
+  dom.s2priLabel.setAttribute('fill', sim.bufPri > 0 ? '#f59e0b' : '#475569');
+
+  // ── S2 Deadline bar ──
+  const ageRatio = Math.min(sim.prAge / DEADLINE_HRS, 1);
+  const barW = ageRatio * 174;
+  const barColor = sim.prAge > WARN_HRS ? '#ef4444' : sim.prAge > 30 ? '#f59e0b' : '#10b981';
+  dom.deadlineBar.setAttribute('width', barW);
+  dom.deadlineBar.setAttribute('fill', barColor);
+  dom.deadlineLabel.textContent = `${(ageRatio * 100).toFixed(0)}%`;
+
+  if (dom.deadlineText) dom.deadlineText.textContent = `Priority age: ${sim.prAge.toFixed(1)}h / 48h`;
+
+  // ── S3 Pollination Zone ──
+  const g3 = STOCKS_GEO[2];
+  const h3 = pollRatio * g3.fillHeight;
+  const y3 = g3.fillBottom - h3;
+  dom.s3fill.setAttribute('y', y3);
+  dom.s3fill.setAttribute('height', h3);
+  dom.s3fill.setAttribute('fill', pollRatio > 0.9 ? '#7c3aed' : '#6d28d9');
+  dom.s3shimmer.setAttribute('y', y3);
+  dom.s3shimmer.setAttribute('opacity', h3 > 5 ? '0.5' : '0');
+  dom.s3outer.setAttribute('stroke', pollRatio > 0.9 ? '#a78bfa' : pollRatio < 0.1 ? '#f59e0b' : '#334155');
+  dom.s3qty.textContent = sim.poll.toFixed(1);
+
+  // ── S4 Post-Pollination ──
+  const g4 = STOCKS_GEO[3];
+  const h4 = postRatio * g4.fillHeight;
+  const y4 = g4.fillBottom - h4;
+  dom.s4fill.setAttribute('y', y4);
+  dom.s4fill.setAttribute('height', h4);
+  dom.s4shimmer.setAttribute('y', y4);
+  dom.s4shimmer.setAttribute('opacity', h4 > 5 ? '0.4' : '0');
+  dom.s4qty.textContent = sim.postPoll.toFixed(0);
+
+  // ── Schedule visualizer ──
+  const posInWeek     = sim.elapsed % (7 * 24);
+  const activeDayIdx  = Math.floor(posInWeek / 24);
+  const workHrsPerDay = Math.min(params.shiftsPerDay * params.hoursPerShift, 24);
+  dom.schedCursor.style.left = `${(posInWeek / (7 * 24)) * 100}%`;
+  for (let d = 0; d < 7; d++) {
+    const isWorkDay = d < params.daysPerWeek;
+    const isActive  = d === activeDayIdx;
+    schedFills[d].style.width     = isWorkDay ? `${(workHrsPerDay / 24) * 100}%` : '0%';
+    schedDays[d].style.background = isActive  ? '#182435' : '#0f172a';
+    schedLabels[d].style.color    = isWorkDay ? '#94a3b8' : '#334155';
+  }
+
+  // ── Flow labels ──
+  dom.f1lbl.textContent    = sim.flows.f1.toFixed(1);
+  dom.f2lbl.textContent    = sim.flows.f2.toFixed(1);
+  dom.f2priVal.textContent = sim.flows.f2pri.toFixed(1);
+  dom.f3lbl.textContent    = sim.flows.f3.toFixed(1);
+
+  // ── Shift status indicator ──
+  if (dom.shiftStatusEl) {
+    dom.shiftStatusEl.textContent = sim.shiftOn ? 'ON SHIFT' : 'OFF SHIFT';
+    dom.shiftStatusEl.setAttribute('fill', sim.shiftOn ? '#10b981' : '#475569');
+  }
+  const flowOpacity = sim.shiftOn ? '1' : '0.35';
+  document.getElementById('path-f1').setAttribute('opacity', flowOpacity);
+  document.getElementById('path-f2').setAttribute('opacity', flowOpacity);
+  dom.f1lbl.parentElement.setAttribute('opacity', flowOpacity);
+  dom.f2lbl.parentElement.setAttribute('opacity', flowOpacity);
+
+  const utilPct = (params.laborUtil * 100).toFixed(0);
+  const effRate = (params.stationCap * params.laborUtil).toFixed(1);
+  dom.utilVal.textContent = `${utilPct}%`;
+  dom.effVal.textContent  = effRate;
+  dom.capVal.textContent  = params.stationCap.toFixed(1);
+
+  // ── Particles ──
+  for (const p of sim.particles) {
+    const path = svgPaths[p.flow];
+    const len  = path.getTotalLength();
+    const pt   = path.getPointAtLength(p.t * len);
+    if (p.isPriority) {
+      const s = 7;
+      const cx = pt.x, cy = pt.y;
+      p.el.setAttribute('points', `${cx-s},${cy} ${cx},${cy-s} ${cx+s},${cy} ${cx},${cy+s}`);
+    } else {
+      p.el.setAttribute('cx', pt.x);
+      p.el.setAttribute('cy', pt.y);
+    }
+  }
+
+  // ── Data panel ──
+  dom.dpBuf.textContent    = bufTotal.toFixed(0);
+  dom.dpBufPct.textContent = `${(bufRatio * 100).toFixed(0)}% full`;
+  dom.dpPri.textContent    = sim.bufPri.toFixed(0);
+  dom.dpPriPct.textContent = `${priPct}% of buffer`;
+  dom.dpPoll.textContent   = sim.poll.toFixed(1);
+  dom.dpPollPct.textContent= `${(pollRatio * 100).toFixed(0)}% full`;
+  dom.dpPost.textContent   = sim.postPoll.toFixed(0);
+
+  const hoursPerWeek  = params.daysPerWeek * params.shiftsPerDay * params.hoursPerShift;
+  const targetRate    = TARGET_WEEKLY / hoursPerWeek;
+  const weeklyOutput  = sim.flows.f3 * hoursPerWeek;
+
+  dom.dpF1.textContent    = sim.flows.f1.toFixed(2);
+  dom.dpF1sub.textContent = `target: ${targetRate.toFixed(2)} k/hr`;
+  dom.dpF2.textContent    = sim.flows.f2.toFixed(2);
+  dom.dpF2cap.textContent = params.stationCap.toFixed(1);
+  dom.dpF2sub.innerHTML   = `of <span id="dp-f2-cap">${params.stationCap.toFixed(1)}</span> k/hr theoretical`;
+  dom.dpUtil.textContent  = utilPct;
+  dom.dpF3.textContent    = sim.flows.f3.toFixed(2);
+
+  dom.dpTime.textContent     = sim.elapsed.toFixed(1);
+  dom.dpSpeedSub.textContent = `${params.simSpeed} sim-hrs / 5 real-secs`;
+  dom.dpAge.textContent  = sim.prAge.toFixed(1);
+  dom.dpFail.textContent = sim.failures.toFixed(1);
+
+  dom.dpWkly.textContent    = weeklyOutput.toFixed(0);
+  dom.dpWklySub.textContent = weeklyOutput >= TARGET_WEEKLY
+    ? `✓ Target: ${TARGET_WEEKLY}k met (${(weeklyOutput/TARGET_WEEKLY*100).toFixed(0)}%)`
+    : `✗ Target: ${TARGET_WEEKLY}k (${(weeklyOutput/TARGET_WEEKLY*100).toFixed(0)}%)`;
+
+  // ── Card state colors ──
+  dom.cardBuf.className  = `data-card${bufRatio > 0.9 ? ' alert' : bufRatio < 0.1 ? ' warn' : ''}`;
+  dom.cardPri.className  = `data-card${sim.bufPri > 0 ? ' warn' : ''}`;
+  dom.cardPoll.className = `data-card${pollRatio > 0.9 ? ' alert' : pollRatio < 0.1 ? ' warn' : ''}`;
+  dom.cardAge.className  = `data-card${sim.prAge > WARN_HRS ? ' alert' : sim.prAge > 30 ? ' warn' : ''}`;
+  dom.cardFail.className = `data-card${sim.failures > 0 ? ' alert' : ' good'}`;
+  dom.cardUtil.className = `data-card${params.laborUtil < 0.5 ? ' alert' : params.laborUtil < 0.8 ? ' warn' : ''}`;
+  if (dom.cardWkly) {
+    const wkly = sim.flows.f3 * params.daysPerWeek * params.shiftsPerDay * params.hoursPerShift;
+    dom.cardWkly.className = `data-card${wkly >= TARGET_WEEKLY ? ' good' : ' alert'}`;
+  }
+
+  // ── Alert banner ──
+  dom.alertBanner.style.display = sim.failures > 0 ? 'block' : 'none';
+
+  // ── Throughput chart ──
+  renderChart();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  THROUGHPUT CHART
+// ═══════════════════════════════════════════════════════════
+function renderChart() {
+  const canvas = dom.chartCanvas;
+  if (!canvas) return;
+  const cssW = canvas.clientWidth;
+  const cssH = canvas.clientHeight;
+  if (!cssW || !cssH) return;
+
+  const dpr = window.devicePixelRatio || 1;
+  const tW = Math.round(cssW * dpr);
+  const tH = Math.round(cssH * dpr);
+  if (canvas.width !== tW || canvas.height !== tH) { canvas.width = tW; canvas.height = tH; }
+
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);  // reset each frame; draw in CSS px
+
+  const W = cssW, H = cssH;
+  const ml = 46, mr = 16, mt = 22, mb = 26;
+  const cW = W - ml - mr;
+  const cH = H - mt - mb;
+
+  // Background
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(0, 0, W, H);
+
+  // ── Scales ──
+  const WEEK_HRS  = 168;               // sim-hours in a calendar week
+  const yMax      = TARGET_WEEKLY * 1.6;  // 800 k/wk
+  const log       = sim.throughputLog;
+  const xEnd      = Math.max(sim.elapsed, 24);
+  const xWindow   = 336;               // show last 2 sim-weeks
+  const xStart    = Math.max(0, xEnd - xWindow);
+  const xRange    = xEnd - xStart;
+
+  const toX = e  => ml + ((e - xStart) / xRange) * cW;
+  const toY = kw => mt + cH - Math.max(0, Math.min(kw / yMax, 1)) * cH;
+
+  // ── Horizontal grid ──
+  ctx.strokeStyle = '#1e293b';
+  ctx.lineWidth = 1;
+  for (const y of [250, 500, 750]) {
+    const yy = toY(y);
+    ctx.beginPath(); ctx.moveTo(ml, yy); ctx.lineTo(ml + cW, yy); ctx.stroke();
+  }
+
+  // ── Target line ──
+  ctx.strokeStyle = '#10b981';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([5, 4]);
+  const ty = toY(TARGET_WEEKLY);
+  ctx.beginPath(); ctx.moveTo(ml, ty); ctx.lineTo(ml + cW, ty); ctx.stroke();
+  ctx.setLineDash([]);
+
+  if (log.length > 1) {
+    // ── Pre-compute rolling averages (O(n) sliding window) ──
+    const DAY_WIN  = 24;
+    const WEEK_WIN = 168;
+    const avgDay   = new Float32Array(log.length);
+    const avgWeek  = new Float32Array(log.length);
+    let sdSum = 0, sdStart = 0, swSum = 0, swStart = 0;
+    for (let i = 0; i < log.length; i++) {
+      sdSum += log[i].rate; swSum += log[i].rate;
+      while (log[i].elapsed - log[sdStart].elapsed > DAY_WIN ) { sdSum -= log[sdStart++].rate; }
+      while (log[i].elapsed - log[swStart].elapsed > WEEK_WIN) { swSum -= log[swStart++].rate; }
+      avgDay[i]  = sdSum / (i - sdStart  + 1);
+      avgWeek[i] = swSum / (i - swStart + 1);
+    }
+
+    // Only draw each average once a full window of data exists in the log
+    const logStart      = log[0].elapsed;
+    const dayAvailFrom  = logStart + DAY_WIN;
+    const weekAvailFrom = logStart + WEEK_WIN;
+
+    // ── Grey line: 24-sim-hr rolling average ──
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    let first = true;
+    for (let i = 0; i < log.length; i++) {
+      if (log[i].elapsed < xStart || log[i].elapsed < dayAvailFrom) { first = true; continue; }
+      const x = toX(log[i].elapsed);
+      const y = toY(avgDay[i] * WEEK_HRS);
+      if (first) { ctx.moveTo(x, y); first = false; } else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    // ── Blue line: 168-sim-hr (1-week) rolling average ──
+    ctx.strokeStyle = '#3b82f6';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    first = true;
+    for (let i = 0; i < log.length; i++) {
+      if (log[i].elapsed < xStart || log[i].elapsed < weekAvailFrom) { first = true; continue; }
+      const x = toX(log[i].elapsed);
+      const y = toY(avgWeek[i] * WEEK_HRS);
+      if (first) { ctx.moveTo(x, y); first = false; } else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+
+  // ── Axes ──
+  ctx.strokeStyle = '#334155';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(ml, mt); ctx.lineTo(ml, mt + cH); ctx.lineTo(ml + cW, mt + cH);
+  ctx.stroke();
+
+  // ── Y axis labels ──
+  ctx.fillStyle = '#475569';
+  ctx.font = '10px system-ui, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+  for (const y of [0, 250, 500, 750]) {
+    ctx.fillText(y === 0 ? '0' : `${y}k`, ml - 5, toY(y));
+  }
+
+  // ── X axis ticks & labels (every 24 sim-hrs) ──
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  ctx.fillStyle = '#334155';
+  const tickStart = Math.ceil(xStart / 24) * 24;
+  for (let t = tickStart; t <= xEnd; t += 24) {
+    const x = toX(t);
+    ctx.strokeStyle = '#334155'; ctx.lineWidth = 0.5;
+    ctx.beginPath(); ctx.moveTo(x, mt + cH); ctx.lineTo(x, mt + cH + 3); ctx.stroke();
+    ctx.fillStyle = '#334155';
+    ctx.fillText(`${Math.round(t)}h`, x, mt + cH + 5);
+  }
+
+  // ── Legend ──
+  const legY = mt - 10;
+  ctx.textBaseline = 'middle';
+  let lx = ml;
+  ctx.strokeStyle = '#475569'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(lx, legY); ctx.lineTo(lx + 16, legY); ctx.stroke();
+  ctx.fillStyle = '#64748b'; ctx.textAlign = 'left';
+  ctx.fillText('24h avg', lx + 20, legY); lx += 72;
+
+  ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(lx, legY); ctx.lineTo(lx + 16, legY); ctx.stroke();
+  ctx.fillStyle = '#64748b';
+  ctx.fillText('7-day avg', lx + 20, legY); lx += 84;
+
+  ctx.strokeStyle = '#10b981'; ctx.lineWidth = 1; ctx.setLineDash([4, 3]);
+  ctx.beginPath(); ctx.moveTo(lx, legY); ctx.lineTo(lx + 16, legY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#10b981';
+  ctx.fillText(`target ${TARGET_WEEKLY}k / wk`, lx + 20, legY);
+
+  // ── Y axis title ──
+  ctx.save();
+  ctx.translate(10, mt + cH / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#334155'; ctx.font = '10px system-ui, sans-serif';
+  ctx.fillText('k plants / week', 0, 0);
+  ctx.restore();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  ANIMATION LOOP
+// ═══════════════════════════════════════════════════════════
+let lastTime = null;
+
+function tick(timestamp) {
+  if (sim.running) {
+    if (!lastTime) lastTime = timestamp;
+    const wallDt = Math.min((timestamp - lastTime) / 1000, 0.05);
+    lastTime = timestamp;
+    updateSimulation(wallDt);
+  }
+  renderFrame();
+  requestAnimationFrame(tick);
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) lastTime = null;
+});
+
+// ═══════════════════════════════════════════════════════════
+//  CONTROLS
+// ═══════════════════════════════════════════════════════════
+function clamp(v, lo, hi) {
+  const n = parseFloat(v);
+  return isNaN(n) ? lo : Math.max(lo, Math.min(hi, n));
+}
+
+function syncFlowsFromWeekly() {
+  const hoursPerWeek = params.daysPerWeek * params.shiftsPerDay * params.hoursPerShift;
+  const f1Wkly  = clamp(dom.f1RateInput.value,    0, 5000);
+  const f3Wkly  = clamp(dom.f3RateInput.value,    0, 5000);
+  const capWkly = clamp(dom.stationCapInput.value, 1, 50000);
+  params.f1Rate     = f1Wkly  / hoursPerWeek;
+  params.f3Rate     = f3Wkly  / hoursPerWeek;
+  params.stationCap = capWkly / hoursPerWeek;
+  dom.f1Convert.textContent         = `= ${params.f1Rate.toFixed(2)} k/hr`;
+  dom.f3Convert.textContent         = `= ${params.f3Rate.toFixed(2)} k/hr`;
+  dom.stationCapConvert.textContent = `= ${params.stationCap.toFixed(2)} k/hr`;
+}
+
+dom.f1RateInput.addEventListener('input',        () => syncFlowsFromWeekly());
+dom.stationCapInput.addEventListener('input',    () => syncFlowsFromWeekly());
+dom.f3RateInput.addEventListener('input',        () => syncFlowsFromWeekly());
+dom.simSpeedInput.addEventListener('input',      () => { params.simSpeed     = clamp(dom.simSpeedInput.value,      1, 100); });
+dom.daysPerWeekInput.addEventListener('input',   () => { params.daysPerWeek  = clamp(dom.daysPerWeekInput.value,   1,   7); syncFlowsFromWeekly(); });
+dom.shiftsPerDayInput.addEventListener('input',  () => { params.shiftsPerDay = clamp(dom.shiftsPerDayInput.value,  1,   3); syncFlowsFromWeekly(); });
+dom.hoursPerShiftInput.addEventListener('input', () => { params.hoursPerShift= clamp(dom.hoursPerShiftInput.value, 1,  24); syncFlowsFromWeekly(); });
+
+syncFlowsFromWeekly();
+
+dom.laborUtilInput.addEventListener('input', () => {
+  const pct = parseInt(dom.laborUtilInput.value, 10);
+  params.laborUtil = pct / 100;
+  dom.utilDisplay.textContent = `${pct}%`;
+  dom.utilDisplay.style.color = pct < 50 ? '#ef4444' : pct < 80 ? '#f59e0b' : '#10b981';
+});
+
+dom.startBtn.addEventListener('click', () => {
+  sim.running = !sim.running;
+  if (sim.running) {
+    lastTime = null;
+    dom.startBtn.textContent = 'Pause';
+    dom.startBtn.classList.add('paused');
+  } else {
+    dom.startBtn.textContent = 'Resume';
+    dom.startBtn.classList.add('paused');
+  }
+});
+
+dom.resetBtn.addEventListener('click', () => {
+  sim.running = false;
+  lastTime = null;
+  dom.startBtn.textContent = 'Start';
+  dom.startBtn.classList.remove('paused');
+
+  clearAllParticles();
+  sim = freshState();
+  dom.alertBanner.style.display = 'none';
+  renderFrame();
+});
+
+// ═══════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════
+dom.utilDisplay.textContent = `${Math.round(params.laborUtil * 100)}%`;
+dom.utilDisplay.style.color = '#f59e0b';  // starts in warn range at 67%
+renderFrame();
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>
