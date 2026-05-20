@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Opportunity Analysis &amp; ROI — Ohalo Seed Production</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0f172a;
+      color: #e2e8f0;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 14px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 16px 40px;
+      gap: 16px;
+    }
+
+    /* ── Tab bar ── */
+    .tab-bar {
+      display: flex;
+      gap: 4px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 6px;
+      width: 100%;
+      max-width: 1240px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      text-align: center;
+      padding: 9px 20px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #64748b;
+      text-decoration: none;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .tab-btn:hover { background: #0f172a; color: #94a3b8; }
+    .tab-active    { background: #0f172a; color: #e2e8f0; }
+
+    /* ── Panel shell ── */
+    .panel {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 24px 28px;
+      width: 100%;
+      max-width: 1240px;
+    }
+
+    .panel-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 18px;
+    }
+
+    /* ── Baseline 3-column grid ── */
+    .baseline-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0 40px;
+    }
+
+    .baseline-col-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding-bottom: 8px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #334155;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 7px;
+    }
+
+    .field-label { font-size: 12px; color: #94a3b8; }
+
+    .field-input {
+      width: 86px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      padding: 5px 8px;
+      font-size: 12px;
+      font-family: inherit;
+      color: #e2e8f0;
+      text-align: right;
+      transition: border-color 0.15s;
+    }
+
+    .field-input:focus { outline: none; border-color: #60a5fa; }
+
+    .field-unit { font-size: 10px; color: #475569; white-space: nowrap; min-width: 72px; }
+
+    /* ── Comparison table ── */
+    .comparison-table {
+      display: grid;
+      grid-template-columns: 185px repeat(3, 1fr);
+    }
+
+    /* Column headers */
+    .col-header {
+      padding: 0 18px 14px;
+      border-bottom: 1px solid #334155;
+    }
+
+    .col-header-label { padding: 0; border-bottom: 1px solid #334155; }
+    .col-header-baseline { border-top: 2px solid #475569; padding-top: 14px; }
+    .col-header-a        { border-top: 2px solid #60a5fa; padding-top: 14px; }
+    .col-header-b        { border-top: 2px solid #4ade80; padding-top: 14px; }
+
+    .col-name {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #e2e8f0;
+      margin-bottom: 2px;
+    }
+
+    .col-name-a { color: #60a5fa; }
+    .col-name-b { color: #4ade80; }
+
+    .col-sub { font-size: 11px; color: #64748b; margin-bottom: 8px; }
+
+    /* Compact inputs inside column headers */
+    .col-input-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 5px;
+    }
+
+    .col-input-row label { font-size: 11px; color: #64748b; min-width: 58px; }
+
+    .col-input-row input {
+      width: 84px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 5px;
+      padding: 4px 7px;
+      font-size: 11px;
+      font-family: inherit;
+      color: #e2e8f0;
+      text-align: right;
+      transition: border-color 0.15s;
+    }
+
+    .col-header-a .col-input-row input:focus { outline: none; border-color: #60a5fa; }
+    .col-header-b .col-input-row input:focus { outline: none; border-color: #4ade80; }
+
+    .col-input-row .input-unit { font-size: 10px; color: #475569; }
+
+    /* Section headers span full width */
+    .section-header {
+      grid-column: 1 / -1;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #475569;
+      padding: 14px 0 6px;
+      border-top: 1px solid #334155;
+      margin-top: 2px;
+    }
+
+    .section-header-first {
+      border-top: none;
+      padding-top: 14px;
+      margin-top: 0;
+    }
+
+    /* Metric rows */
+    .comp-row { display: contents; }
+
+    .comp-label {
+      font-size: 12px;
+      color: #94a3b8;
+      padding: 9px 10px 9px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .comp-label-unit {
+      font-size: 10px;
+      color: #475569;
+      margin-top: 2px;
+    }
+
+    .comp-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 9px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      min-width: 0;
+    }
+
+    .comp-value {
+      font-size: 14px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: #e2e8f0;
+      line-height: 1.3;
+    }
+
+    /* Scenario column value colors */
+    .col-a .comp-value { color: #60a5fa; }
+    .col-b .comp-value { color: #4ade80; }
+
+    /* Placeholder dash for "N/A baseline" cells */
+    .comp-na {
+      font-size: 14px;
+      color: #2d3f54;
+      font-weight: 400;
+    }
+
+    /* Delta badges */
+    .comp-delta {
+      font-size: 10px;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      margin-top: 2px;
+      line-height: 1.2;
+      min-height: 14px;
+    }
+
+    .delta-pos { color: #4ade80; }
+    .delta-neg { color: #f87171; }
+  </style>
+</head>
+<body>
+
+<nav class="tab-bar">
+  <a href="simulation.html" class="tab-btn">Simulation</a>
+  <a href="opportunity-analysis.html" class="tab-btn tab-active">Opportunity Analysis &amp; ROI</a>
+</nav>
+
+<!-- ══════════════════ BASELINE PARAMETERS ══════════════════ -->
+<div class="panel">
+  <div class="panel-title">Baseline Parameters</div>
+  <div class="baseline-grid">
+
+    <div>
+      <div class="baseline-col-label">Volume &amp; Geometry</div>
+      <div class="field-row">
+        <label class="field-label" for="weeklyVolume">Weekly plant volume</label>
+        <input class="field-input" id="weeklyVolume" type="number" value="500000">
+        <span class="field-unit">plants / wk</span>
+      </div>
+      <div class="field-row">
+        <label class="field-label" for="plantsPerSession">Plants per session</label>
+        <input class="field-input" id="plantsPerSession" type="number" value="50">
+        <span class="field-unit">plants / session</span>
+      </div>
+      <div class="field-row">
+        <label class="field-label" for="plantsPerCart">Plants per cart</label>
+        <input class="field-input" id="plantsPerCart" type="number" value="50">
+        <span class="field-unit">plants / cart</span>
+      </div>
+    </div>
+
+    <div>
+      <div class="baseline-col-label">Time Breakdown</div>
+      <div class="field-row">
+        <label class="field-label" for="totalSessionTime">Total session time</label>
+        <input class="field-input" id="totalSessionTime" type="number" step="0.01" value="0.75">
+        <span class="field-unit">hrs / session</span>
+      </div>
+      <div class="field-row">
+        <label class="field-label" for="movementPrepTime">Movement / prep time</label>
+        <input class="field-input" id="movementPrepTime" type="number" step="0.01" value="0.25">
+        <span class="field-unit">hrs / session</span>
+      </div>
+      <div class="field-row">
+        <label class="field-label" for="valueAddedTime">Active pollination time</label>
+        <input class="field-input" id="valueAddedTime" type="number" step="0.01" value="0.5">
+        <span class="field-unit">hrs / session</span>
+      </div>
+    </div>
+
+    <div>
+      <div class="baseline-col-label">Schedule &amp; Cost</div>
+      <div class="field-row">
+        <label class="field-label" for="operatingDays">Operating days</label>
+        <input class="field-input" id="operatingDays" type="number" value="5">
+        <span class="field-unit">days / wk</span>
+      </div>
+      <div class="field-row">
+        <label class="field-label" for="shiftsPerDay">Shifts per day</label>
+        <input class="field-input" id="shiftsPerDay" type="number" value="2">
+        <span class="field-unit">shifts / day</span>
+      </div>
+      <div class="field-row">
+        <label class="field-label" for="hrsPerShift">Hours per shift</label>
+        <input class="field-input" id="hrsPerShift" type="number" value="8">
+        <span class="field-unit">hrs / shift</span>
+      </div>
+      <div class="field-row">
+        <label class="field-label" for="techRate">Technician hourly rate</label>
+        <input class="field-input" id="techRate" type="number" value="35">
+        <span class="field-unit">$ / hr</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════ SCENARIO COMPARISON ══════════════════ -->
+<div class="panel">
+  <div class="panel-title">Scenario Comparison</div>
+  <div class="comparison-table">
+
+    <!-- ── Column headers ── -->
+    <div class="col-header col-header-label"></div>
+
+    <div class="col-header col-header-baseline">
+      <div class="col-name">Baseline</div>
+      <div class="col-sub">Current State</div>
+    </div>
+
+    <div class="col-header col-header-a">
+      <div class="col-name col-name-a">Scenario A</div>
+      <div class="col-sub">Logistics Automation</div>
+      <div class="col-input-row">
+        <label for="logisticsAutoPct">Automation</label>
+        <input id="logisticsAutoPct" type="number" min="0" max="100" step="1" value="80">
+        <span class="input-unit">%</span>
+      </div>
+      <div class="col-input-row">
+        <label for="capex">Capex</label>
+        <input id="capex" type="number" value="2000000">
+        <span class="input-unit">$</span>
+      </div>
+      <div class="col-input-row">
+        <label for="annualOpex">Opex / yr</label>
+        <input id="annualOpex" type="number" value="150000">
+        <span class="input-unit">$</span>
+      </div>
+    </div>
+
+    <div class="col-header col-header-b">
+      <div class="col-name col-name-b">Scenario B</div>
+      <div class="col-sub">Workstation Automation</div>
+      <div class="col-input-row">
+        <label for="workstationAutoPct">Automation</label>
+        <input id="workstationAutoPct" type="number" min="0" max="100" step="1" value="40">
+        <span class="input-unit">%</span>
+      </div>
+      <div class="col-input-row">
+        <label for="capexB">Capex</label>
+        <input id="capexB" type="number" value="4000000">
+        <span class="input-unit">$</span>
+      </div>
+      <div class="col-input-row">
+        <label for="annualOpexB">Opex / yr</label>
+        <input id="annualOpexB" type="number" value="100000">
+        <span class="input-unit">$</span>
+      </div>
+    </div>
+
+    <!-- ── Section: Session Time Breakdown ── -->
+    <div class="section-header section-header-first">Session Time Breakdown</div>
+
+    <div class="comp-row">
+      <div class="comp-label">Total session time <span class="comp-label-unit">hrs / session</span></div>
+      <div class="comp-cell" id="base-total-session"><span class="comp-value">—</span></div>
+      <div class="comp-cell col-a" id="a-total-session"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+      <div class="comp-cell col-b" id="b-total-session"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+    </div>
+
+    <div class="comp-row">
+      <div class="comp-label">Setup / movement time <span class="comp-label-unit">hrs / session</span></div>
+      <div class="comp-cell" id="base-setup-time"><span class="comp-value">—</span></div>
+      <div class="comp-cell col-a" id="a-setup-time"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+      <div class="comp-cell col-b" id="b-setup-time"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+    </div>
+
+    <div class="comp-row">
+      <div class="comp-label">Active pollination time <span class="comp-label-unit">hrs / session</span></div>
+      <div class="comp-cell" id="base-active-time"><span class="comp-value">—</span></div>
+      <div class="comp-cell col-a" id="a-active-time"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+      <div class="comp-cell col-b" id="b-active-time"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+    </div>
+
+    <!-- ── Section: Labor ── -->
+    <div class="section-header">Labor</div>
+
+    <div class="comp-row">
+      <div class="comp-label">Labor hours / week <span class="comp-label-unit">hrs / wk</span></div>
+      <div class="comp-cell" id="base-labor-hrs"><span class="comp-value">—</span></div>
+      <div class="comp-cell col-a" id="a-labor-hrs"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+      <div class="comp-cell col-b" id="b-labor-hrs"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+    </div>
+
+    <div class="comp-row">
+      <div class="comp-label">Labor hours saved / week <span class="comp-label-unit">vs baseline</span></div>
+      <div class="comp-cell"><span class="comp-na">—</span></div>
+      <div class="comp-cell col-a" id="a-labor-saved"><span class="comp-value">—</span></div>
+      <div class="comp-cell col-b" id="b-labor-saved"><span class="comp-value">—</span></div>
+    </div>
+
+    <div class="comp-row">
+      <div class="comp-label">Technicians required <span class="comp-label-unit">headcount</span></div>
+      <div class="comp-cell" id="base-technicians"><span class="comp-value">—</span></div>
+      <div class="comp-cell col-a" id="a-technicians"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+      <div class="comp-cell col-b" id="b-technicians"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+    </div>
+
+    <div class="comp-row">
+      <div class="comp-label">Weekly labor cost <span class="comp-label-unit">$ / wk</span></div>
+      <div class="comp-cell" id="base-weekly-cost"><span class="comp-value">—</span></div>
+      <div class="comp-cell col-a" id="a-weekly-cost"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+      <div class="comp-cell col-b" id="b-weekly-cost"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+    </div>
+
+    <div class="comp-row">
+      <div class="comp-label">Annual labor cost <span class="comp-label-unit">$ / yr</span></div>
+      <div class="comp-cell" id="base-annual-cost"><span class="comp-value">—</span></div>
+      <div class="comp-cell col-a" id="a-annual-cost"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+      <div class="comp-cell col-b" id="b-annual-cost"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+    </div>
+
+    <div class="comp-row">
+      <div class="comp-label">Annual labor savings <span class="comp-label-unit">vs baseline</span></div>
+      <div class="comp-cell"><span class="comp-na">—</span></div>
+      <div class="comp-cell col-a" id="a-annual-savings"><span class="comp-value">—</span></div>
+      <div class="comp-cell col-b" id="b-annual-savings"><span class="comp-value">—</span></div>
+    </div>
+
+    <!-- ── Section: Capacity & ROI ── -->
+    <div class="section-header">Capacity &amp; ROI</div>
+
+    <div class="comp-row">
+      <div class="comp-label">Weekly capacity <span class="comp-label-unit">plants / wk (same headcount)</span></div>
+      <div class="comp-cell" id="base-capacity"><span class="comp-value">—</span></div>
+      <div class="comp-cell col-a" id="a-capacity"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+      <div class="comp-cell col-b" id="b-capacity"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+    </div>
+
+    <div class="comp-row">
+      <div class="comp-label">Capacity surplus vs target <span class="comp-label-unit">plants / wk</span></div>
+      <div class="comp-cell" id="base-gap"><span class="comp-value">—</span></div>
+      <div class="comp-cell col-a" id="a-gap"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+      <div class="comp-cell col-b" id="b-gap"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+    </div>
+
+    <div class="comp-row">
+      <div class="comp-label">Payback period <span class="comp-label-unit">years</span></div>
+      <div class="comp-cell"><span class="comp-na">—</span></div>
+      <div class="comp-cell col-a" id="a-payback"><span class="comp-value">—</span></div>
+      <div class="comp-cell col-b" id="b-payback"><span class="comp-value">—</span></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const inputs = [
+    'weeklyVolume','plantsPerSession','plantsPerCart',
+    'totalSessionTime','movementPrepTime','valueAddedTime',
+    'operatingDays','shiftsPerDay','hrsPerShift','techRate',
+    'logisticsAutoPct','capex','annualOpex',
+    'workstationAutoPct','capexB','annualOpexB'
+  ];
+
+  function fmt(n, decimals = 2) {
+    return Number.isFinite(n)
+      ? n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: decimals })
+      : '—';
+  }
+
+  function fmtD(n) { return '$' + fmt(n, 0); }
+
+  function setBase(id, text) {
+    const el = document.getElementById(id);
+    if (el) el.querySelector('.comp-value').textContent = text;
+  }
+
+  // Sets a scenario cell value + delta badge vs baseline.
+  // lowerIsBetter: true means a decrease is green; false means an increase is green.
+  function setScenario(id, value, baseline, lowerIsBetter, fmtFn) {
+    const cell = document.getElementById(id);
+    if (!cell) return;
+    cell.querySelector('.comp-value').textContent = fmtFn(value);
+    const dEl = cell.querySelector('.comp-delta');
+    if (!dEl) return;
+    const delta = value - baseline;
+    if (Math.abs(delta) < 1e-9) { dEl.textContent = ''; dEl.className = 'comp-delta'; return; }
+    const improved = lowerIsBetter ? delta < 0 : delta > 0;
+    const sign = delta > 0 ? '+' : '−';
+    dEl.textContent = sign + fmtFn(Math.abs(delta));
+    dEl.className = 'comp-delta ' + (improved ? 'delta-pos' : 'delta-neg');
+  }
+
+  // Sets a "savings" cell — no baseline delta, just show the value.
+  function setSavings(id, value, fmtFn) {
+    const el = document.getElementById(id);
+    if (el) el.querySelector('.comp-value').textContent = fmtFn(value);
+  }
+
+  function fmtPayback(capex, netAnnual) {
+    if (capex === 0) return netAnnual > 0 ? '0.0' : '—';
+    if (netAnnual <= 0) return '∞';
+    return fmt(capex / netAnnual);
+  }
+
+  function recalc() {
+    const v = Object.fromEntries(
+      inputs.map(id => [id, parseFloat(document.getElementById(id).value)])
+    );
+
+    // ── Shared baseline ──
+    const hrsPerWeek      = v.operatingDays * v.shiftsPerDay * v.hrsPerShift;
+    const sessionsPerWeek = v.weeklyVolume / v.plantsPerSession;
+    const totalUnitHrs    = sessionsPerWeek * v.totalSessionTime;
+    const technicians     = totalUnitHrs / hrsPerWeek;
+    const weeklyLaborCost = totalUnitHrs * v.techRate;
+    const annualLaborCost = weeklyLaborCost * 52;
+    // With same headcount, baseline capacity == target by construction
+    const baseCapacity    = technicians * hrsPerWeek / v.totalSessionTime * v.plantsPerSession;
+    const baseGap         = baseCapacity - v.weeklyVolume;
+
+    setBase('base-total-session', fmt(v.totalSessionTime));
+    setBase('base-setup-time',    fmt(v.movementPrepTime));
+    setBase('base-active-time',   fmt(v.valueAddedTime));
+    setBase('base-labor-hrs',     fmt(totalUnitHrs));
+    setBase('base-technicians',   fmt(technicians));
+    setBase('base-weekly-cost',   fmtD(weeklyLaborCost));
+    setBase('base-annual-cost',   fmtD(annualLaborCost));
+    setBase('base-capacity',      fmt(baseCapacity, 0));
+    setBase('base-gap',           fmt(baseGap, 0));
+
+    // ── Scenario A: Logistics Automation (reduces setup/movement time) ──
+    const aAuto          = v.logisticsAutoPct / 100;
+    const aSetupTime     = v.movementPrepTime * (1 - aAuto);
+    const aTotalSession  = aSetupTime + v.valueAddedTime;
+    const aLaborHrs      = sessionsPerWeek * aTotalSession;
+    const aLaborSaved    = totalUnitHrs - aLaborHrs;
+    const aTechnicians   = aLaborHrs / hrsPerWeek;
+    const aWeeklyCost    = aLaborHrs * v.techRate;
+    const aAnnualCost    = aWeeklyCost * 52;
+    const aAnnualSavings = aLaborSaved * v.techRate * 52;
+    const aNetAnnual     = aAnnualSavings - v.annualOpex;
+    const aCapacity      = technicians * hrsPerWeek / aTotalSession * v.plantsPerSession;
+    const aGap           = aCapacity - v.weeklyVolume;
+
+    setScenario('a-total-session', aTotalSession,  v.totalSessionTime,  true,  fmt);
+    setScenario('a-setup-time',    aSetupTime,      v.movementPrepTime,  true,  fmt);
+    setScenario('a-active-time',   v.valueAddedTime, v.valueAddedTime,   true,  fmt);
+    setScenario('a-labor-hrs',     aLaborHrs,       totalUnitHrs,        true,  fmt);
+    setSavings( 'a-labor-saved',   aLaborSaved,                                 fmt);
+    setScenario('a-technicians',   aTechnicians,    technicians,         true,  fmt);
+    setScenario('a-weekly-cost',   aWeeklyCost,     weeklyLaborCost,     true,  fmtD);
+    setScenario('a-annual-cost',   aAnnualCost,     annualLaborCost,     true,  fmtD);
+    setSavings( 'a-annual-savings', aAnnualSavings,                             fmtD);
+    setScenario('a-capacity',      aCapacity,       baseCapacity,        false, n => fmt(n, 0));
+    setScenario('a-gap',           aGap,            baseGap,             false, n => fmt(n, 0));
+    document.getElementById('a-payback').querySelector('.comp-value').textContent = fmtPayback(v.capex, aNetAnnual);
+
+    // ── Scenario B: Workstation Automation (reduces active pollination time) ──
+    const bAuto          = v.workstationAutoPct / 100;
+    const bActiveTime    = v.valueAddedTime * (1 - bAuto);
+    const bTotalSession  = v.movementPrepTime + bActiveTime;
+    const bLaborHrs      = sessionsPerWeek * bTotalSession;
+    const bLaborSaved    = totalUnitHrs - bLaborHrs;
+    const bTechnicians   = bLaborHrs / hrsPerWeek;
+    const bWeeklyCost    = bLaborHrs * v.techRate;
+    const bAnnualCost    = bWeeklyCost * 52;
+    const bAnnualSavings = bLaborSaved * v.techRate * 52;
+    const bNetAnnual     = bAnnualSavings - v.annualOpexB;
+    const bCapacity      = technicians * hrsPerWeek / bTotalSession * v.plantsPerSession;
+    const bGap           = bCapacity - v.weeklyVolume;
+
+    setScenario('b-total-session', bTotalSession,    v.totalSessionTime,  true,  fmt);
+    setScenario('b-setup-time',    v.movementPrepTime, v.movementPrepTime, true,  fmt);
+    setScenario('b-active-time',   bActiveTime,      v.valueAddedTime,    true,  fmt);
+    setScenario('b-labor-hrs',     bLaborHrs,        totalUnitHrs,        true,  fmt);
+    setSavings( 'b-labor-saved',   bLaborSaved,                                  fmt);
+    setScenario('b-technicians',   bTechnicians,     technicians,         true,  fmt);
+    setScenario('b-weekly-cost',   bWeeklyCost,      weeklyLaborCost,     true,  fmtD);
+    setScenario('b-annual-cost',   bAnnualCost,      annualLaborCost,     true,  fmtD);
+    setSavings( 'b-annual-savings', bAnnualSavings,                              fmtD);
+    setScenario('b-capacity',      bCapacity,        baseCapacity,        false, n => fmt(n, 0));
+    setScenario('b-gap',           bGap,             baseGap,             false, n => fmt(n, 0));
+    document.getElementById('b-payback').querySelector('.comp-value').textContent = fmtPayback(v.capexB, bNetAnnual);
+  }
+
+  inputs.forEach(id => document.getElementById(id).addEventListener('input', recalc));
+  recalc();
+</script>
+
+</body>
+</html>
