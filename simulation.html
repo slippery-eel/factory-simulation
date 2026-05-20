@@ -275,6 +275,7 @@
 <nav class="tab-bar">
   <a href="simulation.html" class="tab-btn tab-active">Simulation</a>
   <a href="opportunity-analysis.html" class="tab-btn">Opportunity Analysis &amp; ROI</a>
+  <a href="layout.html" class="tab-btn">Layout</a>
 </nav>
 
 <header>
@@ -332,6 +333,10 @@
       <div class="control-group">
         <label>Output Lag</label>
         <div class="rate-convert" id="totalFlowTime" style="font-size:13px;color:#a78bfa;font-weight:700;margin-top:4px;">45 min</div>
+      </div>
+      <div class="control-group">
+        <label>Time Jitter &nbsp;<span id="jitter-val" style="color:#a78bfa;font-family:monospace">1.0</span></label>
+        <input type="range" id="jitterScale" min="0" max="1" step="0.05" value="1" style="width:100%;margin-top:6px">
       </div>
     </div>
   </div>
@@ -483,6 +488,9 @@
 <text x="300" y="535" text-anchor="middle" fill="#64748b" font-size="8">biological window</text>
 <rect x="223" y="541" width="154" height="5" rx="2" fill="#0f172a"/>
 <rect id="deadline-bar" x="223" y="541" width="0" height="5" rx="2" fill="#10b981"/>
+<rect id="age-q1-tick"  x="223" y="539" width="2" height="9" fill="#475569" opacity="0"/>
+<rect id="age-med-tick" x="223" y="539" width="2" height="9" fill="#e2e8f0" opacity="0"/>
+<rect id="age-q3-tick"  x="223" y="539" width="2" height="9" fill="#f59e0b" opacity="0"/>
 
 <!-- ── Scrap Flow: Buffer Warehouse → Deadline Losses stock ── -->
 <!-- arrow exits the lower-right of S2, angling down-right below the F2 flow line -->
@@ -492,13 +500,14 @@
   stroke-dasharray="4 3" marker-end="url(#arr-scrap)"/>
 <text x="398" y="368" fill="#ef4444" font-size="8" font-weight="600" id="scrap-rate-lbl"></text>
 <!-- Deadline Losses stock: sits below the F2 arrow, between S2 and S3 -->
-<rect x="455" y="407" width="110" height="42" rx="3"
+<rect x="455" y="407" width="110" height="54" rx="3"
   fill="#1e293b" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3 2"/>
 <text x="510" y="419" text-anchor="middle" fill="#ef4444" font-size="7" font-weight="600">DEADLINE LOSSES</text>
 <text x="510" y="436" text-anchor="middle" font-size="13" font-weight="700" font-family="monospace">
   <tspan id="scrap-qty" fill="#fca5a5">0</tspan><tspan font-size="7" fill="#64748b" font-family="system-ui" font-weight="400"> plants</tspan>
 </text>
 <text x="510" y="446" text-anchor="middle" fill="#334155" font-size="7" id="scrap-rate-sub">cumulative</text>
+<text x="510" y="457" text-anchor="middle" fill="#475569" font-size="7" id="scrap-loss-rate">—</text>
 
 <!-- ═══════════════════ S3 — POLLINATION ZONE ═══════════════════ -->
 <rect x="600" y="130" width="130" height="240" rx="5"
@@ -619,6 +628,7 @@ const params = {
   plantsPerSessionK:      0.05,
   setupTimeHrs:           0.25,
   pollTimeHrs:            0.50,
+  jitterScale:            1.0,
   // Derived — recomputed by syncAll():
   totalFlowTimeHrs:       0.75,
   maxActiveWIP:           4.69,
@@ -692,9 +702,13 @@ const dom = {
 
   // deadline bar
   deadlineBar:   document.getElementById('deadline-bar'),
+  ageQ1Tick:     document.getElementById('age-q1-tick'),
+  ageMedTick:    document.getElementById('age-med-tick'),
+  ageQ3Tick:     document.getElementById('age-q3-tick'),
   // scrap flow
   scrapRateLbl:  document.getElementById('scrap-rate-lbl'),
   scrapRateSub:  document.getElementById('scrap-rate-sub'),
+  scrapLossRate: document.getElementById('scrap-loss-rate'),
   scrapQty:      document.getElementById('scrap-qty'),
   pathScrap:     document.getElementById('path-scrap'),
 
@@ -723,6 +737,8 @@ const dom = {
   setupTimeInput:        document.getElementById('setupTime'),
   pollTimeInput:         document.getElementById('pollTime'),
   totalFlowTimeDisplay:  document.getElementById('totalFlowTime'),
+  jitterScaleInput:      document.getElementById('jitterScale'),
+  jitterVal:             document.getElementById('jitter-val'),
   simSpeedInput:         document.getElementById('simSpeed'),
   daysPerWeekInput:      document.getElementById('daysPerWeek'),
   shiftsPerDayInput:     document.getElementById('shiftsPerDay'),
@@ -731,6 +747,7 @@ const dom = {
   startBtn:         document.getElementById('startBtn'),
   resetBtn:         document.getElementById('resetBtn'),
   schedCursor:      document.getElementById('sched-cursor'),
+  dpTime:           document.getElementById('dp-time'),
   chartCanvas:      document.getElementById('throughputChart'),
 
 };
@@ -823,7 +840,7 @@ function updateSimulation(wallDt) {
     while (slotsLeft > 0 && c.amount >= params.plantsPerSessionK) {
       c.amount -= params.plantsPerSessionK;
       priMoved += params.plantsPerSessionK;
-      const jitter = (Math.random() - 0.5) * params.totalFlowTimeHrs;
+      const jitter = (Math.random() - 0.5) * params.totalFlowTimeHrs * params.jitterScale;
       sim.activeBatches.push({
         amount:      params.plantsPerSessionK,
         completesAt: sim.elapsed + params.totalFlowTimeHrs + jitter,
@@ -1005,6 +1022,31 @@ function renderFrame() {
   dom.deadlineBar.setAttribute('width', barW);
   dom.deadlineBar.setAttribute('fill', barColor);
 
+  // ── Weighted quartile ticks ──
+  const cohorts = sim.priorityCohorts;
+  if (cohorts.length > 1) {
+    // Uniform weights: distribution of cohort arrival times, not plant counts.
+    // Weighted-by-amount causes the oversized initial cohort to dominate and
+    // makes ticks pulse every dispatch cycle as its remaining amount changes.
+    const ages = cohorts
+      .map(c => sim.elapsed - (c.deadline - DEADLINE_HRS))
+      .sort((a, b) => a - b);
+    const n     = ages.length;
+    const toBarX = age => 223 + Math.min(age / DEADLINE_HRS, 1) * 154;
+    const quantile = p => {
+      const idx = p * (n - 1);
+      const lo = Math.floor(idx), hi = Math.ceil(idx);
+      return ages[lo] + (ages[hi] - ages[lo]) * (idx - lo);
+    };
+    dom.ageQ1Tick.setAttribute('x',  toBarX(quantile(0.25))); dom.ageQ1Tick.setAttribute('opacity',  '1');
+    dom.ageMedTick.setAttribute('x', toBarX(quantile(0.5)));  dom.ageMedTick.setAttribute('opacity', '1');
+    dom.ageQ3Tick.setAttribute('x',  toBarX(quantile(0.75))); dom.ageQ3Tick.setAttribute('opacity',  '1');
+  } else {
+    dom.ageQ1Tick.setAttribute('opacity', '0');
+    dom.ageMedTick.setAttribute('opacity', '0');
+    dom.ageQ3Tick.setAttribute('opacity', '0');
+  }
+
   // ── Scrap flow ──
   const scrapActive = sim.flows.scrap > 0;
   dom.pathScrap.setAttribute('stroke-opacity', scrapActive ? '1' : '0.25');
@@ -1012,10 +1054,13 @@ function renderFrame() {
     ? `${sim.flows.scrap.toFixed(1)} k/hr`
     : '';
   dom.scrapRateLbl.setAttribute('fill', scrapActive ? '#ef4444' : '#475569');
-  dom.scrapQty.textContent    = Math.round(sim.failures * 1000).toLocaleString();
-  dom.scrapRateSub.textContent = sim.failures > 0
-    ? `${(sim.failures / params.target * 100).toFixed(1)}% of target`
-    : 'cumulative';
+  dom.scrapQty.textContent     = Math.round(sim.failures * 1000).toLocaleString();
+  dom.scrapRateSub.textContent = 'cumulative';
+  const lossRate = sim.postPoll > 0 ? (sim.failures / sim.postPoll * 100) : 0;
+  dom.scrapLossRate.textContent = sim.postPoll > 0
+    ? `${lossRate.toFixed(1)}% of completed`
+    : '—';
+  dom.scrapLossRate.setAttribute('fill', lossRate > 10 ? '#ef4444' : lossRate > 0 ? '#fca5a5' : '#475569');
 
   // ── S3 Worker Grid ──
   const workerPolling = sim.activeBatches.filter(b => (b.setupDoneAt ?? -Infinity) <= sim.elapsed).length;
@@ -1077,6 +1122,7 @@ function renderFrame() {
   const activeDayIdx  = Math.floor(posInWeek / 24);
   const workHrsPerDay = Math.min(params.shiftsPerDay * params.hoursPerShift, 24);
   dom.schedCursor.style.left = `${(posInWeek / (7 * 24)) * 100}%`;
+  dom.dpTime.textContent     = sim.elapsed.toFixed(1);
   for (let d = 0; d < 7; d++) {
     const isWorkDay = d < params.daysPerWeek;
     const isActive  = d === activeDayIdx;
@@ -1375,6 +1421,10 @@ dom.numWorkersInput.addEventListener('input',       syncAll);
 dom.plantsPerSessionInput.addEventListener('input', syncAll);
 dom.setupTimeInput.addEventListener('input',        syncAll);
 dom.pollTimeInput.addEventListener('input',         syncAll);
+dom.jitterScaleInput.addEventListener('input', () => {
+  params.jitterScale = parseFloat(dom.jitterScaleInput.value);
+  dom.jitterVal.textContent = params.jitterScale.toFixed(2);
+});
 
 syncAll();
 

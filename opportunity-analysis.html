@@ -247,8 +247,9 @@
       min-height: 14px;
     }
 
-    .delta-pos { color: #4ade80; }
-    .delta-neg { color: #f87171; }
+    .delta-pos  { color: #4ade80; }
+    .delta-neg  { color: #f87171; }
+    .delta-warn { color: #f59e0b; }
   </style>
 </head>
 <body>
@@ -256,6 +257,7 @@
 <nav class="tab-bar">
   <a href="simulation.html" class="tab-btn">Simulation</a>
   <a href="opportunity-analysis.html" class="tab-btn tab-active">Opportunity Analysis &amp; ROI</a>
+  <a href="layout.html" class="tab-btn">Layout</a>
 </nav>
 
 <!-- ══════════════════ BASELINE PARAMETERS ══════════════════ -->
@@ -322,6 +324,16 @@
         <label class="field-label" for="techRate">Technician hourly rate</label>
         <input class="field-input" id="techRate" type="number" value="35">
         <span class="field-unit">$ / hr</span>
+      </div>
+      <div class="field-row">
+        <label class="field-label" for="priorityPct">Priority plants</label>
+        <input class="field-input" id="priorityPct" type="number" min="0" max="100" step="1" value="20">
+        <span class="field-unit">% of volume</span>
+      </div>
+      <div class="field-row">
+        <label class="field-label" for="failureCost">Cost per failed cross</label>
+        <input class="field-input" id="failureCost" type="number" value="0">
+        <span class="field-unit">$ / plant</span>
       </div>
     </div>
 
@@ -474,6 +486,37 @@
       <div class="comp-cell col-b" id="b-payback"><span class="comp-value">—</span></div>
     </div>
 
+    <!-- ── Section: Biological Risk ── -->
+    <div class="section-header">Biological Risk (48-hr Deadline)</div>
+
+    <div class="comp-row">
+      <div class="comp-label">Priority plants / week <span class="comp-label-unit">must clear within 48 hrs</span></div>
+      <div class="comp-cell" id="base-priority-plants"><span class="comp-value">—</span></div>
+      <div class="comp-cell"><span class="comp-na">—</span></div>
+      <div class="comp-cell"><span class="comp-na">—</span></div>
+    </div>
+
+    <div class="comp-row">
+      <div class="comp-label">System utilization <span class="comp-label-unit">at target vol, same headcount</span></div>
+      <div class="comp-cell" id="base-utilization"><span class="comp-value">—</span></div>
+      <div class="comp-cell col-a" id="a-utilization"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+      <div class="comp-cell col-b" id="b-utilization"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+    </div>
+
+    <div class="comp-row">
+      <div class="comp-label">48-hr processing capacity <span class="comp-label-unit">plants, same headcount</span></div>
+      <div class="comp-cell" id="base-capacity-48"><span class="comp-value">—</span></div>
+      <div class="comp-cell col-a" id="a-capacity-48"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+      <div class="comp-cell col-b" id="b-capacity-48"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+    </div>
+
+    <div class="comp-row">
+      <div class="comp-label">Est. risk cost / week <span class="comp-label-unit">set cost per failed cross above</span></div>
+      <div class="comp-cell" id="base-risk-cost"><span class="comp-value">—</span></div>
+      <div class="comp-cell col-a" id="a-risk-cost"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+      <div class="comp-cell col-b" id="b-risk-cost"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+    </div>
+
   </div>
 </div>
 
@@ -483,7 +526,8 @@
     'totalSessionTime','movementPrepTime','valueAddedTime',
     'operatingDays','shiftsPerDay','hrsPerShift','techRate',
     'logisticsAutoPct','capex','annualOpex',
-    'workstationAutoPct','capexB','annualOpexB'
+    'workstationAutoPct','capexB','annualOpexB',
+    'priorityPct','failureCost'
   ];
 
   function fmt(n, decimals = 2) {
@@ -606,6 +650,56 @@
     setScenario('b-capacity',      bCapacity,        baseCapacity,        false, n => fmt(n, 0));
     setScenario('b-gap',           bGap,             baseGap,             false, n => fmt(n, 0));
     document.getElementById('b-payback').querySelector('.comp-value').textContent = fmtPayback(v.capexB, bNetAnnual);
+
+    // ── Biological Risk ──
+    // At 100% utilization (baseline by construction), queue theory predicts increasing
+    // deadline failures as variability accumulates. Risk drops sharply below ~90% utilization.
+    const priorityPlants  = v.weeklyVolume * v.priorityPct / 100;
+    const hrs48           = 2 * v.shiftsPerDay * v.hrsPerShift; // operating hrs in a 48-hr window
+    const baseCapacity48  = technicians * hrs48 / v.totalSessionTime * v.plantsPerSession;
+    const aCapacity48     = technicians * hrs48 / aTotalSession    * v.plantsPerSession;
+    const bCapacity48     = technicians * hrs48 / bTotalSession    * v.plantsPerSession;
+
+    // Utilization = fraction of available capacity consumed at target volume (same headcount)
+    const aUtil = aTotalSession / v.totalSessionTime; // < 1 means buffer exists
+    const bUtil = bTotalSession / v.totalSessionTime;
+
+    // Risk factor: scales from 0 at ≤90% util to 1.0 at 100% util
+    const riskFactor = u => Math.max(0, (u - 0.9) / 0.1);
+    const baseRiskCost = priorityPlants * v.failureCost * riskFactor(1.0);
+    const aRiskCost    = priorityPlants * v.failureCost * riskFactor(aUtil);
+    const bRiskCost    = priorityPlants * v.failureCost * riskFactor(bUtil);
+
+    // Utilization cell helper — sets value + delta, colors value by risk level
+    function setUtil(id, util, baseUtil) {
+      const cell = document.getElementById(id);
+      if (!cell) return;
+      const valEl = cell.querySelector('.comp-value');
+      const dEl   = cell.querySelector('.comp-delta');
+      valEl.textContent = fmt(util * 100) + '%';
+      valEl.style.color = util >= 0.95 ? '#f87171' : util >= 0.85 ? '#f59e0b' : '#4ade80';
+      const delta = util - baseUtil;
+      if (Math.abs(delta) < 1e-9) { dEl.textContent = ''; return; }
+      const sign = delta > 0 ? '+' : '−';
+      dEl.textContent = sign + fmt(Math.abs(delta) * 100) + 'pp';
+      dEl.className = 'comp-delta ' + (delta < 0 ? 'delta-pos' : 'delta-neg');
+    }
+
+    document.getElementById('base-priority-plants').querySelector('.comp-value').textContent = fmt(priorityPlants, 0);
+    const baseUtilEl = document.getElementById('base-utilization').querySelector('.comp-value');
+    baseUtilEl.textContent = '100%';
+    baseUtilEl.style.color = '#f87171';
+
+    setUtil('a-utilization', aUtil, 1.0);
+    setUtil('b-utilization', bUtil, 1.0);
+
+    setBase('base-capacity-48', fmt(baseCapacity48, 0));
+    setScenario('a-capacity-48', aCapacity48, baseCapacity48, false, n => fmt(n, 0));
+    setScenario('b-capacity-48', bCapacity48, baseCapacity48, false, n => fmt(n, 0));
+
+    setBase('base-risk-cost', fmtD(baseRiskCost));
+    setScenario('a-risk-cost', aRiskCost, baseRiskCost, true, fmtD);
+    setScenario('b-risk-cost', bRiskCost, baseRiskCost, true, fmtD);
   }
 
   inputs.forEach(id => document.getElementById(id).addEventListener('input', recalc));

@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Layout — Ohalo Seed Production</title>
+  <style>
+/* ═══════════════════════════════════════════════════════════
+   BASE + RESET
+═══════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #0f172a;
+  color: #e2e8f0;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 14px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 16px 40px;
+  gap: 16px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TAB BAR
+═══════════════════════════════════════════════════════════ */
+.tab-bar {
+  display: flex;
+  gap: 4px;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 6px;
+  width: 100%;
+  max-width: 1240px;
+}
+.tab-btn {
+  flex: 1;
+  text-align: center;
+  padding: 9px 20px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+}
+.tab-btn:hover { background: #0f172a; color: #94a3b8; }
+.tab-active    { background: #0f172a; color: #e2e8f0; }
+
+/* ═══════════════════════════════════════════════════════════
+   PAGE HEADER
+═══════════════════════════════════════════════════════════ */
+.page-header { text-align: center; }
+.page-header h1 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #e2e8f0;
+  letter-spacing: 0.04em;
+}
+.page-header .subtitle {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 3px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CONTROLS STRIP
+═══════════════════════════════════════════════════════════ */
+.layout-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  align-items: center;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 12px 18px;
+  width: 100%;
+  max-width: 1240px;
+}
+.ctrl-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.mode-group { display: flex; gap: 6px; align-items: center; }
+.mode-btn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid #334155;
+  background: #0f172a;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.mode-btn:hover:not(.mode-active) { color: #94a3b8; border-color: #475569; }
+.mode-btn.mode-active { background: #1e3a5f; border-color: #3b82f6; color: #93c5fd; }
+.toggle-btn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid #334155;
+  background: #0f172a;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.toggle-btn:hover { color: #94a3b8; border-color: #475569; }
+.toggle-btn.toggle-active { background: #0d1e33; border-color: #60a5fa; color: #60a5fa; }
+.divider-v { width: 1px; height: 28px; background: #334155; flex-shrink: 0; }
+.stat-chip { display: flex; flex-direction: column; gap: 2px; }
+.stat-chip-label { font-size: 10px; color: #475569; letter-spacing: 0.04em; }
+.stat-chip-value { font-size: 15px; font-weight: 700; color: #10b981; font-variant-numeric: tabular-nums; }
+.stat-chip-value.muted { color: #475569; }
+
+/* ═══════════════════════════════════════════════════════════
+   MAIN ROW: FLOORPLAN + ROUTING PANEL
+═══════════════════════════════════════════════════════════ */
+.layout-main-row {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+  max-width: 1240px;
+  align-items: flex-start;
+}
+.floorplan-wrapper {
+  flex: 1 1 0;
+  min-width: 0;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  overflow: hidden;
+}
+#floorplan { width: 100%; height: auto; display: block; }
+
+/* ═══════════════════════════════════════════════════════════
+   ROUTING PANEL
+═══════════════════════════════════════════════════════════ */
+.routing-panel {
+  flex: 0 0 272px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.panel-card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.panel-card-title {
+  font-size: 10px;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 10px;
+}
+.formula-lines {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 9px 11px;
+  font-size: 11px;
+  color: #a78bfa;
+  font-family: 'Courier New', monospace;
+  line-height: 1.8;
+}
+.formula-lines .f-op { color: #64748b; }
+.panel-card-note { font-size: 11px; color: #64748b; margin-top: 8px; line-height: 1.4; }
+.dispatch-rules {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 0;
+}
+.dispatch-rules li {
+  font-size: 12px;
+  color: #94a3b8;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  line-height: 1.4;
+}
+.rule-badge {
+  flex-shrink: 0;
+  font-size: 9px;
+  font-weight: 700;
+  color: #f59e0b;
+  background: #1c1100;
+  border: 1px solid #78350f;
+  border-radius: 4px;
+  padding: 2px 5px;
+  margin-top: 1px;
+  letter-spacing: 0.04em;
+}
+.callout-box {
+  background: #061208;
+  border: 1px solid #14532d;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 12px;
+  color: #86efac;
+  line-height: 1.55;
+}
+.callout-box strong { color: #bbf7d0; }
+.callout-box .hl-green { color: #10b981; font-weight: 700; }
+.dispatch-result {
+  margin-top: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #60a5fa;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ERGONOMICS COMPARISON PANEL
+═══════════════════════════════════════════════════════════ */
+.comparison-panel {
+  display: flex;
+  width: 100%;
+  max-width: 1240px;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.comparison-col { flex: 1; padding: 20px 24px; }
+.current-state  { background: rgba(239, 68, 68, 0.04); }
+.future-state   { background: rgba(16, 185, 129, 0.05); }
+.comparison-header {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 14px;
+}
+.current-state .comparison-header { color: #f87171; }
+.future-state  .comparison-header { color: #34d399; }
+.workflow-steps {
+  list-style: decimal;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.workflow-steps li { font-size: 13px; color: #94a3b8; line-height: 1.4; }
+.kpi-delta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid #334155;
+}
+.kpi-label { font-size: 12px; color: #64748b; }
+.kpi-value { font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.kpi-value.red   { color: #ef4444; }
+.kpi-value.green { color: #10b981; }
+.comparison-divider { width: 1px; background: #334155; flex-shrink: 0; }
+
+/* ═══════════════════════════════════════════════════════════
+   LEGEND + KEY PRINCIPLES STRIP
+═══════════════════════════════════════════════════════════ */
+.bottom-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 0;
+  width: 100%;
+  max-width: 1240px;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.legend-section, .principles-section {
+  flex: 1 1 auto;
+  padding: 12px 18px;
+}
+.legend-section { border-right: 1px solid #334155; }
+.section-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 10px;
+}
+.legend-items { display: flex; flex-wrap: wrap; gap: 6px 18px; }
+.legend-item { display: flex; gap: 6px; align-items: center; font-size: 12px; color: #64748b; }
+.swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+.swatch-blue   { background: #60a5fa; }
+.swatch-amber  { background: #f59e0b; }
+.swatch-purple { background: #a78bfa; }
+.swatch-green  { background: #10b981; }
+.swatch-red    { background: transparent; border: 2px dashed #ef4444; }
+.principles-items { display: flex; flex-wrap: wrap; gap: 6px 20px; }
+.principle-chip {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  font-size: 12px;
+  color: #94a3b8;
+  line-height: 1.35;
+}
+.chip-num {
+  flex-shrink: 0;
+  font-size: 9px;
+  font-weight: 700;
+  color: #60a5fa;
+  background: #0d1e33;
+  border: 1px solid #1d4ed8;
+  border-radius: 3px;
+  padding: 2px 5px;
+  margin-top: 1px;
+}
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     TAB BAR
+═══════════════════════════════════════════════════════════ -->
+<nav class="tab-bar">
+  <a href="simulation.html" class="tab-btn">Simulation</a>
+  <a href="opportunity-analysis.html" class="tab-btn">Opportunity Analysis &amp; ROI</a>
+  <a href="layout.html" class="tab-btn tab-active">Layout</a>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE HEADER
+═══════════════════════════════════════════════════════════ -->
+<div class="page-header">
+  <h1>Facility Layout — Goods-to-Person</h1>
+  <p class="subtitle">Ohalo Living Factory · Buffer Warehouse → Priority Hot Zone → Pollination Cells</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     CONTROLS STRIP
+═══════════════════════════════════════════════════════════ -->
+<div class="layout-controls">
+  <div class="mode-group">
+    <span class="ctrl-label">Mode</span>
+    <button id="btn-manual" class="mode-btn">Manual Walk</button>
+    <button id="btn-g2p" class="mode-btn mode-active">Goods-to-Person ✓</button>
+  </div>
+  <div class="divider-v"></div>
+  <button id="btn-flow-arrows" class="toggle-btn toggle-active">Show Flow Arrows</button>
+  <div class="divider-v"></div>
+  <div class="stat-chip">
+    <span class="stat-chip-label">Est. travel reduction</span>
+    <span id="travel-reduction" class="stat-chip-value">~85%</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MAIN ROW: FLOORPLAN + ROUTING PANEL
+═══════════════════════════════════════════════════════════ -->
+<div class="layout-main-row">
+
+  <!-- SVG Floorplan -->
+  <div class="floorplan-wrapper">
+    <svg id="floorplan" viewBox="0 0 860 730" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <!-- Arrow markers -->
+      <marker id="arr-blue"   markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 Z" fill="#60a5fa"/>
+      </marker>
+      <marker id="arr-amber"  markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 Z" fill="#f59e0b"/>
+      </marker>
+      <marker id="arr-green"  markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 Z" fill="#10b981"/>
+      </marker>
+      <marker id="arr-red"    markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 Z" fill="#ef4444"/>
+      </marker>
+      <marker id="arr-purple" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 Z" fill="#a78bfa"/>
+      </marker>
+      <!-- Clip paths -->
+      <clipPath id="clip-regular">
+        <rect x="20" y="155" width="820" height="175"/>
+      </clipPath>
+      <clipPath id="clip-priority">
+        <rect x="20" y="350" width="820" height="86"/>
+      </clipPath>
+    </defs>
+
+    <!-- ══════════════ ZONE: PROPAGATION ══════════════ -->
+    <rect x="350" y="20" width="160" height="45" rx="5"
+      fill="#060d1a" stroke="#1d4ed8" stroke-width="1.5"/>
+    <text x="430" y="38" text-anchor="middle" fill="#93c5fd" font-size="9" font-weight="700" letter-spacing="0.08em">PROPAGATION</text>
+    <text x="430" y="52" text-anchor="middle" fill="#475569" font-size="7.5">/ Growth Facility</text>
+
+    <!-- ══════════════ ZONE: RECEIVING ══════════════ -->
+    <rect x="320" y="86" width="220" height="44" rx="5"
+      fill="#060d1a" stroke="#1e40af" stroke-width="1.5"/>
+    <text x="430" y="104" text-anchor="middle" fill="#93c5fd" font-size="9" font-weight="700" letter-spacing="0.08em">RECEIVING + SCAN-IN</text>
+    <text x="430" y="117" text-anchor="middle" fill="#475569" font-size="7.5">ID verification · tray manifest</text>
+
+    <!-- ══════════════ ZONE: BUFFER WAREHOUSE (outer) ══════════════ -->
+    <rect x="10" y="136" width="840" height="310" rx="6"
+      fill="none" stroke="#334155" stroke-width="2"/>
+    <text x="430" y="150" text-anchor="middle" fill="#64748b" font-size="9.5" font-weight="700" letter-spacing="0.1em">HIGH-DENSITY BUFFER WAREHOUSE</text>
+
+    <!-- Regular Dense Storage sub-zone -->
+    <rect x="20" y="155" width="820" height="175" rx="3"
+      fill="#06091a" stroke="#1d4ed8" stroke-width="1" stroke-opacity="0.5"/>
+    <text x="430" y="169" text-anchor="middle" fill="#3b82f6" font-size="8" font-weight="700" letter-spacing="0.07em">REGULAR DENSE STORAGE</text>
+    <text x="430" y="180" text-anchor="middle" fill="#1d4ed8" font-size="7">Rolling benches / palletized trays · lower urgency</text>
+    <!-- Rack grid populated by JS into <g id="rack-grid"> -->
+    <g id="rack-grid"></g>
+
+    <!-- Priority Hot Zone sub-zone -->
+    <rect x="20" y="350" width="820" height="86" rx="4"
+      fill="#100900" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="155" y="367" text-anchor="middle" fill="#f59e0b" font-size="8.5" font-weight="700" letter-spacing="0.07em">PRIORITY HOT ZONE</text>
+    <text x="155" y="379" text-anchor="middle" fill="#92400e" font-size="7">&lt;48h flowering window · FEFO dispatch</text>
+    <!-- Deadline badge -->
+    <rect x="700" y="353" width="132" height="24" rx="3" fill="#1a0800" stroke="#b45309" stroke-width="1"/>
+    <text x="766" y="368" text-anchor="middle" fill="#f59e0b" font-size="8" font-weight="700">⏱  48h BIOLOGICAL CLOCK</text>
+    <!-- Priority racks populated by JS into <g id="priority-racks"> -->
+    <g id="priority-racks"></g>
+
+    <!-- ══════════════ ZONE: AUTOMATED TRANSFER LANE ══════════════ -->
+    <rect x="10" y="466" width="840" height="28" rx="4"
+      fill="#040e1a" stroke="#3b82f6" stroke-width="1.5"/>
+    <text x="430" y="484" text-anchor="middle" fill="#60a5fa" font-size="9" font-weight="700" letter-spacing="0.08em">AUTOMATED TRANSFER LANE</text>
+
+    <!-- ══════════════ ZONE: POLLINATION CELLS ══════════════ -->
+    <!-- Cells generated below (6 static cell groups) -->
+    <!-- Cell 0: x=13, cx=72 -->
+    <rect x="13"  y="514" width="118" height="115" rx="5" fill="#08041a" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="72"  y="526" text-anchor="middle" fill="#a78bfa" font-size="8.5" font-weight="700">Station 1</text>
+    <circle cx="72"  cy="544" r="7" fill="#1e1040" stroke="#a78bfa" stroke-width="1.5"/>
+    <rect   x="67"  y="552" width="10" height="12" rx="2" fill="#1e1040" stroke="#7c3aed" stroke-width="1"/>
+    <text   x="72"  y="575" text-anchor="middle" fill="#64748b" font-size="7">Technician stays here</text>
+    <rect   x="47"  y="582" width="50" height="8" rx="2" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+    <text   x="72"  y="588" text-anchor="middle" fill="#475569" font-size="6.5">cart dock</text>
+    <text   x="72"  y="620" text-anchor="middle" fill="#7c3aed" font-size="7">Scan→Poll→Confirm</text>
+
+    <!-- Cell 1: x=139, cx=198 -->
+    <rect x="139" y="514" width="118" height="115" rx="5" fill="#08041a" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="198" y="526" text-anchor="middle" fill="#a78bfa" font-size="8.5" font-weight="700">Station 2</text>
+    <circle cx="198" cy="544" r="7" fill="#1e1040" stroke="#a78bfa" stroke-width="1.5"/>
+    <rect   x="193" y="552" width="10" height="12" rx="2" fill="#1e1040" stroke="#7c3aed" stroke-width="1"/>
+    <text   x="198" y="575" text-anchor="middle" fill="#64748b" font-size="7">Technician stays here</text>
+    <rect   x="173" y="582" width="50" height="8" rx="2" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+    <text   x="198" y="588" text-anchor="middle" fill="#475569" font-size="6.5">cart dock</text>
+    <text   x="198" y="620" text-anchor="middle" fill="#7c3aed" font-size="7">Scan→Poll→Confirm</text>
+
+    <!-- Cell 2: x=265, cx=324 -->
+    <rect x="265" y="514" width="118" height="115" rx="5" fill="#08041a" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="324" y="526" text-anchor="middle" fill="#a78bfa" font-size="8.5" font-weight="700">Station 3</text>
+    <circle cx="324" cy="544" r="7" fill="#1e1040" stroke="#a78bfa" stroke-width="1.5"/>
+    <rect   x="319" y="552" width="10" height="12" rx="2" fill="#1e1040" stroke="#7c3aed" stroke-width="1"/>
+    <text   x="324" y="575" text-anchor="middle" fill="#64748b" font-size="7">Technician stays here</text>
+    <rect   x="299" y="582" width="50" height="8" rx="2" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+    <text   x="324" y="588" text-anchor="middle" fill="#475569" font-size="6.5">cart dock</text>
+    <text   x="324" y="620" text-anchor="middle" fill="#7c3aed" font-size="7">Scan→Poll→Confirm</text>
+
+    <!-- Cell 3: x=391, cx=450 -->
+    <rect x="391" y="514" width="118" height="115" rx="5" fill="#08041a" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="450" y="526" text-anchor="middle" fill="#a78bfa" font-size="8.5" font-weight="700">Station 4</text>
+    <circle cx="450" cy="544" r="7" fill="#1e1040" stroke="#a78bfa" stroke-width="1.5"/>
+    <rect   x="445" y="552" width="10" height="12" rx="2" fill="#1e1040" stroke="#7c3aed" stroke-width="1"/>
+    <text   x="450" y="575" text-anchor="middle" fill="#64748b" font-size="7">Technician stays here</text>
+    <rect   x="425" y="582" width="50" height="8" rx="2" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+    <text   x="450" y="588" text-anchor="middle" fill="#475569" font-size="6.5">cart dock</text>
+    <text   x="450" y="620" text-anchor="middle" fill="#7c3aed" font-size="7">Scan→Poll→Confirm</text>
+
+    <!-- Cell 4: x=517, cx=576 -->
+    <rect x="517" y="514" width="118" height="115" rx="5" fill="#08041a" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="576" y="526" text-anchor="middle" fill="#a78bfa" font-size="8.5" font-weight="700">Station 5</text>
+    <circle cx="576" cy="544" r="7" fill="#1e1040" stroke="#a78bfa" stroke-width="1.5"/>
+    <rect   x="571" y="552" width="10" height="12" rx="2" fill="#1e1040" stroke="#7c3aed" stroke-width="1"/>
+    <text   x="576" y="575" text-anchor="middle" fill="#64748b" font-size="7">Technician stays here</text>
+    <rect   x="551" y="582" width="50" height="8" rx="2" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+    <text   x="576" y="588" text-anchor="middle" fill="#475569" font-size="6.5">cart dock</text>
+    <text   x="576" y="620" text-anchor="middle" fill="#7c3aed" font-size="7">Scan→Poll→Confirm</text>
+
+    <!-- Cell 5: x=643, cx=702 -->
+    <rect x="643" y="514" width="118" height="115" rx="5" fill="#08041a" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="702" y="526" text-anchor="middle" fill="#a78bfa" font-size="8.5" font-weight="700">Station 6</text>
+    <circle cx="702" cy="544" r="7" fill="#1e1040" stroke="#a78bfa" stroke-width="1.5"/>
+    <rect   x="697" y="552" width="10" height="12" rx="2" fill="#1e1040" stroke="#7c3aed" stroke-width="1"/>
+    <text   x="702" y="575" text-anchor="middle" fill="#64748b" font-size="7">Technician stays here</text>
+    <rect   x="677" y="582" width="50" height="8" rx="2" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+    <text   x="702" y="588" text-anchor="middle" fill="#475569" font-size="6.5">cart dock</text>
+    <text   x="702" y="620" text-anchor="middle" fill="#7c3aed" font-size="7">Scan→Poll→Confirm</text>
+
+    <!-- ══════════════ ZONE: POST-POLLINATION ══════════════ -->
+    <rect x="300" y="652" width="260" height="48" rx="5"
+      fill="#041209" stroke="#10b981" stroke-width="1.5"/>
+    <text x="430" y="671" text-anchor="middle" fill="#34d399" font-size="9" font-weight="700" letter-spacing="0.07em">POST-POLLINATION</text>
+    <text x="430" y="684" text-anchor="middle" fill="#065f46" font-size="7.5">Recovery · Staging · Dispatch out</text>
+
+    <!-- ══════════════ FLOW ARROWS (toggleable) ══════════════ -->
+    <g id="flow-arrows-group">
+      <!-- Propagation → Receiving -->
+      <line x1="430" y1="65" x2="430" y2="83"
+        stroke="#60a5fa" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+
+      <!-- Receiving → Buffer (fan, 4 arrows) -->
+      <line x1="380" y1="130" x2="240" y2="153"
+        stroke="#60a5fa" stroke-width="1.2" marker-end="url(#arr-blue)" opacity="0.7"/>
+      <line x1="415" y1="130" x2="380" y2="153"
+        stroke="#60a5fa" stroke-width="1.2" marker-end="url(#arr-blue)" opacity="0.7"/>
+      <line x1="430" y1="130" x2="430" y2="153"
+        stroke="#60a5fa" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+      <line x1="445" y1="130" x2="480" y2="153"
+        stroke="#60a5fa" stroke-width="1.2" marker-end="url(#arr-blue)" opacity="0.7"/>
+      <line x1="480" y1="130" x2="620" y2="153"
+        stroke="#60a5fa" stroke-width="1.2" marker-end="url(#arr-blue)" opacity="0.7"/>
+
+      <!-- Regular Storage → Priority Hot Zone (re-slotting arrows) -->
+      <line x1="200" y1="328" x2="200" y2="348"
+        stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arr-amber)"/>
+      <line x1="430" y1="328" x2="430" y2="348"
+        stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arr-amber)"/>
+      <line x1="660" y1="328" x2="660" y2="348"
+        stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arr-amber)"/>
+
+      <!-- Priority Hot Zone → Transfer Lane -->
+      <line x1="430" y1="438" x2="430" y2="463"
+        stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arr-amber)"/>
+
+      <!-- Transfer Lane → Cells (one arrow per cell, pointing down) -->
+      <line x1="72"  y1="496" x2="72"  y2="511" stroke="#a78bfa" stroke-width="1.2" marker-end="url(#arr-purple)"/>
+      <line x1="198" y1="496" x2="198" y2="511" stroke="#a78bfa" stroke-width="1.2" marker-end="url(#arr-purple)"/>
+      <line x1="324" y1="496" x2="324" y2="511" stroke="#a78bfa" stroke-width="1.2" marker-end="url(#arr-purple)"/>
+      <line x1="450" y1="496" x2="450" y2="511" stroke="#a78bfa" stroke-width="1.2" marker-end="url(#arr-purple)"/>
+      <line x1="576" y1="496" x2="576" y2="511" stroke="#a78bfa" stroke-width="1.2" marker-end="url(#arr-purple)"/>
+      <line x1="702" y1="496" x2="702" y2="511" stroke="#a78bfa" stroke-width="1.2" marker-end="url(#arr-purple)"/>
+
+      <!-- Cells → Post-Pollination -->
+      <line x1="430" y1="631" x2="430" y2="649"
+        stroke="#10b981" stroke-width="1.5" marker-end="url(#arr-green)"/>
+    </g>
+
+    <!-- ══════════════ MANUAL MODE OVERLAY ══════════════ -->
+    <g id="manual-paths" style="display:none">
+      <!-- Red dashed lines: each cell top → deep in Regular Storage -->
+      <line x1="72"  y1="514" x2="160" y2="250" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.75"/>
+      <line x1="198" y1="514" x2="260" y2="210" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.75"/>
+      <line x1="324" y1="514" x2="360" y2="235" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.75"/>
+      <line x1="450" y1="514" x2="500" y2="215" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.75"/>
+      <line x1="576" y1="514" x2="600" y2="240" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.75"/>
+      <line x1="702" y1="514" x2="700" y2="220" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.75"/>
+      <!-- Label -->
+      <rect x="300" y="254" width="260" height="22" rx="3" fill="#1a0505" stroke="#7f1d1d" stroke-width="1"/>
+      <text x="430" y="269" text-anchor="middle" fill="#ef4444" font-size="9.5" font-weight="700">~6× MORE TRAVEL DISTANCE</text>
+    </g>
+
+    <!-- ══════════════ PARTICLES ══════════════ -->
+    <g id="fp-particles"></g>
+
+    </svg>
+  </div><!-- /floorplan-wrapper -->
+
+  <!-- Routing Logic Panel -->
+  <aside class="routing-panel">
+
+    <div class="panel-card">
+      <div class="panel-card-title">Priority Score Formula</div>
+      <div class="formula-lines">
+        Score<br>
+        <span class="f-op">&nbsp;+</span> Deadline Urgency<br>
+        <span class="f-op">&nbsp;+</span> Station Readiness<br>
+        <span class="f-op">&nbsp;−</span> Travel Distance<br>
+        <span class="f-op">&nbsp;+</span> Batch Compatibility
+      </div>
+      <p class="panel-card-note">Lower score dispatches first. Age tracked per cohort; deadline window is 48 sim-hours.</p>
+    </div>
+
+    <div class="panel-card">
+      <div class="panel-card-title">Dispatch Rules</div>
+      <ul class="dispatch-rules">
+        <li><span class="rule-badge">R1</span>Store soon-needed plants closest to pollination cells.</li>
+        <li><span class="rule-badge">R2</span>Dispatch FEFO (First Expiring, First Out) before FIFO.</li>
+        <li><span class="rule-badge">R3</span>Keep technicians stationary — system delivers plant to worker.</li>
+        <li><span class="rule-badge">R4</span>Minimize total cart travel distance on transfer lane.</li>
+      </ul>
+    </div>
+
+    <div class="panel-card">
+      <div class="panel-card-title">Dispatch Result</div>
+      <div class="callout-box">
+        Cart arrives at cell within <strong>60 seconds</strong> of scan confirm. Zero technician travel time.
+        Skilled labor time on pollination: <span class="hl-green">100%</span>
+      </div>
+      <p class="dispatch-result">→ Dispatch closest, most urgent plants first.</p>
+    </div>
+
+  </aside>
+
+</div><!-- /layout-main-row -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     ERGONOMICS COMPARISON
+═══════════════════════════════════════════════════════════ -->
+<div class="comparison-panel">
+  <div class="comparison-col current-state">
+    <div class="comparison-header">Current State — Manual Walk</div>
+    <ol class="workflow-steps">
+      <li>Technician walks from station into Buffer Warehouse</li>
+      <li>Locates correct plant cart manually (visual search or paper list)</li>
+      <li>Pushes cart to Pollination Zone (~10–20 min per trip)</li>
+      <li>Pollinates, then returns cart to storage and repeats</li>
+    </ol>
+    <div class="kpi-delta">
+      <span class="kpi-label">Skilled labor on pollination</span>
+      <span class="kpi-value red">~67%</span>
+    </div>
+  </div>
+  <div class="comparison-divider"></div>
+  <div class="comparison-col future-state">
+    <div class="comparison-header">Future State — Goods-to-Person</div>
+    <ol class="workflow-steps">
+      <li>System selects highest-priority cart (FEFO algorithm)</li>
+      <li>Automated transfer lane delivers cart to assigned station</li>
+      <li>Technician scans cross ID, performs pollination, confirms</li>
+      <li>Cart exits automatically to Post-Pollination recovery staging</li>
+    </ol>
+    <div class="kpi-delta">
+      <span class="kpi-label">Skilled labor on pollination</span>
+      <span class="kpi-value green">~100%</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     LEGEND + KEY PRINCIPLES
+═══════════════════════════════════════════════════════════ -->
+<div class="bottom-strip">
+  <div class="legend-section">
+    <div class="section-label">Flow Legend</div>
+    <div class="legend-items">
+      <div class="legend-item"><span class="swatch swatch-blue"></span>Intake / Regular flow</div>
+      <div class="legend-item"><span class="swatch swatch-amber"></span>Priority / Re-slot</div>
+      <div class="legend-item"><span class="swatch swatch-purple"></span>Pollination cells</div>
+      <div class="legend-item"><span class="swatch swatch-green"></span>Completed / Post-poll</div>
+      <div class="legend-item"><span class="swatch swatch-red"></span>Manual walk paths</div>
+    </div>
+  </div>
+  <div class="principles-section">
+    <div class="section-label">Key Design Principles</div>
+    <div class="principles-items">
+      <div class="principle-chip"><span class="chip-num">1</span>Store soon-needed plants closest to pollination</div>
+      <div class="principle-chip"><span class="chip-num">2</span>FEFO dispatch before FIFO — protect biological window</div>
+      <div class="principle-chip"><span class="chip-num">3</span>Technicians never walk into the warehouse</div>
+      <div class="principle-chip"><span class="chip-num">4</span>Automated lane eliminates cart travel waste</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  GEOMETRY CONSTANTS
+// ═══════════════════════════════════════════════════════════
+const CELLS = [13, 139, 265, 391, 517, 643].map(x => ({
+  x, cx: x + 59, top: 514, bottom: 629, mid: 571,
+}));
+
+// Regular rack grid: 10 cols × 6 rows
+const RACK_CENTERS = [];
+for (let row = 0; row < 6; row++) {
+  for (let col = 0; col < 10; col++) {
+    RACK_CENTERS.push({ x: 63 + col * 78, y: 171 + row * 23 });
+  }
+}
+
+// Priority rack centers
+const PRI_RACK_CX = [98, 254, 410, 566, 722];
+const PRI_RACK_CY = 402;
+
+const TRANSFER_Y = 480;   // center of transfer lane
+const INTAKE_ORIGIN = { x: 430, y: 134 }; // bottom of receiving
+const EXIT_TARGET   = { x: 430, y: 676 }; // post-poll center
+
+// ═══════════════════════════════════════════════════════════
+//  BUILD STATIC SVG RACK GRIDS (runs once at init)
+// ═══════════════════════════════════════════════════════════
+(function buildRacks() {
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  const rGrid = document.getElementById('rack-grid');
+  for (let row = 0; row < 6; row++) {
+    for (let col = 0; col < 10; col++) {
+      const rx = 28 + col * 78;
+      const ry = 186 + row * 23;
+      const r = document.createElementNS(SVG_NS, 'rect');
+      r.setAttribute('x', rx); r.setAttribute('y', ry);
+      r.setAttribute('width', '70'); r.setAttribute('height', '18');
+      r.setAttribute('rx', '2');
+      r.setAttribute('fill', '#0a1428'); r.setAttribute('stroke', '#1d4ed8');
+      r.setAttribute('stroke-width', '0.8');
+      rGrid.appendChild(r);
+    }
+  }
+  const pGrid = document.getElementById('priority-racks');
+  const pxs   = [28, 184, 340, 496, 652];
+  for (let i = 0; i < 5; i++) {
+    const r = document.createElementNS(SVG_NS, 'rect');
+    r.setAttribute('x', pxs[i]); r.setAttribute('y', '387');
+    r.setAttribute('width', '140'); r.setAttribute('height', '30');
+    r.setAttribute('rx', '3');
+    r.setAttribute('fill', '#130900'); r.setAttribute('stroke', '#f59e0b');
+    r.setAttribute('stroke-width', '1');
+    pGrid.appendChild(r);
+  }
+})();
+
+// ═══════════════════════════════════════════════════════════
+//  ANIMATION STATE
+// ═══════════════════════════════════════════════════════════
+const state = {
+  particles:   [],
+  pulseRings:  [],
+  accum:       { intake: 0, reslot: 0, dispatch: 0, exit: 0 },
+  pulseTimers: [0, 0.5, 1.0, 1.5, 2.0, 2.5],  // staggered per cell
+  nextId:      0,
+  mode:        'g2p',
+  showArrows:  true,
+};
+let lastTime = null;
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const fpParticles = document.getElementById('fp-particles');
+
+const SPAWN_RATES = { intake: 0.9, reslot: 0.35, dispatch: 0.5, exit: 0.35 };
+const PARTICLE_SPEED = 0.30;  // t-units per second (full path ~3.3s)
+const MAX_PARTICLES  = 80;
+const PULSE_INTERVAL = 3.5;   // seconds between rings per cell
+
+// ═══════════════════════════════════════════════════════════
+//  PARTICLE HELPERS
+// ═══════════════════════════════════════════════════════════
+function rand(a, b) { return a + Math.random() * (b - a); }
+function randi(n)   { return Math.floor(Math.random() * n); }
+
+function spawnParticle(type) {
+  if (state.particles.length >= MAX_PARTICLES) return;
+  const id = state.nextId++;
+  let el, p;
+
+  if (type === 'dispatch') {
+    // Diamond polygon
+    el = document.createElementNS(SVG_NS, 'polygon');
+    el.setAttribute('fill', '#f59e0b');
+    el.setAttribute('stroke', '#fcd34d');
+    el.setAttribute('stroke-width', '1');
+    el.setAttribute('opacity', '0.9');
+    const rk = randi(5);
+    const cell = CELLS[randi(6)];
+    p = { id, type, t: 0, el,
+      x1: PRI_RACK_CX[rk], y1: PRI_RACK_CY,
+      xm: cell.cx, ym: TRANSFER_Y,
+      x2: cell.cx, y2: 629,
+      px: 0, py: 0, opacity: 1 };
+  } else {
+    el = document.createElementNS(SVG_NS, 'circle');
+    el.setAttribute('r', '5');
+    el.setAttribute('opacity', '0.9');
+    if (type === 'intake') {
+      el.setAttribute('fill', '#60a5fa');
+      el.setAttribute('stroke', '#93c5fd');
+      el.setAttribute('stroke-width', '1.5');
+      const rack = RACK_CENTERS[randi(RACK_CENTERS.length)];
+      p = { id, type, t: 0, el,
+        x1: INTAKE_ORIGIN.x, y1: INTAKE_ORIGIN.y,
+        x2: rack.x, y2: rack.y,
+        px: 0, py: 0, opacity: 1 };
+    } else if (type === 'reslot') {
+      el.setAttribute('fill', '#60a5fa');
+      el.setAttribute('stroke', '#93c5fd');
+      el.setAttribute('stroke-width', '1.5');
+      // bottom rows of Regular Storage → priority rack
+      const srcRow  = 4 + randi(2); // rows 4-5 (bottom portion)
+      const srcCol  = randi(10);
+      const dstRack = randi(5);
+      p = { id, type, t: 0, el,
+        x1: 63 + srcCol * 78, y1: 171 + srcRow * 23,
+        x2: PRI_RACK_CX[dstRack], y2: PRI_RACK_CY,
+        px: 0, py: 0, opacity: 1 };
+    } else { // exit
+      el.setAttribute('fill', '#10b981');
+      el.setAttribute('stroke', '#6ee7b7');
+      el.setAttribute('stroke-width', '1.5');
+      const cell = CELLS[randi(6)];
+      p = { id, type, t: 0, el,
+        x1: cell.cx, y1: cell.bottom,
+        x2: EXIT_TARGET.x, y2: EXIT_TARGET.y,
+        px: 0, py: 0, opacity: 1 };
+    }
+  }
+
+  fpParticles.appendChild(el);
+  state.particles.push(p);
+}
+
+function removeParticle(p) {
+  const idx = state.particles.indexOf(p);
+  if (idx !== -1) state.particles.splice(idx, 1);
+  if (p.el.parentNode) p.el.parentNode.removeChild(p.el);
+}
+
+function computeParticlePos(p) {
+  if (p.type === 'dispatch') {
+    if (p.t < 0.5) {
+      const s = p.t * 2;
+      p.px = p.x1 + (p.xm - p.x1) * s;
+      p.py = p.y1;
+    } else {
+      const s = (p.t - 0.5) * 2;
+      p.px = p.xm;
+      p.py = p.ym + (p.y2 - p.ym) * s;
+    }
+    p.opacity = 1;
+  } else {
+    p.px = p.x1 + (p.x2 - p.x1) * p.t;
+    p.py = p.y1 + (p.y2 - p.y1) * p.t;
+    // Fade intake particles as they reach the rack (park-and-fade)
+    p.opacity = p.type === 'intake' && p.t > 0.75
+      ? Math.max(0, 1 - (p.t - 0.75) / 0.25)
+      : 1;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  PULSE RINGS
+// ═══════════════════════════════════════════════════════════
+function spawnPulseRing(cellIdx) {
+  const el = document.createElementNS(SVG_NS, 'circle');
+  el.setAttribute('stroke', '#a78bfa');
+  el.setAttribute('fill', 'none');
+  el.setAttribute('stroke-width', '2');
+  el.setAttribute('cx', CELLS[cellIdx].cx);
+  el.setAttribute('cy', CELLS[cellIdx].mid);
+  fpParticles.appendChild(el);
+  state.pulseRings.push({ cellIdx, t: 0, el });
+}
+
+// ═══════════════════════════════════════════════════════════
+//  RENDER FRAME  (DOM writes only)
+// ═══════════════════════════════════════════════════════════
+function renderFrame() {
+  // Particles
+  for (const p of state.particles) {
+    if (p.type === 'dispatch') {
+      const s = 6;
+      const cx = p.px, cy = p.py;
+      p.el.setAttribute('points',
+        `${cx-s},${cy} ${cx},${cy-s} ${cx+s},${cy} ${cx},${cy+s}`);
+    } else {
+      p.el.setAttribute('cx', p.px);
+      p.el.setAttribute('cy', p.py);
+    }
+    p.el.setAttribute('opacity', p.opacity);
+    // Reslot color transition
+    if (p.type === 'reslot') {
+      const isAmber = p.t > 0.5;
+      p.el.setAttribute('fill',   isAmber ? '#f59e0b' : '#60a5fa');
+      p.el.setAttribute('stroke', isAmber ? '#fcd34d' : '#93c5fd');
+    }
+  }
+  // Pulse rings
+  for (const ring of state.pulseRings) {
+    const r = 10 + 20 * ring.t;
+    const op = 0.8 * (1 - ring.t);
+    ring.el.setAttribute('r', r);
+    ring.el.setAttribute('stroke-opacity', op);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  TICK
+// ═══════════════════════════════════════════════════════════
+function tick(timestamp) {
+  if (!lastTime) lastTime = timestamp;
+  const wallDt = Math.min((timestamp - lastTime) / 1000, 0.05);
+  lastTime = timestamp;
+
+  if (state.mode === 'g2p') {
+    // Advance particles
+    for (const p of state.particles) {
+      p.t += PARTICLE_SPEED * wallDt;
+      computeParticlePos(p);
+    }
+    // Remove completed
+    for (let i = state.particles.length - 1; i >= 0; i--) {
+      if (state.particles[i].t >= 1) removeParticle(state.particles[i]);
+    }
+    // Spawn accumulators
+    for (const type of ['intake', 'reslot', 'dispatch', 'exit']) {
+      state.accum[type] += SPAWN_RATES[type] * wallDt;
+      while (state.accum[type] >= 1) {
+        state.accum[type] -= 1;
+        spawnParticle(type);
+      }
+    }
+  } else {
+    // Manual mode: clear all G2P particles on first frame after switch
+    if (state.particles.length > 0) {
+      for (const p of [...state.particles]) removeParticle(p);
+      state.accum = { intake: 0, reslot: 0, dispatch: 0, exit: 0 };
+    }
+  }
+
+  // Pulse rings (always run regardless of mode)
+  for (let i = state.pulseRings.length - 1; i >= 0; i--) {
+    const ring = state.pulseRings[i];
+    ring.t += 0.30 * wallDt;
+    if (ring.t >= 1) {
+      if (ring.el.parentNode) ring.el.parentNode.removeChild(ring.el);
+      state.pulseRings.splice(i, 1);
+    }
+  }
+  // Spawn pulse rings per cell
+  for (let c = 0; c < 6; c++) {
+    state.pulseTimers[c] -= wallDt;
+    if (state.pulseTimers[c] <= 0) {
+      state.pulseTimers[c] = PULSE_INTERVAL;
+      spawnPulseRing(c);
+    }
+  }
+
+  renderFrame();
+  requestAnimationFrame(tick);
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) lastTime = null;
+});
+
+// ═══════════════════════════════════════════════════════════
+//  EVENT LISTENERS
+// ═══════════════════════════════════════════════════════════
+document.getElementById('btn-manual').addEventListener('click', () => {
+  state.mode = 'manual';
+  document.getElementById('btn-manual').classList.add('mode-active');
+  document.getElementById('btn-g2p').classList.remove('mode-active');
+  document.getElementById('manual-paths').style.display = '';
+  const tv = document.getElementById('travel-reduction');
+  tv.textContent = '—';
+  tv.classList.add('muted');
+});
+
+document.getElementById('btn-g2p').addEventListener('click', () => {
+  state.mode = 'g2p';
+  document.getElementById('btn-g2p').classList.add('mode-active');
+  document.getElementById('btn-manual').classList.remove('mode-active');
+  document.getElementById('manual-paths').style.display = 'none';
+  const tv = document.getElementById('travel-reduction');
+  tv.textContent = '~85%';
+  tv.classList.remove('muted');
+});
+
+document.getElementById('btn-flow-arrows').addEventListener('click', () => {
+  state.showArrows = !state.showArrows;
+  const btn = document.getElementById('btn-flow-arrows');
+  const grp = document.getElementById('flow-arrows-group');
+  grp.style.display = state.showArrows ? '' : 'none';
+  btn.classList.toggle('toggle-active', state.showArrows);
+});
+
+// ═══════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>
