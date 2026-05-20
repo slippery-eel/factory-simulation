@@ -140,55 +140,6 @@
 
     #diagram { width: 100%; height: auto; display: block; }
 
-    /* ── Data Panel ── */
-    .data-panel {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      width: 100%;
-      max-width: 1240px;
-    }
-
-    .data-card {
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 8px;
-      padding: 12px 14px;
-      transition: border-color 0.3s;
-    }
-
-    .data-card.warn  { border-color: #f59e0b; }
-    .data-card.alert { border-color: #ef4444; }
-    .data-card.good  { border-color: #10b981; }
-
-    .data-card .label {
-      font-size: 10px;
-      font-weight: 600;
-      color: #64748b;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin-bottom: 4px;
-    }
-
-    .data-card .value {
-      font-size: 20px;
-      font-weight: 700;
-      color: #e2e8f0;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .data-card .unit {
-      font-size: 10px;
-      color: #64748b;
-      margin-left: 3px;
-    }
-
-    .data-card .sub {
-      font-size: 10px;
-      color: #64748b;
-      margin-top: 2px;
-    }
-
     /* ── Throughput chart ── */
     .chart-wrapper {
       width: 100%; max-width: 1240px;
@@ -545,7 +496,7 @@
   fill="#1e293b" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3 2"/>
 <text x="510" y="419" text-anchor="middle" fill="#ef4444" font-size="7" font-weight="600">DEADLINE LOSSES</text>
 <text x="510" y="436" text-anchor="middle" font-size="13" font-weight="700" font-family="monospace">
-  <tspan id="scrap-qty" fill="#fca5a5">0.0</tspan><tspan font-size="7" fill="#64748b" font-family="system-ui" font-weight="400"> k</tspan>
+  <tspan id="scrap-qty" fill="#fca5a5">0</tspan><tspan font-size="7" fill="#64748b" font-family="system-ui" font-weight="400"> plants</tspan>
 </text>
 <text x="510" y="446" text-anchor="middle" fill="#334155" font-size="7" id="scrap-rate-sub">cumulative</text>
 
@@ -575,8 +526,8 @@
 
 <!-- ── KPI Card 3: Total Workers ── -->
 <rect x="603" y="470" width="124" height="44" rx="4" fill="#1e293b" stroke="#334155" stroke-width="1"/>
-<text x="665" y="482" text-anchor="middle" fill="#64748b" font-size="8" font-weight="600">TOTAL WORKERS</text>
-<text x="665" y="497" text-anchor="middle" font-size="14" font-weight="700" font-family="monospace"><tspan id="s3-max-wip-val" fill="#e2e8f0">104</tspan><tspan font-size="9" fill="#94a3b8" font-family="system-ui" font-weight="400"> workers</tspan></text>
+<text x="665" y="482" text-anchor="middle" fill="#64748b" font-size="8" font-weight="600">WORKERS POLLINATING</text>
+<text x="665" y="497" text-anchor="middle" font-size="14" font-weight="700" font-family="monospace"><tspan id="s3-max-wip-val" fill="#e2e8f0">0</tspan><tspan font-size="9" fill="#94a3b8" font-family="system-ui" font-weight="400"> workers</tspan></text>
 <text x="665" y="508" text-anchor="middle" fill="#64748b" font-size="8">concurrent slots</text>
 
 <!-- ═══════════════════ S4 — POST-POLLINATION ═══════════════════ -->
@@ -593,6 +544,12 @@
 <text x="930" y="356" text-anchor="middle" fill="#64748b" font-size="8" font-weight="600">POST-POLLINATION</text>
 <text x="930" y="371" text-anchor="middle" font-size="14" font-weight="700" font-family="monospace"><tspan id="s4-qty" fill="#e2e8f0">0</tspan><tspan font-size="9" fill="#94a3b8" font-family="system-ui" font-weight="400"> k plants</tspan></text>
 <text x="930" y="382" text-anchor="middle" fill="#64748b" font-size="8">cumulative completed</text>
+
+<!-- ── KPI Card 2: Weekly Throughput ── -->
+<rect id="s4-wkly-outer" x="873" y="393" width="114" height="44" rx="4" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+<text x="930" y="405" text-anchor="middle" fill="#64748b" font-size="8" font-weight="600">WEEKLY THROUGHPUT</text>
+<text x="930" y="420" text-anchor="middle" font-size="14" font-weight="700" font-family="monospace"><tspan id="s4-wkly" fill="#e2e8f0">0</tspan><tspan font-size="9" fill="#94a3b8" font-family="system-ui" font-weight="400"> k/wk</tspan></text>
+<text id="s4-wkly-sub" x="930" y="431" text-anchor="middle" fill="#64748b" font-size="8">of 500k target</text>
 
 <!-- ═══════════════════ FLOW LABELS ═══════════════════ -->
 <text x="156" y="236" text-anchor="middle" fill="#60a5fa" font-size="10" font-weight="600">
@@ -616,55 +573,6 @@
 </svg>
 </div>
 
-<!-- Data Panel -->
-<div class="data-panel">
-  <!-- Row 1: Flows & station -->
-  <div class="data-card">
-    <div class="label">F1 Inflow Actual</div>
-    <div class="value"><span id="dp-f1">0.0</span><span class="unit">k/hr</span></div>
-    <div class="sub" id="dp-f1-sub">target: — k/hr</div>
-  </div>
-  <div class="data-card">
-    <div class="label">F2 Effective Rate</div>
-    <div class="value"><span id="dp-f2">0.0</span><span class="unit">k/hr</span></div>
-    <div class="sub" id="dp-f2-sub">of <span id="dp-f2-cap">9.4</span> theoretical</div>
-  </div>
-
-  <div class="data-card">
-    <div class="label">F3 Completion Actual</div>
-    <div class="value"><span id="dp-f3">0.0</span><span class="unit">k/hr</span></div>
-    <div class="sub">—</div>
-  </div>
-
-  <!-- Row 3: Biological clock + throughput -->
-  <div class="data-card" id="card-fail">
-    <div class="label">Deadline Failures</div>
-    <div class="value"><span id="dp-fail">0</span><span class="unit">k plants</span></div>
-    <div class="sub">priority plants lost</div>
-  </div>
-  <div class="data-card" id="card-wkly">
-    <div class="label">Weekly Throughput</div>
-    <div class="value"><span id="dp-wkly">0</span><span class="unit">k plants/wk</span></div>
-    <div class="sub" id="dp-wkly-sub">Target: 500k</div>
-  </div>
-
-  <!-- Row 2: Worker states -->
-  <div class="data-card" id="card-polling">
-    <div class="label">Workers Pollinating</div>
-    <div class="value"><span id="dp-worker-poll">0</span><span class="unit">workers</span></div>
-    <div class="sub" id="dp-worker-poll-sub">of 0 total</div>
-  </div>
-  <div class="data-card" id="card-setup">
-    <div class="label">Workers in Setup</div>
-    <div class="value"><span id="dp-worker-setup">0</span><span class="unit">workers</span></div>
-    <div class="sub">in transit / staging</div>
-  </div>
-  <div class="data-card">
-    <div class="label">Idle Workers</div>
-    <div class="value"><span id="dp-worker-idle">0</span><span class="unit">workers</span></div>
-    <div class="sub" id="dp-worker-idle-sub">of 0 total</div>
-  </div>
-</div>
 
 <!-- Throughput Chart -->
 <div class="chart-wrapper">
@@ -774,10 +682,13 @@ const dom = {
   s3maxWipVal: document.getElementById('s3-max-wip-val'),
   s3outer:     document.getElementById('s3-outer'),
 
-  s4fill:    document.getElementById('s4-fill'),
-  s4shimmer: document.getElementById('s4-shimmer'),
-  s4qty:     document.getElementById('s4-qty'),
-  s4outer:   document.getElementById('s4-outer'),
+  s4fill:      document.getElementById('s4-fill'),
+  s4shimmer:   document.getElementById('s4-shimmer'),
+  s4qty:       document.getElementById('s4-qty'),
+  s4outer:     document.getElementById('s4-outer'),
+  s4WklyOuter: document.getElementById('s4-wkly-outer'),
+  s4WklyVal:   document.getElementById('s4-wkly'),
+  s4WklySub:   document.getElementById('s4-wkly-sub'),
 
   // deadline bar
   deadlineBar:   document.getElementById('deadline-bar'),
@@ -796,24 +707,6 @@ const dom = {
   // particles group
   particles: document.getElementById('particles'),
 
-  // data panel
-  dpF1:       document.getElementById('dp-f1'),
-  dpF1sub:    document.getElementById('dp-f1-sub'),
-  dpF2:       document.getElementById('dp-f2'),
-  dpF2sub:    document.getElementById('dp-f2-sub'),
-  dpF3:       document.getElementById('dp-f3'),
-  dpTime:     document.getElementById('dp-time'),
-  dpFail:     document.getElementById('dp-fail'),
-  dpWorkerPoll:    document.getElementById('dp-worker-poll'),
-  dpWorkerPollSub: document.getElementById('dp-worker-poll-sub'),
-  dpWorkerSetup:   document.getElementById('dp-worker-setup'),
-  dpWorkerIdle:    document.getElementById('dp-worker-idle'),
-  dpWorkerIdleSub: document.getElementById('dp-worker-idle-sub'),
-  cardPolling:     document.getElementById('card-polling'),
-  cardSetup:       document.getElementById('card-setup'),
-
-  // data cards (for border color)
-  cardFail: document.getElementById('card-fail'),
 
   // S3 SVG
   s3queueFill: document.getElementById('s3-queue-fill'),
@@ -840,10 +733,6 @@ const dom = {
   schedCursor:      document.getElementById('sched-cursor'),
   chartCanvas:      document.getElementById('throughputChart'),
 
-  // data cards
-  cardWkly:  document.getElementById('card-wkly'),
-  dpWkly:    document.getElementById('dp-wkly'),
-  dpWklySub: document.getElementById('dp-wkly-sub'),
 };
 
 const svgPaths = [
@@ -1123,7 +1012,7 @@ function renderFrame() {
     ? `${sim.flows.scrap.toFixed(1)} k/hr`
     : '';
   dom.scrapRateLbl.setAttribute('fill', scrapActive ? '#ef4444' : '#475569');
-  dom.scrapQty.textContent    = sim.failures.toFixed(1);
+  dom.scrapQty.textContent    = Math.round(sim.failures * 1000).toLocaleString();
   dom.scrapRateSub.textContent = sim.failures > 0
     ? `${(sim.failures / params.target * 100).toFixed(1)}% of target`
     : 'cumulative';
@@ -1171,7 +1060,7 @@ function renderFrame() {
   dom.s3qty.textContent       = activeWIP.toFixed(1);
   dom.s3qtySub.textContent    = `${workerPolling} workers pollinating`;
   dom.s3queueQty.textContent  = workerSetup;
-  dom.s3maxWipVal.textContent = N;
+  dom.s3maxWipVal.textContent = workerPolling;
 
   // ── S4 Post-Pollination ──
   const g4 = STOCKS_GEO[3];
@@ -1238,36 +1127,9 @@ function renderFrame() {
     : sim.flows.f3;
   const weeklyOutput = avgRate * WEEK_HRS;
 
-  dom.dpF1.textContent    = sim.flows.f1.toFixed(2);
-  dom.dpF1sub.textContent = `target: ${params.f1Rate.toFixed(2)} k/hr`;
-  dom.dpF2.textContent    = sim.flows.f2.toFixed(2);
-  dom.dpF2sub.textContent = `of ${params.theoreticalPlantsPerHr.toFixed(2)} k/hr capacity`;
-  dom.dpF3.textContent    = sim.flows.f3.toFixed(2);
-
-  dom.dpTime.textContent = sim.elapsed.toFixed(1);
-  dom.dpFail.textContent = sim.failures.toFixed(1);
-
-  // ── Worker state cards ──
-  dom.dpWorkerPoll.textContent    = workerPolling;
-  dom.dpWorkerPollSub.textContent = `of ${params.numWorkers} total`;
-  dom.dpWorkerSetup.textContent   = workerSetup;
-  dom.dpWorkerIdle.textContent    = workerIdle;
-  dom.dpWorkerIdleSub.textContent = `of ${params.numWorkers} total`;
-
-  dom.dpWkly.textContent    = weeklyOutput.toFixed(0);
-  dom.dpWklySub.textContent = weeklyOutput >= params.target
-    ? `✓ Target: ${params.target}k met (${(weeklyOutput/params.target*100).toFixed(0)}%)`
-    : `✗ Target: ${params.target}k (${(weeklyOutput/params.target*100).toFixed(0)}%)`;
-
-  // ── Card state colors ──
-  dom.cardFail.className = `data-card${sim.failures > 0 ? ' alert' : ' good'}`;
-  if (dom.cardWkly) {
-    dom.cardWkly.className = `data-card${weeklyOutput >= params.target ? ' good' : ' alert'}`;
-  }
-  if (dom.cardPolling) {
-    const util = params.numWorkers > 0 ? workerPolling / params.numWorkers : 0;
-    dom.cardPolling.className = `data-card${util > 0.8 ? ' good' : util < 0.2 ? ' alert' : ''}`;
-  }
+  dom.s4WklyVal.textContent = weeklyOutput.toFixed(0);
+  dom.s4WklySub.textContent = `${(weeklyOutput / params.target * 100).toFixed(0)}% of ${params.target}k target`;
+  dom.s4WklyOuter.setAttribute('stroke', weeklyOutput >= params.target ? '#10b981' : '#334155');
 
   // ── Alert banner ──
 
@@ -1502,7 +1364,6 @@ function syncAll() {
   if (dom.totalFlowTimeDisplay)    dom.totalFlowTimeDisplay.textContent    = `${totalMin} min`;
   if (dom.plantsPerSessionConvert) dom.plantsPerSessionConvert.textContent = `= ${params.plantsPerSessionK.toFixed(4)} k-plants`;
   if (dom.stationCapDerived)       dom.stationCapDerived.textContent       = `${params.theoreticalPlantsPerHr.toFixed(2)} k/hr`;
-  if (dom.s3maxWipVal)             dom.s3maxWipVal.textContent             = params.maxActiveWIP.toFixed(2);
 }
 
 dom.targetInput.addEventListener('input',          syncAll);
