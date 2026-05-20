@@ -250,6 +250,183 @@
     .delta-pos  { color: #4ade80; }
     .delta-neg  { color: #f87171; }
     .delta-warn { color: #f59e0b; }
+
+    /* ── Info-tip tooltips ── */
+    .info-tip {
+      display: inline-block;
+      font-size: 9px;
+      color: #475569;
+      cursor: help;
+      margin-left: 4px;
+      position: relative;
+      vertical-align: middle;
+      user-select: none;
+    }
+    .info-tip::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 0;
+      background: #0f172a;
+      border: 1px solid #475569;
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 11px;
+      font-family: 'Courier New', monospace;
+      color: #cbd5e1;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 200;
+      transition: opacity 0.15s;
+    }
+    .info-tip:hover::after { opacity: 1; }
+
+    /* ── Decision Framework ── */
+    .df-table {
+      display: grid;
+      grid-template-columns: 210px 58px repeat(3, 1fr);
+    }
+
+    .df-col-label { border-bottom: 1px solid #334155; }
+
+    .df-col-wt {
+      padding: 0 0 12px;
+      border-bottom: 1px solid #334155;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #475569;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .df-col-head {
+      padding: 0 18px 14px;
+      border-bottom: 1px solid #334155;
+    }
+
+    .df-col-head-base { border-top: 2px solid #475569; padding-top: 14px; }
+    .df-col-head-a    { border-top: 2px solid #60a5fa; padding-top: 14px; }
+    .df-col-head-b    { border-top: 2px solid #4ade80; padding-top: 14px; }
+
+    .df-factor {
+      font-size: 12px;
+      color: #94a3b8;
+      padding: 10px 10px 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .df-factor-sub {
+      font-size: 10px;
+      color: #475569;
+      margin-top: 1px;
+    }
+
+    .df-wt-badge {
+      font-size: 11px;
+      font-weight: 700;
+      color: #475569;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .df-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .df-score {
+      font-size: 15px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.2;
+    }
+
+    .df-auto {
+      font-size: 9px;
+      color: #475569;
+      margin-top: 2px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .df-input {
+      width: 52px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      padding: 4px 6px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: inherit;
+      text-align: center;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .df-input:focus { outline: none; border-color: #60a5fa; }
+
+    .df-total-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #e2e8f0;
+      padding: 16px 10px 12px 0;
+      border-top: 1px solid #475569;
+      display: flex;
+      align-items: center;
+    }
+
+    .df-wt-total {
+      border-top: 1px solid #475569;
+      color: #475569;
+      font-size: 10px;
+    }
+
+    .df-total-cell {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 18px 12px;
+      border-top: 1px solid #475569;
+    }
+
+    .df-total-score {
+      font-size: 26px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+
+    .df-recommendation {
+      margin-top: 20px;
+      padding: 12px 18px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid #334155;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+    }
+
+    .df-rec-pre { color: #64748b; font-weight: 600; white-space: nowrap; }
+    #df-rec-winner { font-weight: 700; font-size: 15px; }
+
+    .df-legend {
+      font-size: 10px;
+      color: #475569;
+      margin-left: auto;
+    }
   </style>
 </head>
 <body>
@@ -362,6 +539,11 @@
         <span class="input-unit">%</span>
       </div>
       <div class="col-input-row">
+        <label for="reliabilityA">Reliability</label>
+        <input id="reliabilityA" type="number" min="0" max="100" step="1" value="95">
+        <span class="input-unit">% uptime</span>
+      </div>
+      <div class="col-input-row">
         <label for="capex">Capex</label>
         <input id="capex" type="number" value="2000000">
         <span class="input-unit">$</span>
@@ -380,6 +562,11 @@
         <label for="workstationAutoPct">Automation</label>
         <input id="workstationAutoPct" type="number" min="0" max="100" step="1" value="40">
         <span class="input-unit">%</span>
+      </div>
+      <div class="col-input-row">
+        <label for="reliabilityB">Reliability</label>
+        <input id="reliabilityB" type="number" min="0" max="100" step="1" value="95">
+        <span class="input-unit">% uptime</span>
       </div>
       <div class="col-input-row">
         <label for="capexB">Capex</label>
@@ -520,13 +707,110 @@
   </div>
 </div>
 
+<!-- ══════════════════ DECISION FRAMEWORK ══════════════════ -->
+<div class="panel">
+  <div class="panel-title">Automated Decision Framework</div>
+  <div class="df-table">
+
+    <!-- Column headers -->
+    <div class="df-col-label"></div>
+    <div class="df-col-wt">Weight</div>
+    <div class="df-col-head df-col-head-base">
+      <div class="col-name">Baseline</div>
+      <div class="col-sub">Current State</div>
+    </div>
+    <div class="df-col-head df-col-head-a">
+      <div class="col-name col-name-a">Scenario A</div>
+      <div class="col-sub">Logistics Auto</div>
+    </div>
+    <div class="df-col-head df-col-head-b">
+      <div class="col-name col-name-b">Scenario B</div>
+      <div class="col-sub">Workstation Auto</div>
+    </div>
+
+    <!-- Throughput leverage (auto-computed) -->
+    <div class="df-factor">
+      Throughput leverage
+      <span class="info-tip" data-tip="% capacity gain with same headcount, mapped 0%→1 … 50%+→10">ⓘ</span>
+    </div>
+    <div class="df-wt-badge">25%</div>
+    <div class="df-cell" id="df-base-throughput"><span class="df-score">—</span><span class="df-auto">—</span></div>
+    <div class="df-cell" id="df-a-throughput"><span class="df-score">—</span><span class="df-auto">—</span></div>
+    <div class="df-cell" id="df-b-throughput"><span class="df-score">—</span><span class="df-auto">—</span></div>
+
+    <!-- Payback (auto-computed) -->
+    <div class="df-factor">
+      Payback
+      <span class="info-tip" data-tip="score = min(10, 10 ÷ years); shorter payback = higher score">ⓘ</span>
+    </div>
+    <div class="df-wt-badge">20%</div>
+    <div class="df-cell" id="df-base-payback"><span class="df-score">—</span><span class="df-auto">—</span></div>
+    <div class="df-cell" id="df-a-payback"><span class="df-score">—</span><span class="df-auto">—</span></div>
+    <div class="df-cell" id="df-b-payback"><span class="df-score">—</span><span class="df-auto">—</span></div>
+
+    <!-- Deployment risk (editable) -->
+    <div class="df-factor">
+      Deployment risk
+      <span class="info-tip" data-tip="10 = no deployment risk (status quo) · 1 = very high integration risk">ⓘ</span>
+    </div>
+    <div class="df-wt-badge">20%</div>
+    <div class="df-cell"><input class="df-input" id="df-base-risk"  type="number" min="1" max="10" step="1" value="10"></div>
+    <div class="df-cell"><input class="df-input" id="df-a-risk"     type="number" min="1" max="10" step="1" value="6"></div>
+    <div class="df-cell"><input class="df-input" id="df-b-risk"     type="number" min="1" max="10" step="1" value="3"></div>
+
+    <!-- Biological / process uncertainty (editable) -->
+    <div class="df-factor">
+      Biological / process uncertainty
+      <span class="info-tip" data-tip="10 = proven process · 1 = outcome highly uncertain (novel tech touching live biology)">ⓘ</span>
+    </div>
+    <div class="df-wt-badge">15%</div>
+    <div class="df-cell"><input class="df-input" id="df-base-bio"   type="number" min="1" max="10" step="1" value="10"></div>
+    <div class="df-cell"><input class="df-input" id="df-a-bio"      type="number" min="1" max="10" step="1" value="8"></div>
+    <div class="df-cell"><input class="df-input" id="df-b-bio"      type="number" min="1" max="10" step="1" value="4"></div>
+
+    <!-- Scalability (editable) -->
+    <div class="df-factor">
+      Scalability
+      <span class="info-tip" data-tip="10 = infrastructure scales to any volume · 1 = purely headcount-linear">ⓘ</span>
+    </div>
+    <div class="df-wt-badge">10%</div>
+    <div class="df-cell"><input class="df-input" id="df-base-scale" type="number" min="1" max="10" step="1" value="4"></div>
+    <div class="df-cell"><input class="df-input" id="df-a-scale"    type="number" min="1" max="10" step="1" value="8"></div>
+    <div class="df-cell"><input class="df-input" id="df-b-scale"    type="number" min="1" max="10" step="1" value="9"></div>
+
+    <!-- Implementation speed (editable) -->
+    <div class="df-factor">
+      Implementation speed
+      <span class="info-tip" data-tip="10 = already live · 6 = 6–18 months · 3 = 18–36+ months">ⓘ</span>
+    </div>
+    <div class="df-wt-badge">10%</div>
+    <div class="df-cell"><input class="df-input" id="df-base-speed" type="number" min="1" max="10" step="1" value="10"></div>
+    <div class="df-cell"><input class="df-input" id="df-a-speed"    type="number" min="1" max="10" step="1" value="6"></div>
+    <div class="df-cell"><input class="df-input" id="df-b-speed"    type="number" min="1" max="10" step="1" value="3"></div>
+
+    <!-- Weighted total -->
+    <div class="df-total-label">Weighted Score</div>
+    <div class="df-wt-badge df-wt-total">/ 10</div>
+    <div class="df-total-cell" id="df-base-total"><span class="df-total-score">—</span></div>
+    <div class="df-total-cell" id="df-a-total"><span class="df-total-score">—</span></div>
+    <div class="df-total-cell" id="df-b-total"><span class="df-total-score">—</span></div>
+
+  </div>
+
+  <div class="df-recommendation">
+    <span class="df-rec-pre">Recommendation →</span>
+    <span id="df-rec-winner">—</span>
+    <span class="df-legend">Score scale: 1 (poor) – 10 (excellent) &nbsp;·&nbsp; Green ≥ 7 &nbsp;·&nbsp; Amber ≥ 4 &nbsp;·&nbsp; Red &lt; 4</span>
+  </div>
+</div>
+
 <script>
   const inputs = [
     'weeklyVolume','plantsPerSession','plantsPerCart',
     'totalSessionTime','movementPrepTime','valueAddedTime',
     'operatingDays','shiftsPerDay','hrsPerShift','techRate',
-    'logisticsAutoPct','capex','annualOpex',
-    'workstationAutoPct','capexB','annualOpexB',
+    'logisticsAutoPct','reliabilityA','capex','annualOpex',
+    'workstationAutoPct','reliabilityB','capexB','annualOpexB',
     'priorityPct','failureCost'
   ];
 
@@ -571,6 +855,8 @@
     return fmt(capex / netAnnual);
   }
 
+  let _dfState = { baseCapacity: 1, aCapacity: 1, bCapacity: 1, aPayYrs: Infinity, bPayYrs: Infinity };
+
   function recalc() {
     const v = Object.fromEntries(
       inputs.map(id => [id, parseFloat(document.getElementById(id).value)])
@@ -599,7 +885,9 @@
 
     // ── Scenario A: Logistics Automation (reduces setup/movement time) ──
     const aAuto          = v.logisticsAutoPct / 100;
-    const aSetupTime     = v.movementPrepTime * (1 - aAuto);
+    const aReliability   = v.reliabilityA / 100;
+    // Effective time saved scales with uptime: when system is down, revert to manual
+    const aSetupTime     = v.movementPrepTime * (1 - aAuto * aReliability);
     const aTotalSession  = aSetupTime + v.valueAddedTime;
     const aLaborHrs      = sessionsPerWeek * aTotalSession;
     const aLaborSaved    = totalUnitHrs - aLaborHrs;
@@ -626,7 +914,9 @@
 
     // ── Scenario B: Workstation Automation (reduces active pollination time) ──
     const bAuto          = v.workstationAutoPct / 100;
-    const bActiveTime    = v.valueAddedTime * (1 - bAuto);
+    const bReliability   = v.reliabilityB / 100;
+    // Effective time saved scales with uptime: when system is down, revert to manual
+    const bActiveTime    = v.valueAddedTime * (1 - bAuto * bReliability);
     const bTotalSession  = v.movementPrepTime + bActiveTime;
     const bLaborHrs      = sessionsPerWeek * bTotalSession;
     const bLaborSaved    = totalUnitHrs - bLaborHrs;
@@ -700,10 +990,136 @@
     setBase('base-risk-cost', fmtD(baseRiskCost));
     setScenario('a-risk-cost', aRiskCost, baseRiskCost, true, fmtD);
     setScenario('b-risk-cost', bRiskCost, baseRiskCost, true, fmtD);
+
+    _dfState = {
+      baseCapacity,
+      aCapacity,
+      bCapacity,
+      aPayYrs: aNetAnnual > 0 ? v.capex  / aNetAnnual : Infinity,
+      bPayYrs: bNetAnnual > 0 ? v.capexB / bNetAnnual : Infinity,
+    };
+    updateDecision();
   }
 
   inputs.forEach(id => document.getElementById(id).addEventListener('input', recalc));
   recalc();
+
+  // Inject info-tip icons next to every derived metric label
+  const TIPS = {
+    'Total session time':         'setup time + active time',
+    'Setup / movement time':      'movement × (1 − auto% × uptime%)',
+    'Active pollination time':    'active × (1 − auto% × uptime%)',
+    'Labor hours / week':         '(vol ÷ plants/session) × session time',
+    'Labor hours saved / week':   'base labor hrs − scenario labor hrs',
+    'Technicians required':       'labor hrs/wk ÷ avail hrs/wk',
+    'Weekly labor cost':          'labor hrs × $/hr',
+    'Annual labor cost':          'weekly cost × 52',
+    'Annual labor savings':       'hrs saved × $/hr × 52',
+    'Weekly capacity':            'headcount × avail hrs ÷ session time × plants/session',
+    'Capacity surplus vs target': 'capacity − weekly vol target',
+    'Payback period':             'capex ÷ (savings − annual opex)',
+    'Priority plants / week':     'weekly vol × priority%',
+    'System utilization':         'scenario session time ÷ baseline session time',
+    '48-hr processing capacity':  'headcount × 2-day hrs ÷ session time × plants/session',
+    'Est. risk cost / week':      'priority plants × $/plant × max(0, (util − 90%) ÷ 10%)',
+  };
+
+  document.querySelectorAll('.comp-label').forEach(el => {
+    const textNode = el.firstChild;
+    if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return;
+    const label = textNode.textContent.trim();
+    if (!TIPS[label]) return;
+    const tip = document.createElement('span');
+    tip.className = 'info-tip';
+    tip.dataset.tip = TIPS[label];
+    tip.textContent = 'ⓘ';
+    el.insertBefore(tip, el.querySelector('.comp-label-unit'));
+  });
+
+  // ── Decision Framework ──────────────────────────────────────────────
+
+  function scoreColor(s) {
+    return s >= 7 ? '#4ade80' : s >= 4 ? '#f59e0b' : '#f87171';
+  }
+
+  function updateDecision() {
+    const { baseCapacity, aCapacity, bCapacity, aPayYrs, bPayYrs } = _dfState;
+
+    // Throughput leverage: % capacity gain vs baseline, mapped 0 %→1, 50 %+→10
+    function throughputScore(cap) {
+      const pct = (cap - baseCapacity) / baseCapacity * 100;
+      return Math.max(1, Math.min(10, Math.round(1 + Math.min(pct, 50) / 50 * 9)));
+    }
+    const aTScore = throughputScore(aCapacity);
+    const bTScore = throughputScore(bCapacity);
+
+    // Payback: score = min(10, 10 / years); shorter payback = higher score
+    function paybackScore(yrs) {
+      if (!isFinite(yrs) || yrs > 20) return 1;
+      return Math.max(1, Math.min(10, Math.round(10 / Math.max(yrs, 0.5))));
+    }
+    const aPayScore = paybackScore(aPayYrs);
+    const bPayScore = paybackScore(bPayYrs);
+
+    function setAuto(id, score, sub) {
+      const cell = document.getElementById(id);
+      if (!cell) return;
+      const el = cell.querySelector('.df-score');
+      el.textContent = score;
+      el.style.color = scoreColor(score);
+      if (sub !== undefined) cell.querySelector('.df-auto').textContent = sub;
+    }
+
+    setAuto('df-base-throughput', 1,         '0% gain');
+    setAuto('df-a-throughput',    aTScore,   fmt((aCapacity - baseCapacity) / baseCapacity * 100, 1) + '% gain');
+    setAuto('df-b-throughput',    bTScore,   fmt((bCapacity - baseCapacity) / baseCapacity * 100, 1) + '% gain');
+    setAuto('df-base-payback',    10,        'no capex');
+    setAuto('df-a-payback',       aPayScore, isFinite(aPayYrs) ? fmt(aPayYrs) + ' yr' : '∞');
+    setAuto('df-b-payback',       bPayScore, isFinite(bPayYrs) ? fmt(bPayYrs) + ' yr' : '∞');
+
+    // Color all editable inputs by their current value
+    ['df-base-risk','df-base-bio','df-base-scale','df-base-speed',
+     'df-a-risk','df-a-bio','df-a-scale','df-a-speed',
+     'df-b-risk','df-b-bio','df-b-scale','df-b-speed'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.color = scoreColor(parseFloat(el.value) || 1);
+    });
+
+    function getS(id) { return Math.max(1, Math.min(10, parseFloat(document.getElementById(id)?.value) || 1)); }
+    const W = [0.25, 0.20, 0.20, 0.15, 0.10, 0.10];
+
+    function weightedTotal(t, p, rid, bid, sid, spid) {
+      return [t, p, getS(rid), getS(bid), getS(sid), getS(spid)]
+        .reduce((sum, s, i) => sum + s * W[i], 0);
+    }
+
+    const baseTotal = weightedTotal(1,      10,        'df-base-risk','df-base-bio','df-base-scale','df-base-speed');
+    const aTotal    = weightedTotal(aTScore, aPayScore, 'df-a-risk',  'df-a-bio',  'df-a-scale',  'df-a-speed');
+    const bTotal    = weightedTotal(bTScore, bPayScore, 'df-b-risk',  'df-b-bio',  'df-b-scale',  'df-b-speed');
+
+    function setTotal(id, val) {
+      const el = document.getElementById(id)?.querySelector('.df-total-score');
+      if (el) { el.textContent = val.toFixed(1); el.style.color = scoreColor(val); }
+    }
+    setTotal('df-base-total', baseTotal);
+    setTotal('df-a-total',    aTotal);
+    setTotal('df-b-total',    bTotal);
+
+    // Recommendation banner
+    const maxVal = Math.max(baseTotal, aTotal, bTotal);
+    let winner, color;
+    if (aTotal >= bTotal && aTotal >= baseTotal)      { winner = 'Scenario A'; color = '#60a5fa'; }
+    else if (bTotal >= aTotal && bTotal >= baseTotal) { winner = 'Scenario B'; color = '#4ade80'; }
+    else                                              { winner = 'Baseline (Status Quo)'; color = '#94a3b8'; }
+
+    const rec = document.getElementById('df-rec-winner');
+    if (rec) { rec.textContent = winner + '  (' + maxVal.toFixed(1) + ' / 10)'; rec.style.color = color; }
+  }
+
+  ['df-base-risk','df-base-bio','df-base-scale','df-base-speed',
+   'df-a-risk','df-a-bio','df-a-scale','df-a-speed',
+   'df-b-risk','df-b-bio','df-b-scale','df-b-speed']
+    .forEach(id => document.getElementById(id).addEventListener('input', updateDecision));
 </script>
 
 </body>
