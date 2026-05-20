@@ -24,25 +24,6 @@
     h1 { font-size: 20px; font-weight: 700; color: #e2e8f0; letter-spacing: 0.04em; }
     .subtitle { font-size: 12px; color: #64748b; margin-top: 3px; }
 
-    /* ── Alert banner ── */
-    .alert-banner {
-      width: 100%; max-width: 1240px;
-      background: #7f1d1d;
-      border: 1px solid #ef4444;
-      border-radius: 8px;
-      padding: 10px 18px;
-      font-size: 13px;
-      font-weight: 600;
-      color: #fca5a5;
-      display: none;
-      animation: pulse-border 1.5s ease-in-out infinite;
-    }
-
-    @keyframes pulse-border {
-      0%, 100% { border-color: #ef4444; }
-      50%       { border-color: #fca5a5; }
-    }
-
     /* ── Controls ── */
     .controls {
       display: flex;
@@ -347,13 +328,7 @@
 
 <header>
   <h1>Living Factory Simulation</h1>
-  <p class="subtitle">Ohalo Seed Production &mdash; Buffer Warehouse &rarr; Pollination Zone &mdash; 500,000 plants / week</p>
 </header>
-
-<!-- Alert -->
-<div id="alert-banner" class="alert-banner">
-  &#9888; DEADLINE FAILURE &mdash; Priority plants exceeded 48 sim-hour biological window. Breeding cycle at risk.
-</div>
 
 <!-- Controls -->
 <div class="controls">
@@ -374,9 +349,9 @@
     <div class="ctrl-section-label">Pollination Station</div>
     <div class="ctrl-row">
       <div class="control-group">
-        <label>Workers Required</label>
-        <div id="num-workers-derived" style="font-size:13px;color:#a78bfa;font-weight:700;margin-top:4px;">938</div>
-        <div class="rate-convert" id="numWorkers-convert">100,000 sessions/wk</div>
+        <label>Workers</label>
+        <input type="number" id="numWorkers" min="1" max="10000" step="1" value="94">
+        <div class="rate-convert" id="numWorkers-recommended">Recommended: 94</div>
       </div>
       <div class="control-group">
         <label>Plants / Session</label>
@@ -404,7 +379,7 @@
         <input type="number" id="pollTime" min="1" max="480" value="30" step="1">
       </div>
       <div class="control-group">
-        <label>Total Flow Time</label>
+        <label>Output Lag</label>
         <div class="rate-convert" id="totalFlowTime" style="font-size:13px;color:#a78bfa;font-weight:700;margin-top:4px;">45 min</div>
       </div>
     </div>
@@ -469,7 +444,7 @@
 
 <!-- SVG Diagram -->
 <div class="diagram-wrapper">
-<svg id="diagram" viewBox="0 0 1005 470" xmlns="http://www.w3.org/2000/svg">
+<svg id="diagram" viewBox="0 0 1005 565" xmlns="http://www.w3.org/2000/svg">
 <defs>
   <marker id="arr-f1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
     <path d="M0,0 L0,6 L8,3 Z" fill="#60a5fa"/>
@@ -479,6 +454,9 @@
   </marker>
   <marker id="arr-f3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
     <path d="M0,0 L0,6 L8,3 Z" fill="#34d399"/>
+  </marker>
+  <marker id="arr-scrap" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L7,3 Z" fill="#ef4444"/>
   </marker>
 
   <!-- Clip paths for each stock fill area -->
@@ -517,6 +495,7 @@
   fill="#93c5fd" opacity="0" clip-path="url(#clip-s1)"/>
 <line x1="15" y1="153" x2="103" y2="153" stroke="#334155" stroke-width="1" stroke-dasharray="3 3"/>
 <text x="59" y="138" text-anchor="middle" fill="#94a3b8" font-size="11" font-weight="700">PROPAGATION</text>
+<rect x="20" y="358" width="78" height="30" rx="4" fill="#1e293b" stroke="#334155" stroke-width="1"/>
 <text id="s1-qty" x="59" y="370" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="700" font-family="monospace">800</text>
 <text x="59" y="382" text-anchor="middle" fill="#64748b" font-size="9">k plants</text>
 
@@ -534,17 +513,41 @@
   fill="#fde68a" opacity="0" clip-path="url(#clip-s2)"/>
 <line x1="210" y1="103" x2="390" y2="103" stroke="#334155" stroke-width="1" stroke-dasharray="3 3"/>
 <text x="300" y="88" text-anchor="middle" fill="#94a3b8" font-size="11" font-weight="700">BUFFER WAREHOUSE</text>
-<text id="s2-qty" x="300" y="413" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="700" font-family="monospace">200</text>
-<text x="300" y="425" text-anchor="middle" fill="#64748b" font-size="9">k plants</text>
-<text id="s2-pri-label" x="300" y="437" text-anchor="middle" fill="#f59e0b" font-size="9">40 priority (20%)</text>
+<!-- ── KPI Card 1: Buffer Warehouse ── -->
+<rect x="213" y="404" width="174" height="44" rx="4" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+<text x="300" y="416" text-anchor="middle" fill="#64748b" font-size="8" font-weight="600">BUFFER WAREHOUSE</text>
+<text x="300" y="431" text-anchor="middle" font-size="14" font-weight="700" font-family="monospace"><tspan id="s2-qty" fill="#e2e8f0">200</tspan><tspan font-size="9" fill="#94a3b8" font-family="system-ui" font-weight="400"> k plants</tspan></text>
+<text id="s2-qty-sub" x="300" y="442" text-anchor="middle" fill="#64748b" font-size="8">31% full</text>
 
-<!-- 48-hr deadline progress bar (below S2) -->
-<rect x="213" y="440" width="174" height="8" rx="3"
-  fill="#0f172a" stroke="#334155" stroke-width="1"/>
-<rect id="deadline-bar" x="213" y="440" width="0" height="8" rx="3"
-  fill="#10b981"/>
-<text id="deadline-text" x="213" y="456" fill="#475569" font-size="9">Priority age: 0h / 48h</text>
-<text id="deadline-label" x="387" y="456" text-anchor="end" fill="#475569" font-size="9">0%</text>
+<!-- ── KPI Card 2: Priority in Buffer ── -->
+<rect x="213" y="452" width="174" height="44" rx="4" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+<text x="300" y="464" text-anchor="middle" fill="#64748b" font-size="8" font-weight="600">PRIORITY IN BUFFER</text>
+<text x="300" y="479" text-anchor="middle" font-size="14" font-weight="700" font-family="monospace"><tspan id="s2-pri-qty" fill="#e2e8f0">50000</tspan><tspan font-size="9" fill="#94a3b8" font-family="system-ui" font-weight="400"> plants</tspan></text>
+<text id="s2-pri-sub" x="300" y="490" text-anchor="middle" fill="#64748b" font-size="8">20% of buffer</text>
+
+<!-- ── KPI Card 3: Priority Age ── -->
+<rect x="213" y="500" width="174" height="54" rx="4" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+<text x="300" y="512" text-anchor="middle" fill="#64748b" font-size="8" font-weight="600">PRIORITY AGE</text>
+<text id="s2-age-val" x="300" y="526" text-anchor="middle" fill="#e2e8f0" font-size="14" font-weight="700" font-family="monospace">0.0 / 48h</text>
+<text x="300" y="535" text-anchor="middle" fill="#64748b" font-size="8">biological window</text>
+<rect x="223" y="541" width="154" height="5" rx="2" fill="#0f172a"/>
+<rect id="deadline-bar" x="223" y="541" width="0" height="5" rx="2" fill="#10b981"/>
+
+<!-- ── Scrap Flow: Buffer Warehouse → Deadline Losses stock ── -->
+<!-- arrow exits the lower-right of S2, angling down-right below the F2 flow line -->
+<line x1="390" y1="345" x2="453" y2="405"
+  id="path-scrap"
+  stroke="#ef4444" stroke-width="1.5"
+  stroke-dasharray="4 3" marker-end="url(#arr-scrap)"/>
+<text x="398" y="368" fill="#ef4444" font-size="8" font-weight="600" id="scrap-rate-lbl"></text>
+<!-- Deadline Losses stock: sits below the F2 arrow, between S2 and S3 -->
+<rect x="455" y="407" width="110" height="42" rx="3"
+  fill="#1e293b" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3 2"/>
+<text x="510" y="419" text-anchor="middle" fill="#ef4444" font-size="7" font-weight="600">DEADLINE LOSSES</text>
+<text x="510" y="436" text-anchor="middle" font-size="13" font-weight="700" font-family="monospace">
+  <tspan id="scrap-qty" fill="#fca5a5">0.0</tspan><tspan font-size="7" fill="#64748b" font-family="system-ui" font-weight="400"> k</tspan>
+</text>
+<text x="510" y="446" text-anchor="middle" fill="#334155" font-size="7" id="scrap-rate-sub">cumulative</text>
 
 <!-- ═══════════════════ S3 — POLLINATION ZONE ═══════════════════ -->
 <rect x="600" y="130" width="130" height="240" rx="5"
@@ -555,10 +558,26 @@
   fill="#4c1d95" clip-path="url(#clip-s3)"/>
 <rect id="s3-shimmer" x="603" y="367" width="124" height="3"
   fill="#ddd6fe" opacity="0" clip-path="url(#clip-s3)"/>
+<g id="worker-grid" clip-path="url(#clip-s3)"></g>
 <line x1="600" y1="133" x2="730" y2="133" stroke="#334155" stroke-width="1" stroke-dasharray="3 3"/>
-<text x="665" y="118" text-anchor="middle" fill="#94a3b8" font-size="11" font-weight="700">POLLINATION ZONE</text>
-<text id="s3-qty" x="665" y="388" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="700" font-family="monospace">20</text>
-<text x="665" y="400" text-anchor="middle" fill="#64748b" font-size="9">k plants</text>
+<text x="665" y="118" text-anchor="middle" fill="#94a3b8" font-size="11" font-weight="700">POLLINATION WORKERS</text>
+<!-- ── KPI Card 1: Active WIP ── -->
+<rect x="603" y="374" width="124" height="44" rx="4" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+<text x="665" y="386" text-anchor="middle" fill="#64748b" font-size="8" font-weight="600">ACTIVE WIP</text>
+<text x="665" y="401" text-anchor="middle" font-size="14" font-weight="700" font-family="monospace"><tspan id="s3-qty" fill="#e2e8f0">20</tspan><tspan font-size="9" fill="#94a3b8" font-family="system-ui" font-weight="400"> k plants</tspan></text>
+<text id="s3-qty-sub" x="665" y="412" text-anchor="middle" fill="#64748b" font-size="8">workers pollinating</text>
+
+<!-- ── KPI Card 2: In Setup / Transit ── -->
+<rect x="603" y="422" width="124" height="44" rx="4" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+<text x="665" y="434" text-anchor="middle" fill="#64748b" font-size="8" font-weight="600">IN SETUP / TRANSIT</text>
+<text x="665" y="449" text-anchor="middle" font-size="14" font-weight="700" font-family="monospace"><tspan id="s3-queue-qty" fill="#e2e8f0">0</tspan><tspan font-size="9" fill="#94a3b8" font-family="system-ui" font-weight="400"> workers</tspan></text>
+<text x="665" y="460" text-anchor="middle" fill="#64748b" font-size="8">in transit / staging</text>
+
+<!-- ── KPI Card 3: Total Workers ── -->
+<rect x="603" y="470" width="124" height="44" rx="4" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+<text x="665" y="482" text-anchor="middle" fill="#64748b" font-size="8" font-weight="600">TOTAL WORKERS</text>
+<text x="665" y="497" text-anchor="middle" font-size="14" font-weight="700" font-family="monospace"><tspan id="s3-max-wip-val" fill="#e2e8f0">104</tspan><tspan font-size="9" fill="#94a3b8" font-family="system-ui" font-weight="400"> workers</tspan></text>
+<text x="665" y="508" text-anchor="middle" fill="#64748b" font-size="8">concurrent slots</text>
 
 <!-- ═══════════════════ S4 — POST-POLLINATION ═══════════════════ -->
 <rect x="870" y="160" width="120" height="180" rx="5"
@@ -569,8 +588,11 @@
   fill="#a7f3d0" opacity="0" clip-path="url(#clip-s4)"/>
 <line x1="870" y1="163" x2="990" y2="163" stroke="#334155" stroke-width="1" stroke-dasharray="3 3"/>
 <text x="930" y="148" text-anchor="middle" fill="#94a3b8" font-size="11" font-weight="700">POST-POLLINATION</text>
-<text id="s4-qty" x="930" y="355" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="700" font-family="monospace">0</text>
-<text x="930" y="367" text-anchor="middle" fill="#64748b" font-size="9">completed</text>
+<!-- ── KPI Card 1: Post-Pollination ── -->
+<rect x="873" y="344" width="114" height="44" rx="4" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+<text x="930" y="356" text-anchor="middle" fill="#64748b" font-size="8" font-weight="600">POST-POLLINATION</text>
+<text x="930" y="371" text-anchor="middle" font-size="14" font-weight="700" font-family="monospace"><tspan id="s4-qty" fill="#e2e8f0">0</tspan><tspan font-size="9" fill="#94a3b8" font-family="system-ui" font-weight="400"> k plants</tspan></text>
+<text x="930" y="382" text-anchor="middle" fill="#64748b" font-size="8">cumulative completed</text>
 
 <!-- ═══════════════════ FLOW LABELS ═══════════════════ -->
 <text x="156" y="236" text-anchor="middle" fill="#60a5fa" font-size="10" font-weight="600">
@@ -596,29 +618,7 @@
 
 <!-- Data Panel -->
 <div class="data-panel">
-  <!-- Row 1: Stocks -->
-  <div class="data-card" id="card-buf">
-    <div class="label">Buffer Warehouse</div>
-    <div class="value"><span id="dp-buf">250</span><span class="unit">k plants</span></div>
-    <div class="sub" id="dp-buf-pct">31% full</div>
-  </div>
-  <div class="data-card" id="card-pri">
-    <div class="label">Priority in Buffer</div>
-    <div class="value"><span id="dp-pri">50</span><span class="unit">k plants</span></div>
-    <div class="sub" id="dp-pri-pct">20% of buffer</div>
-  </div>
-  <div class="data-card" id="card-poll">
-    <div class="label">Pollination Zone (Total)</div>
-    <div class="value"><span id="dp-poll">5.0</span><span class="unit">k plants</span></div>
-    <div class="sub" id="dp-poll-pct">10% full</div>
-  </div>
-  <div class="data-card" id="card-post">
-    <div class="label">Post-Pollination</div>
-    <div class="value"><span id="dp-post">0</span><span class="unit">k plants</span></div>
-    <div class="sub">cumulative completed</div>
-  </div>
-
-  <!-- Row 2: Flows & station -->
+  <!-- Row 1: Flows & station -->
   <div class="data-card">
     <div class="label">F1 Inflow Actual</div>
     <div class="value"><span id="dp-f1">0.0</span><span class="unit">k/hr</span></div>
@@ -637,11 +637,6 @@
   </div>
 
   <!-- Row 3: Biological clock + throughput -->
-  <div class="data-card" id="card-age">
-    <div class="label">Priority Age</div>
-    <div class="value"><span id="dp-age">0.0</span><span class="unit">/ 48 h</span></div>
-    <div class="sub">oldest priority cohort</div>
-  </div>
   <div class="data-card" id="card-fail">
     <div class="label">Deadline Failures</div>
     <div class="value"><span id="dp-fail">0</span><span class="unit">k plants</span></div>
@@ -653,44 +648,21 @@
     <div class="sub" id="dp-wkly-sub">Target: 500k</div>
   </div>
 
-  <!-- Row 4: S3 breakdown -->
-  <div class="data-card" id="card-poll-queue">
-    <div class="label">Queue Waiting</div>
-    <div class="value"><span id="dp-poll-queue">5.00</span><span class="unit">k plants</span></div>
-    <div class="sub">awaiting worker slot</div>
+  <!-- Row 2: Worker states -->
+  <div class="data-card" id="card-polling">
+    <div class="label">Workers Pollinating</div>
+    <div class="value"><span id="dp-worker-poll">0</span><span class="unit">workers</span></div>
+    <div class="sub" id="dp-worker-poll-sub">of 0 total</div>
   </div>
-  <div class="data-card" id="card-active-wip">
-    <div class="label">Active WIP</div>
-    <div class="value"><span id="dp-active-wip">0.00</span><span class="unit">k plants</span></div>
-    <div class="sub" id="dp-active-wip-sub">in pollination</div>
-  </div>
-
-  <div class="data-card" id="card-max-wip">
-    <div class="label">Max Active WIP</div>
-    <div class="value"><span id="dp-max-wip">4.69</span><span class="unit">k plants</span></div>
-    <div class="sub">workers × session size</div>
-  </div>
-
-  <!-- Row 5: Physics parameters -->
-  <div class="data-card">
-    <div class="label">Sessions / Hour</div>
-    <div class="value"><span id="dp-sessions-hr">1.333</span><span class="unit">/ hr</span></div>
-    <div class="sub">per worker</div>
+  <div class="data-card" id="card-setup">
+    <div class="label">Workers in Setup</div>
+    <div class="value"><span id="dp-worker-setup">0</span><span class="unit">workers</span></div>
+    <div class="sub">in transit / staging</div>
   </div>
   <div class="data-card">
-    <div class="label">Theoretical Plants/Hr</div>
-    <div class="value"><span id="dp-theor-hr">6.25</span><span class="unit">k/hr</span></div>
-    <div class="sub">workers × session ÷ flow time</div>
-  </div>
-  <div class="data-card">
-    <div class="label">Total Flow Time</div>
-    <div class="value"><span id="dp-flow-time">45</span><span class="unit">min</span></div>
-    <div class="sub">setup + pollination</div>
-  </div>
-  <div class="data-card" id="card-free-slots">
-    <div class="label">Free Worker Slots</div>
-    <div class="value"><span id="dp-free-slots">938</span><span class="unit">slots</span></div>
-    <div class="sub" id="dp-free-slots-sub">of 938 workers</div>
+    <div class="label">Idle Workers</div>
+    <div class="value"><span id="dp-worker-idle">0</span><span class="unit">workers</span></div>
+    <div class="sub" id="dp-worker-idle-sub">of 0 total</div>
   </div>
 </div>
 
@@ -735,7 +707,7 @@ const params = {
   shiftsPerDay:  2,
   hoursPerShift: 8,
   // Pollination params — numWorkers derived from target + timing + schedule
-  numWorkers:             938,
+  numWorkers:             94,
   plantsPerSessionK:      0.05,
   setupTimeHrs:           0.25,
   pollTimeHrs:            0.50,
@@ -753,9 +725,8 @@ function freshState() {
   return {
     bufReg:          200,  // k plants regular
     bufPri:          50,   // k plants priority — recomputed each tick from cohorts
-    pollQueue:       5,    // k-plants waiting for a worker slot
     activeBatches:   [],   // [{completesAt: simHr, amount: plantsPerSessionK}, ...]
-    poll:            5,    // display compat: pollQueue + sum(activeBatches)
+    poll:            0,    // display compat: sum(activeBatches)
     postPoll:        0,
     prAge:           0,    // display: age of oldest live cohort (sim-hrs); recomputed each tick
     failures:        0,
@@ -765,7 +736,7 @@ function freshState() {
     nextId:          0,
     particles:       [],
     spawnAccum:      [0, 0, 0, 0],  // f1, f2-pri, f2-reg, f3
-    flows:           { f1: 0, f2: 0, f2pri: 0, f2reg: 0, f3: 0 },
+    flows:           { f1: 0, f2: 0, f2pri: 0, f2reg: 0, f3: 0, scrap: 0 },
     priorityCohorts: [{ amount: 50, deadline: DEADLINE_HRS }],  // initial 50 k-plants, arrive at t=0
     priArrivalAccum: 0,  // fractional k-plants accumulating toward next cohort
     throughputLog:   [],  // [{elapsed, rate}] sampled every 0.5 sim-hrs
@@ -789,13 +760,19 @@ const dom = {
   s2priFill: document.getElementById('s2-pri-fill'),
   s2shimmer: document.getElementById('s2-shimmer'),
   s2qty:     document.getElementById('s2-qty'),
-  s2priLabel:document.getElementById('s2-pri-label'),
+  s2qtySub:  document.getElementById('s2-qty-sub'),
+  s2priQty:  document.getElementById('s2-pri-qty'),
+  s2priSub:  document.getElementById('s2-pri-sub'),
+  s2ageVal:  document.getElementById('s2-age-val'),
   s2outer:   document.getElementById('s2-outer'),
 
-  s3fill:    document.getElementById('s3-fill'),
-  s3shimmer: document.getElementById('s3-shimmer'),
-  s3qty:     document.getElementById('s3-qty'),
-  s3outer:   document.getElementById('s3-outer'),
+  s3fill:      document.getElementById('s3-fill'),
+  s3shimmer:   document.getElementById('s3-shimmer'),
+  s3qty:       document.getElementById('s3-qty'),
+  s3qtySub:    document.getElementById('s3-qty-sub'),
+  s3queueQty:  document.getElementById('s3-queue-qty'),
+  s3maxWipVal: document.getElementById('s3-max-wip-val'),
+  s3outer:     document.getElementById('s3-outer'),
 
   s4fill:    document.getElementById('s4-fill'),
   s4shimmer: document.getElementById('s4-shimmer'),
@@ -804,8 +781,11 @@ const dom = {
 
   // deadline bar
   deadlineBar:   document.getElementById('deadline-bar'),
-  deadlineLabel: document.getElementById('deadline-label'),
-  deadlineText:  document.getElementById('deadline-text'),
+  // scrap flow
+  scrapRateLbl:  document.getElementById('scrap-rate-lbl'),
+  scrapRateSub:  document.getElementById('scrap-rate-sub'),
+  scrapQty:      document.getElementById('scrap-qty'),
+  pathScrap:     document.getElementById('path-scrap'),
 
   // flow labels in SVG
   f1lbl:    document.getElementById('f1-lbl'),
@@ -817,53 +797,33 @@ const dom = {
   particles: document.getElementById('particles'),
 
   // data panel
-  dpBuf:      document.getElementById('dp-buf'),
-  dpBufPct:   document.getElementById('dp-buf-pct'),
-  dpPri:      document.getElementById('dp-pri'),
-  dpPriPct:   document.getElementById('dp-pri-pct'),
-  dpPoll:     document.getElementById('dp-poll'),
-  dpPollPct:  document.getElementById('dp-poll-pct'),
-  dpPost:     document.getElementById('dp-post'),
   dpF1:       document.getElementById('dp-f1'),
   dpF1sub:    document.getElementById('dp-f1-sub'),
   dpF2:       document.getElementById('dp-f2'),
   dpF2sub:    document.getElementById('dp-f2-sub'),
-
   dpF3:       document.getElementById('dp-f3'),
   dpTime:     document.getElementById('dp-time'),
-  dpAge:      document.getElementById('dp-age'),
   dpFail:     document.getElementById('dp-fail'),
-
-  // S3 physics panel
-  dpPollQueue:    document.getElementById('dp-poll-queue'),
-  dpActiveWip:    document.getElementById('dp-active-wip'),
-  dpActiveWipSub: document.getElementById('dp-active-wip-sub'),
-  dpMaxWip:       document.getElementById('dp-max-wip'),
-  dpSessionsHr:   document.getElementById('dp-sessions-hr'),
-  dpTheorHr:      document.getElementById('dp-theor-hr'),
-  dpFlowTime:     document.getElementById('dp-flow-time'),
-  dpFreeSlots:    document.getElementById('dp-free-slots'),
-  dpFreeSlotsSub: document.getElementById('dp-free-slots-sub'),
+  dpWorkerPoll:    document.getElementById('dp-worker-poll'),
+  dpWorkerPollSub: document.getElementById('dp-worker-poll-sub'),
+  dpWorkerSetup:   document.getElementById('dp-worker-setup'),
+  dpWorkerIdle:    document.getElementById('dp-worker-idle'),
+  dpWorkerIdleSub: document.getElementById('dp-worker-idle-sub'),
+  cardPolling:     document.getElementById('card-polling'),
+  cardSetup:       document.getElementById('card-setup'),
 
   // data cards (for border color)
-  cardBuf:       document.getElementById('card-buf'),
-  cardPri:       document.getElementById('card-pri'),
-  cardPoll:      document.getElementById('card-poll'),
-  cardAge:       document.getElementById('card-age'),
-  cardFail:      document.getElementById('card-fail'),
-  cardPollQueue: document.getElementById('card-poll-queue'),
-  cardActiveWip: document.getElementById('card-active-wip'),
-  cardMaxWip:    document.getElementById('card-max-wip'),
-  cardFreeSlots: document.getElementById('card-free-slots'),
+  cardFail: document.getElementById('card-fail'),
 
   // S3 SVG
   s3queueFill: document.getElementById('s3-queue-fill'),
+  workerGrid:  document.getElementById('worker-grid'),
 
   // controls
   targetInput:           document.getElementById('targetRate'),
   targetConvert:         document.getElementById('target-convert'),
-  numWorkersDisplay:     document.getElementById('num-workers-derived'),
-  numWorkersConvert:     document.getElementById('numWorkers-convert'),
+  numWorkersInput:       document.getElementById('numWorkers'),
+  numWorkersRecommended: document.getElementById('numWorkers-recommended'),
   stationCapDerived:     document.getElementById('station-cap-derived'),
   plantsPerSessionInput: document.getElementById('plantsPerSession'),
   plantsPerSessionConvert: document.getElementById('plantsPerSession-convert'),
@@ -877,7 +837,6 @@ const dom = {
   shiftStatusEl:         document.getElementById('shift-status'),
   startBtn:         document.getElementById('startBtn'),
   resetBtn:         document.getElementById('resetBtn'),
-  alertBanner:      document.getElementById('alert-banner'),
   schedCursor:      document.getElementById('sched-cursor'),
   chartCanvas:      document.getElementById('throughputChart'),
 
@@ -936,10 +895,16 @@ function updateSimulation(wallDt) {
   }
 
   // ── Expire overdue cohorts (biological clock runs regardless of shift) ──
+  let scrappedThisTick = 0;
   sim.priorityCohorts = sim.priorityCohorts.filter(c => {
-    if (c.deadline <= sim.elapsed) { sim.failures += c.amount; return false; }
+    if (c.deadline <= sim.elapsed) {
+      sim.failures      += c.amount;
+      scrappedThisTick  += c.amount;
+      return false;
+    }
     return true;
   });
+  sim.flows.scrap = simDtHrs > 0 ? scrappedThisTick / simDtHrs : 0;
 
   // ── Sort: most urgent (earliest deadline) first ──
   sim.priorityCohorts.sort((a, b) => a.deadline - b.deadline);
@@ -947,50 +912,10 @@ function updateSimulation(wallDt) {
   // ── Derive bufPri for capacity calculation ──
   sim.bufPri = sim.priorityCohorts.reduce((s, c) => s + c.amount, 0) + sim.priArrivalAccum;
 
-  // ── F2: Buffer → Pollination (only during active shifts) ──
-  const queueCap   = params.numWorkers * params.plantsPerSessionK;
-  const pollFree   = Math.max(0, queueCap - sim.pollQueue) / simDtHrs;
-  const f2MaxByBuf = (sim.bufReg + sim.bufPri) / simDtHrs;
-  sim.flows.f2 = shiftOn ? Math.max(0, Math.min(pollFree, f2MaxByBuf)) : 0;
-
-  // ── Dispatch: priority cohorts first (earliest deadline), then regular ──
-  let toMove   = sim.flows.f2 * simDtHrs;
-  let priMoved = 0;
-  for (const c of sim.priorityCohorts) {
-    if (toMove <= 1e-9) break;
-    const take = Math.min(c.amount, toMove);
-    c.amount -= take; priMoved += take; toMove -= take;
-  }
-  sim.priorityCohorts = sim.priorityCohorts.filter(c => c.amount > 1e-9);
-  const regMoved = sim.flows.f2 * simDtHrs - priMoved;
-
-  sim.flows.f2pri = simDtHrs > 0 ? priMoved / simDtHrs : 0;
-  sim.flows.f2reg = simDtHrs > 0 ? regMoved / simDtHrs : 0;
-
-  // ── Update buffer stocks ──
-  sim.bufReg = Math.max(0, sim.bufReg + f1Reg * simDtHrs - regMoved);
-  sim.bufPri = Math.max(0, sim.priorityCohorts.reduce((s, c) => s + c.amount, 0) + sim.priArrivalAccum);
-
-  // ── S3: F2 fills pollQueue ──
-  sim.pollQueue += sim.flows.f2 * simDtHrs;
-
-  // ── Dispatch free worker slots from queue (shift-gated) ──
-  if (shiftOn) {
-    let slotsLeft = params.numWorkers - sim.activeBatches.length;
-    while (slotsLeft > 0 && sim.pollQueue >= params.plantsPerSessionK) {
-      sim.pollQueue -= params.plantsPerSessionK;
-      sim.activeBatches.push({
-        amount:      params.plantsPerSessionK,
-        completesAt: sim.elapsed + params.totalFlowTimeHrs,
-      });
-      slotsLeft--;
-    }
-  }
-
-  // ── Advance sim time BEFORE checking completions ──
+  // ── Advance elapsed, then drain completions BEFORE dispatch ──
+  // This ensures workers freed this tick are available to re-dispatch immediately.
   sim.elapsed += simDtHrs;
 
-  // ── Drain completed batches → postPoll ──
   let completedK = 0;
   sim.activeBatches = sim.activeBatches.filter(b => {
     if (b.completesAt <= sim.elapsed) { completedK += b.amount; return false; }
@@ -999,9 +924,50 @@ function updateSimulation(wallDt) {
   sim.postPoll += completedK;
   sim.flows.f3 = simDtHrs > 0 ? completedK / simDtHrs : 0;
 
+  // ── F2: Direct dispatch buffer → activeBatches (shift-gated, no pollQueue) ──
+  let slotsLeft = shiftOn ? Math.max(0, params.numWorkers - sim.activeBatches.length) : 0;
+  let priMoved = 0, regMoved = 0;
+
+  // Priority cohorts first (earliest deadline — already sorted above)
+  for (const c of sim.priorityCohorts) {
+    if (slotsLeft <= 0) break;
+    while (slotsLeft > 0 && c.amount >= params.plantsPerSessionK) {
+      c.amount -= params.plantsPerSessionK;
+      priMoved += params.plantsPerSessionK;
+      const jitter = (Math.random() - 0.5) * params.totalFlowTimeHrs;
+      sim.activeBatches.push({
+        amount:      params.plantsPerSessionK,
+        completesAt: sim.elapsed + params.totalFlowTimeHrs + jitter,
+        setupDoneAt: sim.elapsed + params.setupTimeHrs     + jitter,
+      });
+      slotsLeft--;
+    }
+  }
+  sim.priorityCohorts = sim.priorityCohorts.filter(c => c.amount > 1e-9);
+
+  // Regular buffer for remaining free slots
+  while (slotsLeft > 0 && sim.bufReg >= params.plantsPerSessionK) {
+    sim.bufReg -= params.plantsPerSessionK;
+    regMoved   += params.plantsPerSessionK;
+    const jitter = (Math.random() - 0.5) * params.totalFlowTimeHrs;
+    sim.activeBatches.push({
+      amount:      params.plantsPerSessionK,
+      completesAt: sim.elapsed + params.totalFlowTimeHrs + jitter,
+      setupDoneAt: sim.elapsed + params.setupTimeHrs     + jitter,
+    });
+    slotsLeft--;
+  }
+
+  sim.flows.f2    = simDtHrs > 0 ? (priMoved + regMoved) / simDtHrs : 0;
+  sim.flows.f2pri = simDtHrs > 0 ? priMoved               / simDtHrs : 0;
+  sim.flows.f2reg = simDtHrs > 0 ? regMoved               / simDtHrs : 0;
+
+  // ── Update buffer stocks ──
+  sim.bufReg = Math.max(0, sim.bufReg + f1Reg * simDtHrs);  // regMoved already deducted above
+  sim.bufPri = Math.max(0, sim.priorityCohorts.reduce((s, c) => s + c.amount, 0) + sim.priArrivalAccum);
+
   // ── Recompute sim.poll for display compatibility ──
-  const activeWIPsim = sim.activeBatches.reduce((s, b) => s + b.amount, 0);
-  sim.poll = sim.pollQueue + activeWIPsim;
+  sim.poll = sim.activeBatches.reduce((s, b) => s + b.amount, 0);
 
   // ── Derive prAge: age of oldest surviving cohort (for display) ──
   sim.prAge = sim.priorityCohorts.length > 0
@@ -1100,7 +1066,7 @@ function renderFrame() {
   const bufTotal  = sim.bufReg + sim.bufPri;
   const bufRatio  = bufTotal / BUFFER_CAP;
   const activeWIP = sim.activeBatches.reduce((s, b) => s + b.amount, 0);
-  const totalS3   = sim.pollQueue + activeWIP;
+  const totalS3   = activeWIP;  // no pollQueue; S3 = active WIP only
   const refCap    = params.maxActiveWIP * 2;
   const pollRatio = refCap > 0 ? totalS3 / refCap : 0;
   const postRatio = Math.min(sim.postPoll / 2000, 1);
@@ -1134,36 +1100,78 @@ function renderFrame() {
 
   const s2borderCol = bufRatio > 0.9 ? '#ef4444' : bufRatio < 0.1 ? '#f59e0b' : '#334155';
   dom.s2outer.setAttribute('stroke', s2borderCol);
-  dom.s2qty.textContent = bufTotal.toFixed(0);
+  dom.s2qty.textContent    = bufTotal.toFixed(0);
+  dom.s2qtySub.textContent = `${(bufRatio * 100).toFixed(0)}% full`;
   const priPct = bufTotal > 0 ? (sim.bufPri / bufTotal * 100).toFixed(0) : 0;
-  dom.s2priLabel.textContent = `${sim.bufPri.toFixed(0)} priority (${priPct}%)`;
-  dom.s2priLabel.setAttribute('fill', sim.bufPri > 0 ? '#f59e0b' : '#475569');
+  dom.s2priQty.textContent = Math.round(sim.bufPri * 1000).toLocaleString();
+  dom.s2priSub.textContent = `${priPct}% of buffer`;
+  dom.s2priQty.setAttribute('fill', sim.bufPri > 0 ? '#f59e0b' : '#475569');
 
   // ── S2 Deadline bar ──
   const ageRatio = Math.min(sim.prAge / DEADLINE_HRS, 1);
-  const barW = ageRatio * 174;
+  const barW     = ageRatio * 154;
   const barColor = sim.prAge > WARN_HRS ? '#ef4444' : sim.prAge > 30 ? '#f59e0b' : '#10b981';
+  dom.s2ageVal.textContent = `${sim.prAge.toFixed(1)} / 48h`;
+  dom.s2ageVal.setAttribute('fill', barColor);
   dom.deadlineBar.setAttribute('width', barW);
   dom.deadlineBar.setAttribute('fill', barColor);
-  dom.deadlineLabel.textContent = `${(ageRatio * 100).toFixed(0)}%`;
 
-  if (dom.deadlineText) dom.deadlineText.textContent = `Priority age: ${sim.prAge.toFixed(1)}h / 48h`;
+  // ── Scrap flow ──
+  const scrapActive = sim.flows.scrap > 0;
+  dom.pathScrap.setAttribute('stroke-opacity', scrapActive ? '1' : '0.25');
+  dom.scrapRateLbl.textContent = sim.flows.scrap > 0
+    ? `${sim.flows.scrap.toFixed(1)} k/hr`
+    : '';
+  dom.scrapRateLbl.setAttribute('fill', scrapActive ? '#ef4444' : '#475569');
+  dom.scrapQty.textContent    = sim.failures.toFixed(1);
+  dom.scrapRateSub.textContent = sim.failures > 0
+    ? `${(sim.failures / params.target * 100).toFixed(1)}% of target`
+    : 'cumulative';
 
-  // ── S3 Pollination Zone (dual-fill: active WIP bottom, queue top) ──
-  const g3     = STOCKS_GEO[2];
-  const wipH   = (refCap > 0 ? activeWIP  / refCap : 0) * g3.fillHeight;
-  const queueH = (refCap > 0 ? sim.pollQueue / refCap : 0) * g3.fillHeight;
-  const wipY   = g3.fillBottom - wipH;
-  const queueY = wipY - queueH;
-  dom.s3fill.setAttribute('y', wipY);
-  dom.s3fill.setAttribute('height', wipH);
-  dom.s3fill.setAttribute('fill', pollRatio > 0.9 ? '#7c3aed' : '#6d28d9');
-  dom.s3queueFill.setAttribute('y', queueY);
-  dom.s3queueFill.setAttribute('height', queueH);
-  dom.s3shimmer.setAttribute('y', Math.min(queueY, wipY));
-  dom.s3shimmer.setAttribute('opacity', (wipH + queueH) > 5 ? '0.5' : '0');
-  dom.s3outer.setAttribute('stroke', pollRatio > 0.9 ? '#a78bfa' : pollRatio < 0.1 ? '#f59e0b' : '#334155');
-  dom.s3qty.textContent = totalS3.toFixed(1);
+  // ── S3 Worker Grid ──
+  const workerPolling = sim.activeBatches.filter(b => (b.setupDoneAt ?? -Infinity) <= sim.elapsed).length;
+  const workerSetup   = sim.activeBatches.filter(b => (b.setupDoneAt ?? -Infinity) >  sim.elapsed).length;
+  const workerIdle    = params.numWorkers - sim.activeBatches.length;
+  const N    = params.numWorkers;
+  const cols = N <= 50 ? 5 : N <= 80 ? 8 : 10;
+  const rows = Math.ceil(N / cols);
+  const gap  = 1;
+  const gridX = 606, gridY = 136;
+  const gridW = 118, gridH = 228;
+  const cellW = Math.floor((gridW - gap * (cols - 1)) / cols);
+  const cellH = Math.min(cellW, Math.floor((gridH - gap * (rows - 1)) / rows));
+
+  if (dom.workerGrid.childElementCount !== N) {
+    while (dom.workerGrid.firstChild) dom.workerGrid.removeChild(dom.workerGrid.firstChild);
+    for (let i = 0; i < N; i++) {
+      const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      r.setAttribute('width',  cellW);
+      r.setAttribute('height', cellH);
+      r.setAttribute('rx', '1');
+      dom.workerGrid.appendChild(r);
+    }
+  }
+  const wRects = dom.workerGrid.children;
+  for (let i = 0; i < N; i++) {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    wRects[i].setAttribute('x', gridX + col * (cellW + gap));
+    wRects[i].setAttribute('y', gridY + row * (cellH + gap));
+    wRects[i].setAttribute('fill',
+      i < workerPolling             ? '#7c3aed'   // purple: actively pollinating
+      : i < workerPolling + workerSetup ? '#d97706'  // amber: transit / setup
+      : '#1e3a5f');                                // dark-slate: idle
+  }
+
+  dom.s3fill.setAttribute('height', 0);      // hide old liquid fill
+  dom.s3queueFill.setAttribute('height', 0);
+  dom.s3shimmer.setAttribute('opacity', '0');
+  dom.s3outer.setAttribute('stroke',
+    workerIdle === 0 ? '#a78bfa' : workerIdle === N ? '#f59e0b' : '#334155');
+  dom.s3qty.textContent       = activeWIP.toFixed(1);
+  dom.s3qtySub.textContent    = `${workerPolling} workers pollinating`;
+  dom.s3queueQty.textContent  = workerSetup;
+  dom.s3maxWipVal.textContent = N;
 
   // ── S4 Post-Pollination ──
   const g4 = STOCKS_GEO[3];
@@ -1222,16 +1230,7 @@ function renderFrame() {
   }
 
   // ── Data panel ──
-  dom.dpBuf.textContent    = bufTotal.toFixed(0);
-  dom.dpBufPct.textContent = `${(bufRatio * 100).toFixed(0)}% full`;
-  dom.dpPri.textContent    = sim.bufPri.toFixed(0);
-  dom.dpPriPct.textContent = `${priPct}% of buffer`;
-  dom.dpPoll.textContent    = totalS3.toFixed(1);
-  dom.dpPollPct.textContent = `${(pollRatio * 100).toFixed(0)}% of capacity`;
-  dom.dpPost.textContent   = sim.postPoll.toFixed(0);
 
-  const hoursPerWeek  = params.daysPerWeek * params.shiftsPerDay * params.hoursPerShift;
-  const targetRate    = params.target / hoursPerWeek;
   const WEEK_HRS   = 168;
   const recentLog  = sim.throughputLog.filter(s => s.elapsed > sim.elapsed - WEEK_HRS);
   const avgRate    = recentLog.length > 0
@@ -1240,26 +1239,20 @@ function renderFrame() {
   const weeklyOutput = avgRate * WEEK_HRS;
 
   dom.dpF1.textContent    = sim.flows.f1.toFixed(2);
-  dom.dpF1sub.textContent = `target: ${targetRate.toFixed(2)} k/hr`;
+  dom.dpF1sub.textContent = `target: ${params.f1Rate.toFixed(2)} k/hr`;
   dom.dpF2.textContent    = sim.flows.f2.toFixed(2);
   dom.dpF2sub.textContent = `of ${params.theoreticalPlantsPerHr.toFixed(2)} k/hr capacity`;
   dom.dpF3.textContent    = sim.flows.f3.toFixed(2);
 
-  dom.dpTime.textContent     = sim.elapsed.toFixed(1);
-  dom.dpAge.textContent  = sim.prAge.toFixed(1);
+  dom.dpTime.textContent = sim.elapsed.toFixed(1);
   dom.dpFail.textContent = sim.failures.toFixed(1);
 
-  // ── S3 physics panel ──
-  const freeSlots  = params.numWorkers - sim.activeBatches.length;
-  dom.dpPollQueue.textContent    = sim.pollQueue.toFixed(2);
-  dom.dpActiveWip.textContent    = activeWIP.toFixed(2);
-  dom.dpActiveWipSub.textContent = `${sim.activeBatches.length} active batches`;
-  dom.dpMaxWip.textContent       = params.maxActiveWIP.toFixed(2);
-  dom.dpSessionsHr.textContent   = params.sessionsPerHr.toFixed(3);
-  dom.dpTheorHr.textContent      = params.theoreticalPlantsPerHr.toFixed(2);
-  dom.dpFlowTime.textContent     = Math.round(params.totalFlowTimeHrs * 60);
-  dom.dpFreeSlots.textContent    = freeSlots;
-  dom.dpFreeSlotsSub.textContent = `of ${params.numWorkers} workers`;
+  // ── Worker state cards ──
+  dom.dpWorkerPoll.textContent    = workerPolling;
+  dom.dpWorkerPollSub.textContent = `of ${params.numWorkers} total`;
+  dom.dpWorkerSetup.textContent   = workerSetup;
+  dom.dpWorkerIdle.textContent    = workerIdle;
+  dom.dpWorkerIdleSub.textContent = `of ${params.numWorkers} total`;
 
   dom.dpWkly.textContent    = weeklyOutput.toFixed(0);
   dom.dpWklySub.textContent = weeklyOutput >= params.target
@@ -1267,21 +1260,16 @@ function renderFrame() {
     : `✗ Target: ${params.target}k (${(weeklyOutput/params.target*100).toFixed(0)}%)`;
 
   // ── Card state colors ──
-  dom.cardBuf.className  = `data-card${bufRatio > 0.9 ? ' alert' : bufRatio < 0.1 ? ' warn' : ''}`;
-  dom.cardPri.className  = `data-card${sim.bufPri > 0 ? ' warn' : ''}`;
-  dom.cardPoll.className = `data-card${pollRatio > 0.9 ? ' alert' : pollRatio < 0.1 ? ' warn' : ''}`;
-  dom.cardAge.className  = `data-card${sim.prAge > WARN_HRS ? ' alert' : sim.prAge > 30 ? ' warn' : ''}`;
   dom.cardFail.className = `data-card${sim.failures > 0 ? ' alert' : ' good'}`;
   if (dom.cardWkly) {
     dom.cardWkly.className = `data-card${weeklyOutput >= params.target ? ' good' : ' alert'}`;
   }
-  if (dom.cardFreeSlots) {
-    dom.cardFreeSlots.className = `data-card${
-      freeSlots === 0 ? ' alert' : freeSlots < params.numWorkers * 0.1 ? ' warn' : ''}`;
+  if (dom.cardPolling) {
+    const util = params.numWorkers > 0 ? workerPolling / params.numWorkers : 0;
+    dom.cardPolling.className = `data-card${util > 0.8 ? ' good' : util < 0.2 ? ' alert' : ''}`;
   }
 
   // ── Alert banner ──
-  dom.alertBanner.style.display = sim.failures > 0 ? 'block' : 'none';
 
   // ── Throughput chart ──
   renderChart();
@@ -1479,23 +1467,29 @@ function clamp(v, lo, hi) {
 function syncAll() {
   const hoursPerWeek = params.daysPerWeek * params.shiftsPerDay * params.hoursPerShift;
 
-  // Target → F1 rate
+  // Target
   params.target = clamp(dom.targetInput.value, 0, 5000);
-  params.f1Rate = hoursPerWeek > 0 ? params.target / hoursPerWeek : 0;
-  dom.targetConvert.textContent = `= ${params.f1Rate.toFixed(2)} k/hr`;
 
-  // Pollination timing
+  // Pollination timing (must precede effective-hours calculation)
   params.plantsPerSessionK = clamp(dom.plantsPerSessionInput.value, 1, 1000) / 1000;
   params.setupTimeHrs      = clamp(dom.setupTimeInput.value, 1, 240) / 60;
   params.pollTimeHrs       = clamp(dom.pollTimeInput.value,  1, 480) / 60;
   params.totalFlowTimeHrs  = params.setupTimeHrs + params.pollTimeHrs;
 
-  // Derived workers: ceil((hrsPerSession × sessionsPerWeek) / availableHrsPerWorkerPerWeek)
-  const sessionsPerWeek = params.plantsPerSessionK > 0
-    ? params.target / params.plantsPerSessionK : 0;
-  params.numWorkers = hoursPerWeek > 0
+  // In steady state, batches carry over between shifts so there is no per-shift startup lag.
+  // Use full hoursPerWeek for both rate and headcount derivations.
+  params.f1Rate = hoursPerWeek > 0 ? params.target / hoursPerWeek : 0;
+  dom.targetConvert.textContent = `= ${params.f1Rate.toFixed(2)} k/hr`;
+
+  // Required workers: sessions/week × flow time per session ÷ working hours/week
+  const sessionsPerWeek    = params.plantsPerSessionK > 0 ? params.target / params.plantsPerSessionK : 0;
+  const recommendedWorkers = hoursPerWeek > 0
     ? Math.max(1, Math.ceil((params.totalFlowTimeHrs * sessionsPerWeek) / hoursPerWeek))
     : 1;
+
+  if (dom.numWorkersRecommended) dom.numWorkersRecommended.textContent = `Recommended: ${recommendedWorkers.toLocaleString()}`;
+  if (!dom.numWorkersInput.value) dom.numWorkersInput.value = recommendedWorkers;
+  params.numWorkers = Math.max(1, parseInt(dom.numWorkersInput.value) || recommendedWorkers);
 
   // Derived aggregates
   params.maxActiveWIP           = params.numWorkers * params.plantsPerSessionK;
@@ -1507,9 +1501,8 @@ function syncAll() {
   const totalMin = Math.round(params.totalFlowTimeHrs * 60);
   if (dom.totalFlowTimeDisplay)    dom.totalFlowTimeDisplay.textContent    = `${totalMin} min`;
   if (dom.plantsPerSessionConvert) dom.plantsPerSessionConvert.textContent = `= ${params.plantsPerSessionK.toFixed(4)} k-plants`;
-  if (dom.numWorkersDisplay)       dom.numWorkersDisplay.textContent       = params.numWorkers.toLocaleString();
-  if (dom.numWorkersConvert)       dom.numWorkersConvert.textContent       = `${Math.round(sessionsPerWeek).toLocaleString()} sessions/wk`;
   if (dom.stationCapDerived)       dom.stationCapDerived.textContent       = `${params.theoreticalPlantsPerHr.toFixed(2)} k/hr`;
+  if (dom.s3maxWipVal)             dom.s3maxWipVal.textContent             = params.maxActiveWIP.toFixed(2);
 }
 
 dom.targetInput.addEventListener('input',          syncAll);
@@ -1517,6 +1510,7 @@ dom.simSpeedInput.addEventListener('input',        () => { params.simSpeed = cla
 dom.daysPerWeekInput.addEventListener('input',     () => { params.daysPerWeek   = clamp(dom.daysPerWeekInput.value,   1,  7); syncAll(); });
 dom.shiftsPerDayInput.addEventListener('input',    () => { params.shiftsPerDay  = clamp(dom.shiftsPerDayInput.value,  1,  3); syncAll(); });
 dom.hoursPerShiftInput.addEventListener('input',   () => { params.hoursPerShift = clamp(dom.hoursPerShiftInput.value, 1, 24); syncAll(); });
+dom.numWorkersInput.addEventListener('input',       syncAll);
 dom.plantsPerSessionInput.addEventListener('input', syncAll);
 dom.setupTimeInput.addEventListener('input',        syncAll);
 dom.pollTimeInput.addEventListener('input',         syncAll);
@@ -1543,7 +1537,6 @@ dom.resetBtn.addEventListener('click', () => {
 
   clearAllParticles();
   sim = freshState();
-  dom.alertBanner.style.display = 'none';
   renderFrame();
 });
 
