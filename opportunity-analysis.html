@@ -150,7 +150,7 @@
       margin-top: 5px;
     }
 
-    .col-input-row label { font-size: 11px; color: #64748b; min-width: 58px; }
+    .col-input-row label { font-size: 11px; color: #64748b; width: 150px; flex-shrink: 0; }
 
     .col-input-row input {
       width: 84px;
@@ -274,7 +274,7 @@
       font-size: 11px;
       font-family: 'Courier New', monospace;
       color: #cbd5e1;
-      white-space: nowrap;
+      white-space: pre;
       opacity: 0;
       pointer-events: none;
       z-index: 200;
@@ -427,6 +427,10 @@
       color: #475569;
       margin-left: auto;
     }
+
+    /* ── Charts ── */
+    .chart-svg  { width: 100%; height: auto; display: block; min-height: 80px; }
+    .chart-note { font-size: 11px; color: #475569; margin-bottom: 14px; line-height: 1.7; }
   </style>
 </head>
 <body>
@@ -464,19 +468,34 @@
     <div>
       <div class="baseline-col-label">Time Breakdown</div>
       <div class="field-row">
-        <label class="field-label" for="totalSessionTime">Total session time</label>
-        <input class="field-input" id="totalSessionTime" type="number" step="0.01" value="0.75">
+        <label class="field-label" for="movementLaborTime">Movement/setup technician time</label>
+        <input class="field-input" id="movementLaborTime" type="number" step="0.01" value="0.25">
         <span class="field-unit">hrs / session</span>
       </div>
       <div class="field-row">
-        <label class="field-label" for="movementPrepTime">Movement / prep time</label>
-        <input class="field-input" id="movementPrepTime" type="number" step="0.01" value="0.25">
+        <label class="field-label" for="movementElapsedTime">Movement/setup elapsed time</label>
+        <input class="field-input" id="movementElapsedTime" type="number" step="0.01" value="0.25">
         <span class="field-unit">hrs / session</span>
       </div>
       <div class="field-row">
-        <label class="field-label" for="valueAddedTime">Active pollination time</label>
-        <input class="field-input" id="valueAddedTime" type="number" step="0.01" value="0.5">
+        <label class="field-label" for="pollinationLaborTime">Pollination technician time</label>
+        <input class="field-input" id="pollinationLaborTime" type="number" step="0.01" value="0.5">
         <span class="field-unit">hrs / session</span>
+      </div>
+      <div class="field-row">
+        <label class="field-label" for="pollinationElapsedTime">Pollination elapsed time</label>
+        <input class="field-input" id="pollinationElapsedTime" type="number" step="0.01" value="0.5">
+        <span class="field-unit">hrs / session</span>
+      </div>
+      <div class="field-row" style="margin-top:10px;padding-top:8px;border-top:1px solid #334155">
+        <label class="field-label" style="color:#64748b">Total technician time/session</label>
+        <span id="base-derived-labor-time" style="font-size:12px;color:#94a3b8;font-family:monospace;text-align:right;min-width:60px">—</span>
+        <span class="field-unit" style="color:#475569">hrs</span>
+      </div>
+      <div class="field-row">
+        <label class="field-label" style="color:#64748b">Total elapsed cycle time/session</label>
+        <span id="base-derived-elapsed-time" style="font-size:12px;color:#94a3b8;font-family:monospace;text-align:right;min-width:60px">—</span>
+        <span class="field-unit" style="color:#475569">hrs</span>
       </div>
     </div>
 
@@ -502,16 +521,6 @@
         <input class="field-input" id="techRate" type="number" value="35">
         <span class="field-unit">$ / hr</span>
       </div>
-      <div class="field-row">
-        <label class="field-label" for="priorityPct">Priority plants</label>
-        <input class="field-input" id="priorityPct" type="number" min="0" max="100" step="1" value="20">
-        <span class="field-unit">% of volume</span>
-      </div>
-      <div class="field-row">
-        <label class="field-label" for="failureCost">Cost per failed cross</label>
-        <input class="field-input" id="failureCost" type="number" value="0">
-        <span class="field-unit">$ / plant</span>
-      </div>
     </div>
 
   </div>
@@ -534,8 +543,13 @@
       <div class="col-name col-name-a">Scenario A</div>
       <div class="col-sub">Logistics Automation</div>
       <div class="col-input-row">
-        <label for="logisticsAutoPct">Automation</label>
+        <label for="logisticsAutoPct">Movement labor savings</label>
         <input id="logisticsAutoPct" type="number" min="0" max="100" step="1" value="80">
+        <span class="input-unit">%</span>
+      </div>
+      <div class="col-input-row">
+        <label for="logisticsElapsedImpactPct" title="Direct % of movement elapsed time saved (scaled by reliability uptime). Independent of labor savings — reflects physical transport speed improvement.">Movement elapsed savings</label>
+        <input id="logisticsElapsedImpactPct" type="number" min="0" max="100" step="1" value="50">
         <span class="input-unit">%</span>
       </div>
       <div class="col-input-row">
@@ -559,8 +573,13 @@
       <div class="col-name col-name-b">Scenario B</div>
       <div class="col-sub">Workstation Automation</div>
       <div class="col-input-row">
-        <label for="workstationAutoPct">Automation</label>
-        <input id="workstationAutoPct" type="number" min="0" max="100" step="1" value="40">
+        <label for="workstationAutoPct">Pollination labor savings</label>
+        <input id="workstationAutoPct" type="number" min="0" max="100" step="1" value="30">
+        <span class="input-unit">%</span>
+      </div>
+      <div class="col-input-row">
+        <label for="workstationElapsedAutoPct">Pollination elapsed savings</label>
+        <input id="workstationElapsedAutoPct" type="number" min="0" max="100" step="1" value="30">
         <span class="input-unit">%</span>
       </div>
       <div class="col-input-row">
@@ -580,28 +599,52 @@
       </div>
     </div>
 
-    <!-- ── Section: Session Time Breakdown ── -->
-    <div class="section-header section-header-first">Session Time Breakdown</div>
+    <!-- ── Section: Labor Time Breakdown ── -->
+    <div class="section-header section-header-first">Labor Time Breakdown <span style="font-weight:400;font-size:10px;color:#475569;text-transform:none;letter-spacing:0">(skilled technician touch time)</span></div>
 
     <div class="comp-row">
-      <div class="comp-label">Total session time <span class="comp-label-unit">hrs / session</span></div>
-      <div class="comp-cell" id="base-total-session"><span class="comp-value">—</span></div>
-      <div class="comp-cell col-a" id="a-total-session"><span class="comp-value">—</span><span class="comp-delta"></span></div>
-      <div class="comp-cell col-b" id="b-total-session"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+      <div class="comp-label">Movement/setup technician time <span class="comp-label-unit">hrs / session</span></div>
+      <div class="comp-cell" id="base-mvmt-labor"><span class="comp-value">—</span></div>
+      <div class="comp-cell col-a" id="a-mvmt-labor"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+      <div class="comp-cell col-b" id="b-mvmt-labor"><span class="comp-value">—</span><span class="comp-delta"></span></div>
     </div>
 
     <div class="comp-row">
-      <div class="comp-label">Setup / movement time <span class="comp-label-unit">hrs / session</span></div>
-      <div class="comp-cell" id="base-setup-time"><span class="comp-value">—</span></div>
-      <div class="comp-cell col-a" id="a-setup-time"><span class="comp-value">—</span><span class="comp-delta"></span></div>
-      <div class="comp-cell col-b" id="b-setup-time"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+      <div class="comp-label">Pollination technician time <span class="comp-label-unit">hrs / session</span></div>
+      <div class="comp-cell" id="base-poll-labor"><span class="comp-value">—</span></div>
+      <div class="comp-cell col-a" id="a-poll-labor"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+      <div class="comp-cell col-b" id="b-poll-labor"><span class="comp-value">—</span><span class="comp-delta"></span></div>
     </div>
 
     <div class="comp-row">
-      <div class="comp-label">Active pollination time <span class="comp-label-unit">hrs / session</span></div>
-      <div class="comp-cell" id="base-active-time"><span class="comp-value">—</span></div>
-      <div class="comp-cell col-a" id="a-active-time"><span class="comp-value">—</span><span class="comp-delta"></span></div>
-      <div class="comp-cell col-b" id="b-active-time"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+      <div class="comp-label">Total technician time/session <span class="comp-label-unit">hrs / session</span></div>
+      <div class="comp-cell" id="base-total-labor"><span class="comp-value">—</span></div>
+      <div class="comp-cell col-a" id="a-total-labor"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+      <div class="comp-cell col-b" id="b-total-labor"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+    </div>
+
+    <!-- ── Section: Elapsed Cycle Time ── -->
+    <div class="section-header">Elapsed Cycle Time <span style="font-weight:400;font-size:10px;color:#475569;text-transform:none;letter-spacing:0">(physical process duration — drives throughput &amp; bio risk)</span></div>
+
+    <div class="comp-row">
+      <div class="comp-label">Movement/setup elapsed time <span class="comp-label-unit">hrs / session</span></div>
+      <div class="comp-cell" id="base-mvmt-elapsed"><span class="comp-value">—</span></div>
+      <div class="comp-cell col-a" id="a-mvmt-elapsed"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+      <div class="comp-cell col-b" id="b-mvmt-elapsed"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+    </div>
+
+    <div class="comp-row">
+      <div class="comp-label">Pollination elapsed time <span class="comp-label-unit">hrs / session</span></div>
+      <div class="comp-cell" id="base-poll-elapsed"><span class="comp-value">—</span></div>
+      <div class="comp-cell col-a" id="a-poll-elapsed"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+      <div class="comp-cell col-b" id="b-poll-elapsed"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+    </div>
+
+    <div class="comp-row">
+      <div class="comp-label">Total elapsed cycle time/session <span class="comp-label-unit">hrs / session</span></div>
+      <div class="comp-cell" id="base-total-elapsed"><span class="comp-value">—</span></div>
+      <div class="comp-cell col-a" id="a-total-elapsed"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+      <div class="comp-cell col-b" id="b-total-elapsed"><span class="comp-value">—</span><span class="comp-delta"></span></div>
     </div>
 
     <!-- ── Section: Labor ── -->
@@ -612,13 +655,6 @@
       <div class="comp-cell" id="base-labor-hrs"><span class="comp-value">—</span></div>
       <div class="comp-cell col-a" id="a-labor-hrs"><span class="comp-value">—</span><span class="comp-delta"></span></div>
       <div class="comp-cell col-b" id="b-labor-hrs"><span class="comp-value">—</span><span class="comp-delta"></span></div>
-    </div>
-
-    <div class="comp-row">
-      <div class="comp-label">Labor hours saved / week <span class="comp-label-unit">vs baseline</span></div>
-      <div class="comp-cell"><span class="comp-na">—</span></div>
-      <div class="comp-cell col-a" id="a-labor-saved"><span class="comp-value">—</span></div>
-      <div class="comp-cell col-b" id="b-labor-saved"><span class="comp-value">—</span></div>
     </div>
 
     <div class="comp-row">
@@ -660,51 +696,34 @@
     </div>
 
     <div class="comp-row">
-      <div class="comp-label">Capacity surplus vs target <span class="comp-label-unit">plants / wk</span></div>
-      <div class="comp-cell" id="base-gap"><span class="comp-value">—</span></div>
-      <div class="comp-cell col-a" id="a-gap"><span class="comp-value">—</span><span class="comp-delta"></span></div>
-      <div class="comp-cell col-b" id="b-gap"><span class="comp-value">—</span><span class="comp-delta"></span></div>
-    </div>
-
-    <div class="comp-row">
-      <div class="comp-label">Payback period <span class="comp-label-unit">years</span></div>
+      <div class="comp-label">Payback period <span class="comp-label-unit">years to break even</span></div>
       <div class="comp-cell"><span class="comp-na">—</span></div>
       <div class="comp-cell col-a" id="a-payback"><span class="comp-value">—</span></div>
       <div class="comp-cell col-b" id="b-payback"><span class="comp-value">—</span></div>
     </div>
 
-    <!-- ── Section: Biological Risk ── -->
-    <div class="section-header">Biological Risk (48-hr Deadline)</div>
-
-    <div class="comp-row">
-      <div class="comp-label">Priority plants / week <span class="comp-label-unit">must clear within 48 hrs</span></div>
-      <div class="comp-cell" id="base-priority-plants"><span class="comp-value">—</span></div>
-      <div class="comp-cell"><span class="comp-na">—</span></div>
-      <div class="comp-cell"><span class="comp-na">—</span></div>
-    </div>
-
-    <div class="comp-row">
-      <div class="comp-label">System utilization <span class="comp-label-unit">at target vol, same headcount</span></div>
-      <div class="comp-cell" id="base-utilization"><span class="comp-value">—</span></div>
-      <div class="comp-cell col-a" id="a-utilization"><span class="comp-value">—</span><span class="comp-delta"></span></div>
-      <div class="comp-cell col-b" id="b-utilization"><span class="comp-value">—</span><span class="comp-delta"></span></div>
-    </div>
-
-    <div class="comp-row">
-      <div class="comp-label">48-hr processing capacity <span class="comp-label-unit">plants, same headcount</span></div>
-      <div class="comp-cell" id="base-capacity-48"><span class="comp-value">—</span></div>
-      <div class="comp-cell col-a" id="a-capacity-48"><span class="comp-value">—</span><span class="comp-delta"></span></div>
-      <div class="comp-cell col-b" id="b-capacity-48"><span class="comp-value">—</span><span class="comp-delta"></span></div>
-    </div>
-
-    <div class="comp-row">
-      <div class="comp-label">Est. risk cost / week <span class="comp-label-unit">set cost per failed cross above</span></div>
-      <div class="comp-cell" id="base-risk-cost"><span class="comp-value">—</span></div>
-      <div class="comp-cell col-a" id="a-risk-cost"><span class="comp-value">—</span><span class="comp-delta"></span></div>
-      <div class="comp-cell col-b" id="b-risk-cost"><span class="comp-value">—</span><span class="comp-delta"></span></div>
-    </div>
 
   </div>
+</div>
+
+<!-- ══════════════════ SESSION TIMELINE ══════════════════ -->
+<div class="panel">
+  <div class="panel-title">Session Timeline — Technician Labor vs. Elapsed Clock</div>
+  <p class="chart-note">
+    Each row = one pollination session.&nbsp;
+    <strong style="color:#f59e0b">■</strong> Movement/setup &nbsp;·&nbsp;
+    <strong style="color:#818cf8">■</strong> Pollination &nbsp;·&nbsp;
+    <strong style="color:#e2e8f0">Solid bar</strong> = technician touch time &nbsp;·&nbsp;
+    <span style="opacity:0.45">Faded bar</span> = physical elapsed clock &nbsp;·&nbsp;
+    <span style="color:#334155; border: 1px dashed #1e3a5f; padding: 0 3px; border-radius:2px; font-size:10px">free</span> = technician free while cart travels (Scenario A)
+  </p>
+  <svg id="gantt-svg" class="chart-svg" viewBox="0 0 760 175" preserveAspectRatio="xMidYMid meet"></svg>
+</div>
+
+<!-- ══════════════════ CASH FLOW ══════════════════ -->
+<div class="panel">
+  <div class="panel-title">Cumulative Cash Flow — Break-even Analysis</div>
+  <svg id="cashflow-svg" class="chart-svg" viewBox="0 0 760 262" preserveAspectRatio="xMidYMid meet"></svg>
 </div>
 
 <!-- ══════════════════ DECISION FRAMEWORK ══════════════════ -->
@@ -731,7 +750,7 @@
     <!-- Throughput leverage (auto-computed) -->
     <div class="df-factor">
       Throughput leverage
-      <span class="info-tip" data-tip="% capacity gain with same headcount, mapped 0%→1 … 50%+→10">ⓘ</span>
+      <span class="info-tip" data-tip="% capacity gain based on elapsed cycle time reduction (not labor time); same headcount — mapped 0%→1 … 50%+→10">ⓘ</span>
     </div>
     <div class="df-wt-badge">25%</div>
     <div class="df-cell" id="df-base-throughput"><span class="df-score">—</span><span class="df-auto">—</span></div>
@@ -741,7 +760,7 @@
     <!-- Payback (auto-computed) -->
     <div class="df-factor">
       Payback
-      <span class="info-tip" data-tip="score = min(10, 10 ÷ years); shorter payback = higher score">ⓘ</span>
+      <span class="info-tip" data-tip="capex ÷ net annual savings (labor savings − opex); labor savings use technician touch-time — score = min(10, 10 ÷ years)">ⓘ</span>
     </div>
     <div class="df-wt-badge">20%</div>
     <div class="df-cell" id="df-base-payback"><span class="df-score">—</span><span class="df-auto">—</span></div>
@@ -807,11 +826,11 @@
 <script>
   const inputs = [
     'weeklyVolume','plantsPerSession','plantsPerCart',
-    'totalSessionTime','movementPrepTime','valueAddedTime',
+    'movementLaborTime','movementElapsedTime',
+    'pollinationLaborTime','pollinationElapsedTime',
     'operatingDays','shiftsPerDay','hrsPerShift','techRate',
-    'logisticsAutoPct','reliabilityA','capex','annualOpex',
-    'workstationAutoPct','reliabilityB','capexB','annualOpexB',
-    'priorityPct','failureCost'
+    'logisticsAutoPct','reliabilityA','capex','annualOpex','logisticsElapsedImpactPct',
+    'workstationAutoPct','workstationElapsedAutoPct','reliabilityB','capexB','annualOpexB',
   ];
 
   function fmt(n, decimals = 2) {
@@ -855,6 +874,187 @@
     return fmt(capex / netAnnual);
   }
 
+  // ── Session Timeline Gantt ────────────────────────────────────────────
+  function renderGantt(v, aML, aME, aPL, aPE, bML, bME, bPL, bPE) {
+    const svg = document.getElementById('gantt-svg');
+    if (!svg) return;
+    svg.innerHTML = '';
+
+    const VW = 760, VH = 175;
+    const ML = 112, MR = 16, MT = 16, MB = 24;
+    const CW = VW - ML - MR;
+
+    const rows = [
+      { label:'Baseline',   sub:'Current State',    c:'#94a3b8', movL:v.movementLaborTime,  movE:v.movementElapsedTime,  pollL:v.pollinationLaborTime,  pollE:v.pollinationElapsedTime },
+      { label:'Scenario A', sub:'Logistics Auto',   c:'#60a5fa', movL:aML, movE:aME, pollL:aPL, pollE:aPE },
+      { label:'Scenario B', sub:'Workstation Auto', c:'#4ade80', movL:bML, movE:bME, pollL:bPL, pollE:bPE },
+    ];
+
+    const maxE = Math.max(...rows.map(r => r.movE + r.pollE)) * 1.06;
+    const xS   = CW / maxE;
+
+    const MOVE_C = '#f59e0b', POLL_C = '#818cf8';
+    const ROW_H = 45, LH = 14, EH = 7;
+
+    function n(tag, a) {
+      const e = document.createElementNS('http://www.w3.org/2000/svg', tag);
+      for (const [k, val] of Object.entries(a || {})) e.setAttribute(k, val);
+      return e;
+    }
+    function app(e) { if (e) svg.appendChild(e); }
+    function tx(s, x, y, a) { const t = n('text', Object.assign({x, y}, a)); t.textContent = s; return t; }
+
+    // X-axis gridlines + tick labels
+    const step = maxE <= 0.5 ? 0.1 : maxE <= 1.5 ? 0.25 : 0.5;
+    const yBottom = VH - MB;
+    for (let i = 0; i * step <= maxE + 0.001; i++) {
+      const t = Math.round(i * step * 1000) / 1000;
+      const x = ML + t * xS;
+      if (x > ML + CW + 1) break;
+      app(n('line', {x1:x, y1:MT, x2:x, y2:yBottom, stroke:'#1e3a5f', 'stroke-width':'0.5'}));
+      app(tx((t === 0 ? '0' : t) + 'h', x, yBottom + 13,
+        {'text-anchor':'middle', fill:'#334155', 'font-size':'8.5', 'font-family':'monospace'}));
+    }
+
+    rows.forEach((r, i) => {
+      const yRow    = MT + i * ROW_H;
+      const yLabor  = yRow + 8;
+      const yElapse = yRow + 28;
+
+      // Row labels
+      app(tx(r.label, ML - 8, yRow + 18,
+        {'text-anchor':'end', fill:r.c, 'font-size':'11', 'font-weight':'700', 'font-family':'Segoe UI,sans-serif'}));
+      app(tx(r.sub, ML - 8, yRow + 29,
+        {'text-anchor':'end', fill:'#475569', 'font-size':'8', 'font-family':'Segoe UI,sans-serif'}));
+
+      // Elapsed track (faded: physical phase durations)
+      if (r.movE  > 0) app(n('rect', {x:ML,              y:yElapse, width:r.movE *xS, height:EH, fill:MOVE_C, opacity:'0.28', rx:'2'}));
+      if (r.pollE > 0) app(n('rect', {x:ML+r.movE*xS,    y:yElapse, width:r.pollE*xS, height:EH, fill:POLL_C, opacity:'0.28', rx:'2'}));
+
+      // Labor track: movement labor (tech touch time)
+      if (r.movL  > 0) app(n('rect', {x:ML,              y:yLabor,  width:r.movL *xS, height:LH, fill:MOVE_C, opacity:'0.88', rx:'2'}));
+
+      // Free gap: tech is freed before cart finishes moving
+      const gapPx = (r.movE - r.movL) * xS;
+      if (gapPx > 2) {
+        app(n('rect', {x:ML + r.movL * xS, y:yLabor, width:gapPx, height:LH,
+          fill:'#0a1628', opacity:'0.9', rx:'2',
+          stroke:'#1e3a5f', 'stroke-width':'0.75', 'stroke-dasharray':'2 2'}));
+        if (gapPx > 28) app(tx('free', ML + r.movL * xS + gapPx / 2, yLabor + LH / 2 + 3.5,
+          {'text-anchor':'middle', fill:'#334155', 'font-size':'7', 'font-family':'Segoe UI,sans-serif'}));
+      }
+
+      // Pollination labor (starts at movE — tech waits for cart to arrive)
+      if (r.pollL > 0) app(n('rect', {x:ML + r.movE * xS, y:yLabor, width:r.pollL * xS, height:LH, fill:POLL_C, opacity:'0.88', rx:'2'}));
+    });
+  }
+
+  // ── Cumulative Cash Flow ──────────────────────────────────────────────
+  function renderCashFlow(capexA, netA, capexB, netB) {
+    const svg = document.getElementById('cashflow-svg');
+    if (!svg) return;
+    svg.innerHTML = '';
+
+    const VW = 760, VH = 262;
+    const ML = 70, MR = 90, MT = 22, MB = 36;
+    const CW = VW - ML - MR, CH = VH - MT - MB;
+    const MAX_YRS = 12;
+
+    function n(tag, a) {
+      const e = document.createElementNS('http://www.w3.org/2000/svg', tag);
+      for (const [k, val] of Object.entries(a || {})) e.setAttribute(k, val);
+      return e;
+    }
+    function app(e) { if (e) svg.appendChild(e); }
+    function tx(s, x, y, a) { const t = n('text', Object.assign({x, y}, a)); t.textContent = s; return t; }
+    function cashAt(yr, cap, net) { return -cap + yr * net; }
+
+    const yMin = -Math.max(capexA, capexB, 1) * 1.08;
+    const rawMax = Math.max(cashAt(MAX_YRS, capexA, netA), cashAt(MAX_YRS, capexB, netB));
+    const yMax = rawMax > 0 ? rawMax * 1.15 : Math.abs(yMin) * 0.15;
+
+    function X(yr)  { return ML + yr * (CW / MAX_YRS); }
+    function Y(val) { return MT + CH * (1 - (val - yMin) / (yMax - yMin)); }
+
+    function fmtM(val) {
+      if (Math.abs(val) < 1) return '$0';
+      const s = val < 0 ? '−$' : '$', a = Math.abs(val);
+      if (a >= 1e6) return s + (a / 1e6).toFixed(1) + 'M';
+      return s + Math.round(a / 1e3) + 'K';
+    }
+
+    // Clip path
+    const defs = n('defs');
+    const cp = n('clipPath', {id:'cf-clip'});
+    cp.appendChild(n('rect', {x:ML, y:MT, width:CW, height:CH}));
+    defs.appendChild(cp);
+    svg.appendChild(defs);
+
+    // Y-axis grid + labels
+    const yRange = yMax - yMin;
+    const mag = Math.pow(10, Math.floor(Math.log10(yRange / 5)));
+    const yStep = mag * ([1, 2, 5, 10].find(s => mag * s >= yRange / 5 * 0.85) || 10);
+    const yStart = Math.ceil(yMin / yStep) * yStep;
+    for (let i = 0; i < 12; i++) {
+      const yv = yStart + i * yStep;
+      if (yv > yMax * 1.01) break;
+      const y = Y(yv);
+      if (y < MT - 2 || y > MT + CH + 2) continue;
+      const isZero = Math.abs(yv) < yStep * 0.01;
+      app(n('line', {x1:ML, y1:y, x2:ML+CW, y2:y,
+        stroke: isZero ? '#475569' : '#1e3a5f',
+        'stroke-width': isZero ? '1' : '0.5'}));
+      app(tx(fmtM(yv), ML - 6, y + 3.5,
+        {'text-anchor':'end', fill: isZero ? '#64748b' : '#334155', 'font-size':'8.5', 'font-family':'monospace'}));
+    }
+
+    // X-axis ticks + labels
+    for (let yr = 0; yr <= MAX_YRS; yr++) {
+      const x = X(yr);
+      app(n('line', {x1:x, y1:MT, x2:x, y2:MT + CH + 4, stroke:'#1e3a5f', 'stroke-width':'0.5'}));
+      if (yr % 2 === 0) app(tx('Yr ' + yr, x, MT + CH + 16,
+        {'text-anchor':'middle', fill:'#334155', 'font-size':'8.5', 'font-family':'monospace'}));
+    }
+
+    // Axis labels
+    app(tx('Year', ML + CW / 2, VH - 4,
+      {'text-anchor':'middle', fill:'#475569', 'font-size':'9'}));
+
+    // Lines
+    [{cap:capexA, net:netA, col:'#60a5fa', lbl:'Scenario A'},
+     {cap:capexB, net:netB, col:'#4ade80', lbl:'Scenario B'}].forEach(({cap, net, col, lbl}) => {
+
+      const pts = [];
+      for (let yr = 0; yr <= MAX_YRS; yr += 0.2)
+        pts.push(X(yr).toFixed(1) + ',' + Y(cashAt(yr, cap, net)).toFixed(1));
+      app(n('polyline', {points:pts.join(' '), fill:'none', stroke:col,
+        'stroke-width':'2.5', 'stroke-linejoin':'round', opacity:'0.9', 'clip-path':'url(#cf-clip)'}));
+
+      // Year-0 capex dot
+      const y0 = Y(-cap);
+      if (y0 >= MT && y0 <= MT + CH) app(n('circle', {cx:X(0), cy:y0, r:'4', fill:col, opacity:'0.9'}));
+
+      // Payback marker
+      if (net > 0) {
+        const payYr = cap / net;
+        if (payYr > 0 && payYr <= MAX_YRS) {
+          const px = X(payYr), py = Y(0);
+          app(n('line', {x1:px, y1:MT, x2:px, y2:MT+CH,
+            stroke:col, 'stroke-width':'1', 'stroke-dasharray':'3 3', opacity:'0.45'}));
+          app(n('circle', {cx:px, cy:py, r:'4', fill:col, opacity:'0.9'}));
+          app(tx(payYr.toFixed(1) + ' yr', px + 5, py - 6,
+            {fill:col, 'font-size':'9', 'font-weight':'700', 'font-family':'Segoe UI,sans-serif'}));
+        }
+      }
+
+      // End-of-line label (right edge)
+      const endVal = cashAt(MAX_YRS, cap, net);
+      const endY = Math.min(Math.max(Y(endVal), MT + 10), MT + CH - 4);
+      app(tx(lbl, ML + CW + 6, endY + 4,
+        {fill:col, 'font-size':'9.5', 'font-weight':'700', 'font-family':'Segoe UI,sans-serif'}));
+    });
+  }
+
   let _dfState = { baseCapacity: 1, aCapacity: 1, bCapacity: 1, aPayYrs: Infinity, bPayYrs: Infinity };
 
   function recalc() {
@@ -863,19 +1063,27 @@
     );
 
     // ── Shared baseline ──
-    const hrsPerWeek      = v.operatingDays * v.shiftsPerDay * v.hrsPerShift;
-    const sessionsPerWeek = v.weeklyVolume / v.plantsPerSession;
-    const totalUnitHrs    = sessionsPerWeek * v.totalSessionTime;
-    const technicians     = totalUnitHrs / hrsPerWeek;
-    const weeklyLaborCost = totalUnitHrs * v.techRate;
-    const annualLaborCost = weeklyLaborCost * 52;
-    // With same headcount, baseline capacity == target by construction
-    const baseCapacity    = technicians * hrsPerWeek / v.totalSessionTime * v.plantsPerSession;
-    const baseGap         = baseCapacity - v.weeklyVolume;
+    const hrsPerWeek         = v.operatingDays * v.shiftsPerDay * v.hrsPerShift;
+    const sessionsPerWeek    = v.weeklyVolume / v.plantsPerSession;
+    const baselineLaborTime  = v.movementLaborTime + v.pollinationLaborTime;
+    const baselineElapsedTime = v.movementElapsedTime + v.pollinationElapsedTime;
+    const totalUnitHrs       = sessionsPerWeek * baselineLaborTime;
+    const technicians        = totalUnitHrs / hrsPerWeek;
+    const weeklyLaborCost    = totalUnitHrs * v.techRate;
+    const annualLaborCost    = weeklyLaborCost * 52;
+    const baseCapacity       = technicians * hrsPerWeek / baselineElapsedTime * v.plantsPerSession;
+    const baseGap            = baseCapacity - v.weeklyVolume;
 
-    setBase('base-total-session', fmt(v.totalSessionTime));
-    setBase('base-setup-time',    fmt(v.movementPrepTime));
-    setBase('base-active-time',   fmt(v.valueAddedTime));
+    // Update derived-total display in baseline inputs panel
+    document.getElementById('base-derived-labor-time').textContent   = fmt(baselineLaborTime);
+    document.getElementById('base-derived-elapsed-time').textContent = fmt(baselineElapsedTime);
+
+    setBase('base-mvmt-labor',    fmt(v.movementLaborTime));
+    setBase('base-poll-labor',    fmt(v.pollinationLaborTime));
+    setBase('base-total-labor',   fmt(baselineLaborTime));
+    setBase('base-mvmt-elapsed',  fmt(v.movementElapsedTime));
+    setBase('base-poll-elapsed',  fmt(v.pollinationElapsedTime));
+    setBase('base-total-elapsed', fmt(baselineElapsedTime));
     setBase('base-labor-hrs',     fmt(totalUnitHrs));
     setBase('base-technicians',   fmt(technicians));
     setBase('base-weekly-cost',   fmtD(weeklyLaborCost));
@@ -883,113 +1091,90 @@
     setBase('base-capacity',      fmt(baseCapacity, 0));
     setBase('base-gap',           fmt(baseGap, 0));
 
-    // ── Scenario A: Logistics Automation (reduces setup/movement time) ──
-    const aAuto          = v.logisticsAutoPct / 100;
-    const aReliability   = v.reliabilityA / 100;
-    // Effective time saved scales with uptime: when system is down, revert to manual
-    const aSetupTime     = v.movementPrepTime * (1 - aAuto * aReliability);
-    const aTotalSession  = aSetupTime + v.valueAddedTime;
-    const aLaborHrs      = sessionsPerWeek * aTotalSession;
+    // ── Scenario A: Logistics Automation ──
+    // Reduces technician movement LABOR time by the full automation factor.
+    // Only partially reduces physical elapsed movement time (cart still takes time to arrive).
+    const aAuto                  = v.logisticsAutoPct / 100;
+    const aReliability           = v.reliabilityA / 100;
+    const logisticsElapsedImpact = v.logisticsElapsedImpactPct / 100;
+
+    const logisticsTouchReduction   = aAuto * aReliability;
+    // Elapsed reduction is a direct %, independent of labor savings —
+    // reflects the physical transport speed improvement scaled by uptime.
+    const logisticsElapsedReduction = logisticsElapsedImpact * aReliability;
+
+    const aMovementLaborTime    = v.movementLaborTime   * (1 - logisticsTouchReduction);
+    const aMovementElapsedTime  = v.movementElapsedTime * (1 - logisticsElapsedReduction);
+    const aPollinationLaborTime   = v.pollinationLaborTime;   // unchanged
+    const aPollinationElapsedTime = v.pollinationElapsedTime; // unchanged
+
+    const aLaborTime   = aMovementLaborTime + aPollinationLaborTime;
+    const aElapsedTime = aMovementElapsedTime + aPollinationElapsedTime;
+
+    const aLaborHrs      = sessionsPerWeek * aLaborTime;
     const aLaborSaved    = totalUnitHrs - aLaborHrs;
     const aTechnicians   = aLaborHrs / hrsPerWeek;
     const aWeeklyCost    = aLaborHrs * v.techRate;
     const aAnnualCost    = aWeeklyCost * 52;
     const aAnnualSavings = aLaborSaved * v.techRate * 52;
     const aNetAnnual     = aAnnualSavings - v.annualOpex;
-    const aCapacity      = technicians * hrsPerWeek / aTotalSession * v.plantsPerSession;
+    // Logistics automation decouples labor from elapsed: tech can overlap sessions while
+    // the autonomous cart is in transit. Throughput bottleneck is labor time, not elapsed.
+    const aCapacity      = technicians * hrsPerWeek / aLaborTime * v.plantsPerSession;
     const aGap           = aCapacity - v.weeklyVolume;
 
-    setScenario('a-total-session', aTotalSession,  v.totalSessionTime,  true,  fmt);
-    setScenario('a-setup-time',    aSetupTime,      v.movementPrepTime,  true,  fmt);
-    setScenario('a-active-time',   v.valueAddedTime, v.valueAddedTime,   true,  fmt);
-    setScenario('a-labor-hrs',     aLaborHrs,       totalUnitHrs,        true,  fmt);
-    setSavings( 'a-labor-saved',   aLaborSaved,                                 fmt);
-    setScenario('a-technicians',   aTechnicians,    technicians,         true,  fmt);
-    setScenario('a-weekly-cost',   aWeeklyCost,     weeklyLaborCost,     true,  fmtD);
-    setScenario('a-annual-cost',   aAnnualCost,     annualLaborCost,     true,  fmtD);
-    setSavings( 'a-annual-savings', aAnnualSavings,                             fmtD);
-    setScenario('a-capacity',      aCapacity,       baseCapacity,        false, n => fmt(n, 0));
-    setScenario('a-gap',           aGap,            baseGap,             false, n => fmt(n, 0));
+    setScenario('a-mvmt-labor',    aMovementLaborTime,    v.movementLaborTime,    true,  fmt);
+    setScenario('a-poll-labor',    aPollinationLaborTime, v.pollinationLaborTime, true,  fmt);
+    setScenario('a-total-labor',   aLaborTime,            baselineLaborTime,      true,  fmt);
+    setScenario('a-mvmt-elapsed',  aMovementElapsedTime,  v.movementElapsedTime,  true,  fmt);
+    setScenario('a-poll-elapsed',  aPollinationElapsedTime, v.pollinationElapsedTime, true, fmt);
+    setScenario('a-total-elapsed', aElapsedTime,          baselineElapsedTime,    true,  fmt);
+    setScenario('a-labor-hrs',     aLaborHrs,             totalUnitHrs,           true,  fmt);
+    setScenario('a-technicians',   aTechnicians,          technicians,            true,  fmt);
+    setScenario('a-weekly-cost',   aWeeklyCost,           weeklyLaborCost,        true,  fmtD);
+    setScenario('a-annual-cost',   aAnnualCost,           annualLaborCost,        true,  fmtD);
+    setSavings( 'a-annual-savings', aAnnualSavings,                                      fmtD);
+    setScenario('a-capacity',      aCapacity,             baseCapacity,           false, n => fmt(n, 0));
     document.getElementById('a-payback').querySelector('.comp-value').textContent = fmtPayback(v.capex, aNetAnnual);
 
-    // ── Scenario B: Workstation Automation (reduces active pollination time) ──
-    const bAuto          = v.workstationAutoPct / 100;
-    const bReliability   = v.reliabilityB / 100;
-    // Effective time saved scales with uptime: when system is down, revert to manual
-    const bActiveTime    = v.valueAddedTime * (1 - bAuto * bReliability);
-    const bTotalSession  = v.movementPrepTime + bActiveTime;
-    const bLaborHrs      = sessionsPerWeek * bTotalSession;
+    // ── Scenario B: Workstation Automation ──
+    // Labor and elapsed reductions are specified independently — machine may speed up
+    // the physical process (elapsed) by a different amount than it frees technician time.
+    const bLaborAuto   = v.workstationAutoPct         / 100;
+    const bElapsedAuto = v.workstationElapsedAutoPct  / 100;
+    const bReliability = v.reliabilityB / 100;
+
+    const bPollinationLaborTime   = v.pollinationLaborTime   * (1 - bLaborAuto   * bReliability);
+    const bPollinationElapsedTime = v.pollinationElapsedTime * (1 - bElapsedAuto * bReliability);
+    const bMovementLaborTime      = v.movementLaborTime;   // unchanged
+    const bMovementElapsedTime    = v.movementElapsedTime; // unchanged
+
+    const bLaborTime   = bMovementLaborTime + bPollinationLaborTime;
+    const bElapsedTime = bMovementElapsedTime + bPollinationElapsedTime;
+
+    const bLaborHrs      = sessionsPerWeek * bLaborTime;
     const bLaborSaved    = totalUnitHrs - bLaborHrs;
     const bTechnicians   = bLaborHrs / hrsPerWeek;
     const bWeeklyCost    = bLaborHrs * v.techRate;
     const bAnnualCost    = bWeeklyCost * 52;
     const bAnnualSavings = bLaborSaved * v.techRate * 52;
     const bNetAnnual     = bAnnualSavings - v.annualOpexB;
-    const bCapacity      = technicians * hrsPerWeek / bTotalSession * v.plantsPerSession;
+    const bCapacity      = technicians * hrsPerWeek / bElapsedTime * v.plantsPerSession;
     const bGap           = bCapacity - v.weeklyVolume;
 
-    setScenario('b-total-session', bTotalSession,    v.totalSessionTime,  true,  fmt);
-    setScenario('b-setup-time',    v.movementPrepTime, v.movementPrepTime, true,  fmt);
-    setScenario('b-active-time',   bActiveTime,      v.valueAddedTime,    true,  fmt);
-    setScenario('b-labor-hrs',     bLaborHrs,        totalUnitHrs,        true,  fmt);
-    setSavings( 'b-labor-saved',   bLaborSaved,                                  fmt);
-    setScenario('b-technicians',   bTechnicians,     technicians,         true,  fmt);
-    setScenario('b-weekly-cost',   bWeeklyCost,      weeklyLaborCost,     true,  fmtD);
-    setScenario('b-annual-cost',   bAnnualCost,      annualLaborCost,     true,  fmtD);
-    setSavings( 'b-annual-savings', bAnnualSavings,                              fmtD);
-    setScenario('b-capacity',      bCapacity,        baseCapacity,        false, n => fmt(n, 0));
-    setScenario('b-gap',           bGap,             baseGap,             false, n => fmt(n, 0));
+    setScenario('b-mvmt-labor',    bMovementLaborTime,    v.movementLaborTime,    true,  fmt);
+    setScenario('b-poll-labor',    bPollinationLaborTime, v.pollinationLaborTime, true,  fmt);
+    setScenario('b-total-labor',   bLaborTime,            baselineLaborTime,      true,  fmt);
+    setScenario('b-mvmt-elapsed',  bMovementElapsedTime,  v.movementElapsedTime,  true,  fmt);
+    setScenario('b-poll-elapsed',  bPollinationElapsedTime, v.pollinationElapsedTime, true, fmt);
+    setScenario('b-total-elapsed', bElapsedTime,          baselineElapsedTime,    true,  fmt);
+    setScenario('b-labor-hrs',     bLaborHrs,             totalUnitHrs,           true,  fmt);
+    setScenario('b-technicians',   bTechnicians,          technicians,            true,  fmt);
+    setScenario('b-weekly-cost',   bWeeklyCost,           weeklyLaborCost,        true,  fmtD);
+    setScenario('b-annual-cost',   bAnnualCost,           annualLaborCost,        true,  fmtD);
+    setSavings( 'b-annual-savings', bAnnualSavings,                                      fmtD);
+    setScenario('b-capacity',      bCapacity,             baseCapacity,           false, n => fmt(n, 0));
     document.getElementById('b-payback').querySelector('.comp-value').textContent = fmtPayback(v.capexB, bNetAnnual);
-
-    // ── Biological Risk ──
-    // At 100% utilization (baseline by construction), queue theory predicts increasing
-    // deadline failures as variability accumulates. Risk drops sharply below ~90% utilization.
-    const priorityPlants  = v.weeklyVolume * v.priorityPct / 100;
-    const hrs48           = 2 * v.shiftsPerDay * v.hrsPerShift; // operating hrs in a 48-hr window
-    const baseCapacity48  = technicians * hrs48 / v.totalSessionTime * v.plantsPerSession;
-    const aCapacity48     = technicians * hrs48 / aTotalSession    * v.plantsPerSession;
-    const bCapacity48     = technicians * hrs48 / bTotalSession    * v.plantsPerSession;
-
-    // Utilization = fraction of available capacity consumed at target volume (same headcount)
-    const aUtil = aTotalSession / v.totalSessionTime; // < 1 means buffer exists
-    const bUtil = bTotalSession / v.totalSessionTime;
-
-    // Risk factor: scales from 0 at ≤90% util to 1.0 at 100% util
-    const riskFactor = u => Math.max(0, (u - 0.9) / 0.1);
-    const baseRiskCost = priorityPlants * v.failureCost * riskFactor(1.0);
-    const aRiskCost    = priorityPlants * v.failureCost * riskFactor(aUtil);
-    const bRiskCost    = priorityPlants * v.failureCost * riskFactor(bUtil);
-
-    // Utilization cell helper — sets value + delta, colors value by risk level
-    function setUtil(id, util, baseUtil) {
-      const cell = document.getElementById(id);
-      if (!cell) return;
-      const valEl = cell.querySelector('.comp-value');
-      const dEl   = cell.querySelector('.comp-delta');
-      valEl.textContent = fmt(util * 100) + '%';
-      valEl.style.color = util >= 0.95 ? '#f87171' : util >= 0.85 ? '#f59e0b' : '#4ade80';
-      const delta = util - baseUtil;
-      if (Math.abs(delta) < 1e-9) { dEl.textContent = ''; return; }
-      const sign = delta > 0 ? '+' : '−';
-      dEl.textContent = sign + fmt(Math.abs(delta) * 100) + 'pp';
-      dEl.className = 'comp-delta ' + (delta < 0 ? 'delta-pos' : 'delta-neg');
-    }
-
-    document.getElementById('base-priority-plants').querySelector('.comp-value').textContent = fmt(priorityPlants, 0);
-    const baseUtilEl = document.getElementById('base-utilization').querySelector('.comp-value');
-    baseUtilEl.textContent = '100%';
-    baseUtilEl.style.color = '#f87171';
-
-    setUtil('a-utilization', aUtil, 1.0);
-    setUtil('b-utilization', bUtil, 1.0);
-
-    setBase('base-capacity-48', fmt(baseCapacity48, 0));
-    setScenario('a-capacity-48', aCapacity48, baseCapacity48, false, n => fmt(n, 0));
-    setScenario('b-capacity-48', bCapacity48, baseCapacity48, false, n => fmt(n, 0));
-
-    setBase('base-risk-cost', fmtD(baseRiskCost));
-    setScenario('a-risk-cost', aRiskCost, baseRiskCost, true, fmtD);
-    setScenario('b-risk-cost', bRiskCost, baseRiskCost, true, fmtD);
 
     _dfState = {
       baseCapacity,
@@ -999,6 +1184,11 @@
       bPayYrs: bNetAnnual > 0 ? v.capexB / bNetAnnual : Infinity,
     };
     updateDecision();
+
+    renderGantt(v,
+      aMovementLaborTime, aMovementElapsedTime, aPollinationLaborTime, aPollinationElapsedTime,
+      bMovementLaborTime, bMovementElapsedTime, bPollinationLaborTime, bPollinationElapsedTime);
+    renderCashFlow(v.capex, aNetAnnual, v.capexB, bNetAnnual);
   }
 
   inputs.forEach(id => document.getElementById(id).addEventListener('input', recalc));
@@ -1006,22 +1196,19 @@
 
   // Inject info-tip icons next to every derived metric label
   const TIPS = {
-    'Total session time':         'setup time + active time',
-    'Setup / movement time':      'movement × (1 − auto% × uptime%)',
-    'Active pollination time':    'active × (1 − auto% × uptime%)',
-    'Labor hours / week':         '(vol ÷ plants/session) × session time',
-    'Labor hours saved / week':   'base labor hrs − scenario labor hrs',
-    'Technicians required':       'labor hrs/wk ÷ avail hrs/wk',
-    'Weekly labor cost':          'labor hrs × $/hr',
-    'Annual labor cost':          'weekly cost × 52',
-    'Annual labor savings':       'hrs saved × $/hr × 52',
-    'Weekly capacity':            'headcount × avail hrs ÷ session time × plants/session',
-    'Capacity surplus vs target': 'capacity − weekly vol target',
-    'Payback period':             'capex ÷ (savings − annual opex)',
-    'Priority plants / week':     'weekly vol × priority%',
-    'System utilization':         'scenario session time ÷ baseline session time',
-    '48-hr processing capacity':  'headcount × 2-day hrs ÷ session time × plants/session',
-    'Est. risk cost / week':      'priority plants × $/plant × max(0, (util − 90%) ÷ 10%)',
+    'Movement/setup technician time': 'movementLaborTime (input)\nSkilled touch time only — drives headcount and cost',
+    'Pollination technician time':    'pollinationLaborTime (input)\nSkilled touch time only — drives headcount and cost',
+    'Total technician time/session':  'movementLaborTime + pollinationLaborTime\nTotal billed labor per session',
+    'Movement/setup elapsed time':    'movementElapsedTime (input)\nClock time incl. cart travel — continues after tech steps away',
+    'Pollination elapsed time':       'pollinationElapsedTime (input)\nClock time for pollination — machine requires tech presence',
+    'Total elapsed cycle time/session': 'movementElapsedTime + pollinationElapsedTime\nPhysical throughput bottleneck (Scenario B)',
+    'Labor hours / week':             '(weeklyVolume ÷ plantsPerSession) × laborTime\nUses touch time, not elapsed',
+    'Technicians required':           'laborHrs/wk ÷ availableHrs/wk\nMinimum headcount to hit target volume',
+    'Weekly labor cost':              'laborHrs × $/hr\nDirect labor spend at technician rate',
+    'Annual labor cost':              'weeklyLaborCost × 52\nFull-year labor spend',
+    'Annual labor savings':           'laborHrsSaved × $/hr × 52\nCost avoidance from touch-time reduction only',
+    'Weekly capacity':                'A: headcount × hrs ÷ laborTime × plants/session\nB: headcount × hrs ÷ elapsedTime × plants/session\nA: tech overlaps sessions while cart moves autonomously',
+    'Payback period':                 'capex ÷ (annualLaborSavings − annualOpex)\nBreak-even on capital investment',
   };
 
   document.querySelectorAll('.comp-label').forEach(el => {

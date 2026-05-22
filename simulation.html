@@ -127,6 +127,20 @@
     #startBtn.paused { background: #f59e0b; }
     #resetBtn { background: #334155; color: #cbd5e1; }
     #resetBtn:hover { background: #475569; }
+    #saveBtn    { background: #166534; color: #bbf7d0; }
+    #saveBtn:hover { background: #15803d; }
+    #restoreBtn { background: #334155; color: #7dd3fc; }
+    #restoreBtn:hover { background: #475569; }
+    #restoreBtn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    #save-toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: #1e293b; border: 1px solid #334155; border-radius: 8px;
+      padding: 10px 20px; font-size: 13px; color: #94a3b8;
+      pointer-events: none; opacity: 0; transition: opacity 0.25s;
+      z-index: 999;
+    }
+    #save-toast.show { opacity: 1; }
 
     /* ── SVG Diagram ── */
     .diagram-wrapper {
@@ -369,7 +383,10 @@
   <div class="btn-group">
     <button id="startBtn">Start</button>
     <button id="resetBtn">Reset</button>
+    <button id="saveBtn">Save</button>
+    <button id="restoreBtn" disabled>Restore</button>
   </div>
+  <div id="save-toast"></div>
 </div>
 
 <!-- Schedule Visualizer -->
@@ -746,6 +763,9 @@ const dom = {
   shiftStatusEl:         document.getElementById('shift-status'),
   startBtn:         document.getElementById('startBtn'),
   resetBtn:         document.getElementById('resetBtn'),
+  saveBtn:          document.getElementById('saveBtn'),
+  restoreBtn:       document.getElementById('restoreBtn'),
+  saveToast:        document.getElementById('save-toast'),
   schedCursor:      document.getElementById('sched-cursor'),
   dpTime:           document.getElementById('dp-time'),
   chartCanvas:      document.getElementById('throughputChart'),
@@ -1450,6 +1470,108 @@ dom.resetBtn.addEventListener('click', () => {
   sim = freshState();
   renderFrame();
 });
+
+// ═══════════════════════════════════════════════════════════
+//  SAVE / RESTORE  (localStorage)
+// ═══════════════════════════════════════════════════════════
+const SAVE_KEY = 'lf-sim-save';
+
+let toastTimer = null;
+function showToast(msg) {
+  dom.saveToast.textContent = msg;
+  dom.saveToast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => dom.saveToast.classList.remove('show'), 2200);
+}
+
+function saveState() {
+  const snapshot = {
+    params: { ...params },
+    sim: {
+      bufReg:          sim.bufReg,
+      bufPri:          sim.bufPri,
+      poll:            sim.poll,
+      postPoll:        sim.postPoll,
+      prAge:           sim.prAge,
+      failures:        sim.failures,
+      elapsed:         sim.elapsed,
+      priorityCohorts: sim.priorityCohorts,
+      activeBatches:   sim.activeBatches,
+    },
+    inputs: {
+      targetRate:      dom.targetInput.value,
+      numWorkers:      dom.numWorkersInput.value,
+      plantsPerSession:dom.plantsPerSessionInput.value,
+      setupTime:       dom.setupTimeInput.value,
+      pollTime:        dom.pollTimeInput.value,
+      jitterScale:     dom.jitterScaleInput.value,
+      simSpeed:        dom.simSpeedInput.value,
+      daysPerWeek:     dom.daysPerWeekInput.value,
+      shiftsPerDay:    dom.shiftsPerDayInput.value,
+      hoursPerShift:   dom.hoursPerShiftInput.value,
+    },
+    savedAt: new Date().toLocaleString(),
+  };
+  localStorage.setItem(SAVE_KEY, JSON.stringify(snapshot));
+  dom.restoreBtn.disabled = false;
+  dom.restoreBtn.title = `Saved ${snapshot.savedAt}`;
+  showToast(`Saved at ${snapshot.savedAt}`);
+}
+
+function restoreState() {
+  const raw = localStorage.getItem(SAVE_KEY);
+  if (!raw) return;
+  const snapshot = JSON.parse(raw);
+
+  // Restore input field values
+  const inp = snapshot.inputs;
+  dom.targetInput.value           = inp.targetRate;
+  dom.numWorkersInput.value       = inp.numWorkers;
+  dom.plantsPerSessionInput.value = inp.plantsPerSession;
+  dom.setupTimeInput.value        = inp.setupTime;
+  dom.pollTimeInput.value         = inp.pollTime;
+  dom.jitterScaleInput.value      = inp.jitterScale;
+  dom.simSpeedInput.value         = inp.simSpeed;
+  dom.daysPerWeekInput.value      = inp.daysPerWeek;
+  dom.shiftsPerDayInput.value     = inp.shiftsPerDay;
+  dom.hoursPerShiftInput.value    = inp.hoursPerShift;
+
+  // Re-sync derived params from inputs
+  Object.assign(params, snapshot.params);
+  syncAll();
+
+  // Restore sim state (pause first, clear particles)
+  sim.running = false;
+  lastTime = null;
+  dom.startBtn.textContent = 'Start';
+  dom.startBtn.classList.remove('paused');
+  clearAllParticles();
+
+  const s = snapshot.sim;
+  sim = freshState();
+  sim.bufReg          = s.bufReg;
+  sim.bufPri          = s.bufPri;
+  sim.poll            = s.poll;
+  sim.postPoll        = s.postPoll;
+  sim.prAge           = s.prAge;
+  sim.failures        = s.failures;
+  sim.elapsed         = s.elapsed;
+  sim.priorityCohorts = s.priorityCohorts;
+  sim.activeBatches   = s.activeBatches;
+
+  renderFrame();
+  showToast(`Restored — saved ${snapshot.savedAt}`);
+}
+
+// Enable restore button if a save already exists
+if (localStorage.getItem(SAVE_KEY)) {
+  const existing = JSON.parse(localStorage.getItem(SAVE_KEY));
+  dom.restoreBtn.disabled = false;
+  dom.restoreBtn.title = `Saved ${existing.savedAt}`;
+}
+
+dom.saveBtn.addEventListener('click', saveState);
+dom.restoreBtn.addEventListener('click', restoreState);
 
 // ═══════════════════════════════════════════════════════════
 //  INIT
