@@ -16,11 +16,12 @@ Open any file directly in any modern browser.
 |---|---|
 | `simulation.html` | **Dynamic Simulation** — real-time worker-session model with animated SVG diagram, shift scheduling, and throughput chart. Primary working file. |
 | `opportunity-analysis.html` | **Opportunity Analysis & ROI** — static side-by-side scenario comparison calculator for logistics vs. workstation automation. |
-| `layout.html` | **Layout** — interactive floorplan view of the pollination facility with routing logic and ergonomics comparison. |
+| `layout.html` | **Layout** — interactive floorplan of the pollination facility with 2D-shuttle storage system, routing logic, and ergonomics comparison. |
+| `prd.html` | **PRD** — Product Requirements Document for the Facility Orchestrator: the dispatch engine proposed in Scenario A. |
 | `index.html` | Generic 2-stock/3-flow prototype (Phase 1), kept for reference. |
 | `living-factory.html` | Continuous-flow model with labor utilization slider (Phase 2/3), kept for reference. |
 
-The three main pages link to each other via a tab bar at the top of each page.
+All four main pages link to each other via a tab bar at the top of each page.
 
 ---
 
@@ -233,6 +234,12 @@ A static (non-animated) side-by-side scenario comparison calculator. No simulati
 
 Delta badges beside each scenario value show the change vs baseline (green = improvement, red = degradation).
 
+**Session Timeline Gantt** — SVG Gantt chart showing the session phases (setup/transport and active pollination) side-by-side for all three scenarios, illustrating how each automation type compresses the cycle.
+
+**Cumulative Cash Flow chart** — SVG line chart plotting cumulative net cash position over 5 years for Scenarios A and B, showing break-even crossover against the baseline.
+
+**Automated Decision Framework** — Scored comparison grid rating each scenario on six dimensions: Throughput Gain, Payback Period, Deployment Risk, Biological Risk, Scalability, and Time to Value. Each dimension is scored 1–10 (color-coded green/amber/red) and combined into a weighted total score. Info-tip tooltips explain each scoring formula.
+
 ---
 
 ## Layout (`layout.html`)
@@ -241,11 +248,42 @@ An interactive floorplan visualization of the pollination facility.
 
 ### Structure
 
-- **Controls strip** — Mode buttons to switch between layout views; stat chips showing key derived values.
-- **Floorplan** — SVG diagram of the physical floor plan showing workstation positions, travel paths, and flow routing.
-- **Routing panel** — Shows dispatch rules (priority ordering logic), formula breakdowns, and key notes.
-- **Ergonomics Comparison** — Side-by-side current state vs. future state workflow steps with KPI deltas (movement time, utilization).
+- **Controls strip** — Mode button to toggle the Goods-to-Person layout view.
+- **Floorplan** — SVG diagram of the physical floor plan. The storage zone is a single **High-Density Rolling Bench Storage** block with a 2D-shuttle system: a C-RAIL intake rail across the top, a dispatch rail along the bottom, seven vertical shuttle tracks running between them, and a dashed amber separator marking the priority zone (rows 7–8) from regular storage (rows 1–6). Directional arrows on each track show FEFO dispatch flow toward the priority zone.
+- **Routing panel** — Dispatch rules (priority ordering logic), formula breakdowns, and key scheduling notes.
+- **Ergonomics Comparison** — Side-by-side current state (manual walk) vs. future state (Goods-to-Person) workflow steps with KPI deltas.
 - **Legend / Key Principles strip** — Color key and design principles.
+
+---
+
+## PRD — Facility Orchestrator (`prd.html`)
+
+A product requirements document for the software system that would implement Scenario A (logistics automation) in a real facility.
+
+### Contents
+
+**Cover** — The Facility Orchestrator: a real-time dispatch engine that automates cart movement using biological deadlines and keeps digital pollination records in sync with physical plants.
+
+**Problem & Why Scenario A First** — Frames the 33%-logistics-waste problem and the business case: ~1-year payback, $3.46M/yr savings, no robotic arm capex required.
+
+**Facility Flow Overview** — Architecture diagram showing the cart lifecycle from Propagation → RFID Slotting → Biological Priority Queue → Conveyor/Shuttle → Pollination Cell → Post-Pollination.
+
+**Core Features (Phase 1):**
+
+| Feature | Description |
+|---|---|
+| **Biological Priority Queue (BPQ)** | FEFO dispatch engine that recomputes priority scores every 60 seconds across all carts, weighing time remaining in the 48-hr window, station readiness, travel distance, and batch cross-compatibility. Issues move tasks to shuttles/conveyors and alerts to technician HMIs. |
+| **Bits-to-Atoms Sync** | Every cart gets a UUID at propagation; RFID reads at each physical transition (intake, slotting, dispatch, cell arrival, pollination complete, post-poll transfer) keep the digital cross record perfectly in sync with the physical plant. |
+
+**Hardware Layer** — Shuttle robots (≥2), conveyor lanes, RFID readers, workstation HMIs, and a facility dashboard. All hardware directed via REST/MQTT (no vendor lock-in).
+
+**Phased Rollout:**
+
+| Phase | Timeline | Scope |
+|---|---|---|
+| Phase 1 | Months 1–6 | Orchestrator + BPQ, conveyors, RFID, HMIs, Bits-to-Atoms sync, dashboard, manual override |
+| Phase 2 | Months 7–12 | Predictive scheduling — ML pre-stages carts; integrates with weekly cross schedule |
+| Phase 3 | Year 2+ | Robotic pollination arm integration (Scenario B hardware); supervisor-override-only loop |
 
 ---
 
@@ -333,9 +371,12 @@ All pages are single self-contained HTML files with no external dependencies, bu
 |---|---|
 | `simulation.html` | Dynamic Simulation — worker-session model, animated SVG, throughput chart |
 | `opportunity-analysis.html` | Opportunity Analysis & ROI — static scenario comparison calculator |
-| `layout.html` | Layout — interactive floorplan and routing logic visualization |
+| `layout.html` | Layout — 2D-shuttle floorplan, routing logic, ergonomics comparison |
+| `prd.html` | PRD — Facility Orchestrator product requirements (BPQ, Bits-to-Atoms, hardware, rollout) |
 | `living-factory.html` | Continuous-flow model with labor utilization slider (Phase 2/3 reference) |
 | `index.html` | Generic 2-stock/3-flow prototype (Phase 1 reference) |
+| `Orchestrating-the-Living-Factory.txt` | Source material: the case study document this simulation is based on |
+| `Greenhouse.mp4` | Facility video — embedded in the Layout tab |
 | `plan.md` | Development roadmap with phase-by-phase completion notes |
 | `CLAUDE.md` | Architecture guide for AI-assisted development sessions |
 | `README.md` | This file |
