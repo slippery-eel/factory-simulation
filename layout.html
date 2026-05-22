@@ -367,13 +367,6 @@ body {
     <button id="btn-g2p" class="mode-btn mode-active">Goods-to-Person ✓</button>
   </div>
   <div class="divider-v"></div>
-  <button id="btn-flow-arrows" class="toggle-btn toggle-active">Show Flow Arrows</button>
-  <div class="divider-v"></div>
-  <div class="stat-chip">
-    <span class="stat-chip-label">Est. travel reduction</span>
-    <span id="travel-reduction" class="stat-chip-value">~85%</span>
-    <span style="font-size:9px; color:#334155; margin-top:1px;">10–20 min/trip → &lt;60 sec cart delivery</span>
-  </div>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════
@@ -403,10 +396,7 @@ body {
       </marker>
       <!-- Clip paths -->
       <clipPath id="clip-regular">
-        <rect x="20" y="155" width="820" height="175"/>
-      </clipPath>
-      <clipPath id="clip-priority">
-        <rect x="20" y="350" width="820" height="86"/>
+        <rect x="20" y="155" width="820" height="290"/>
       </clipPath>
     </defs>
 
@@ -427,24 +417,60 @@ body {
     <text x="430" y="120" text-anchor="middle" fill="#93c5fd" font-size="9" font-weight="700" letter-spacing="0.08em">RECEIVING + SCAN-IN</text>
     <text x="430" y="133" text-anchor="middle" fill="#94a3b8" font-size="9">ID verification · tray manifest</text>
 
-    <!-- Regular Dense Storage sub-zone -->
-    <rect x="20" y="155" width="820" height="175" rx="3"
+    <!-- Combined Dense Storage zone (rows 1–6 regular · rows 7–8 priority) -->
+    <rect x="20" y="155" width="820" height="290" rx="3"
       fill="#06091a" stroke="#1d4ed8" stroke-width="1" stroke-opacity="0.5"/>
-    <text x="430" y="169" text-anchor="middle" fill="#3b82f6" font-size="8" font-weight="700" letter-spacing="0.07em">REGULAR DENSE STORAGE</text>
-    <text x="430" y="180" text-anchor="middle" fill="#93c5fd" font-size="8.5">Rolling benches / palletized trays · lower urgency</text>
-    <!-- Rack grid populated by JS into <g id="rack-grid"> -->
-    <g id="rack-grid"></g>
+    <text x="430" y="169" text-anchor="middle" fill="#3b82f6" font-size="8" font-weight="700" letter-spacing="0.07em">HIGH-DENSITY ROLLING BENCH STORAGE</text>
+    <text x="430" y="180" text-anchor="middle" fill="#93c5fd" font-size="8.5">2D-shuttle system · 6 regular rows · 2 priority rows (FEFO)</text>
 
-    <!-- Priority Hot Zone sub-zone -->
-    <rect x="20" y="350" width="820" height="86" rx="4"
-      fill="#100900" stroke="#f59e0b" stroke-width="1.5"/>
-    <text x="430" y="367" text-anchor="middle" fill="#f59e0b" font-size="8.5" font-weight="700" letter-spacing="0.07em">PRIORITY ZONE</text>
-    <text x="430" y="380" text-anchor="middle" fill="#fbbf24" font-size="9">&lt;48h flowering window · FEFO dispatch</text>
-    <!-- Deadline badge -->
-    <rect x="700" y="353" width="132" height="24" rx="3" fill="#1a0800" stroke="#b45309" stroke-width="1"/>
-    <text x="766" y="368" text-anchor="middle" fill="#f59e0b" font-size="8" font-weight="700">⏱  48h BIOLOGICAL CLOCK</text>
-    <!-- Priority racks populated by JS into <g id="priority-racks"> -->
+    <!-- C-RAIL: left vertical column — shuttle intake path (x=20–44, y=186–439) -->
+    <rect x="20" y="186" width="24" height="253" fill="#040e1a"/>
+    <!-- C-RAIL: top horizontal intake rail (y=186–210), inset between columns -->
+    <rect x="32" y="186" width="780" height="24" fill="#071428" stroke="#3b82f6" stroke-width="1" stroke-opacity="0.6"/>
+    <text x="430" y="201" text-anchor="middle" fill="#93c5fd" font-size="7.5" font-weight="700" letter-spacing="0.07em">INTAKE RAIL</text>
+    <!-- C-RAIL: right vertical column — shuttle return path (x=816–840, y=186–439) -->
+    <rect x="816" y="186" width="24" height="253" fill="#040e1a"/>
+    <line x1="828" y1="210" x2="828" y2="415" stroke="#3b82f6" stroke-width="1" stroke-dasharray="3 3" opacity="0.55"/>
+    <path d="M824,305 L832,305 L828,313 Z" fill="#60a5fa" opacity="0.6"/>
+    <!-- C-RAIL: bottom horizontal dispatch rail (y=415–439), inset between columns -->
+    <rect x="32" y="415" width="780" height="24" fill="#071428" stroke="#3b82f6" stroke-width="1" stroke-opacity="0.6"/>
+    <text x="430" y="431" text-anchor="middle" fill="#93c5fd" font-size="7.5" font-weight="700" letter-spacing="0.07em">2D-SHUTTLE DISPATCH RAIL</text>
+
+    <!-- Cart tracks: 7 vertical lines running between rails (x=44 to x=816) -->
+    <g id="shuttle-tracks">
+      <line x1="128" y1="210" x2="128" y2="415" stroke="#3b82f6" stroke-width="0.8" opacity="0.38"/>
+      <line x1="226" y1="210" x2="226" y2="415" stroke="#3b82f6" stroke-width="0.8" opacity="0.38"/>
+      <line x1="324" y1="210" x2="324" y2="415" stroke="#3b82f6" stroke-width="0.8" opacity="0.38"/>
+      <line x1="422" y1="210" x2="422" y2="415" stroke="#3b82f6" stroke-width="0.8" opacity="0.38"/>
+      <line x1="520" y1="210" x2="520" y2="415" stroke="#3b82f6" stroke-width="0.8" opacity="0.38"/>
+      <line x1="618" y1="210" x2="618" y2="415" stroke="#3b82f6" stroke-width="0.8" opacity="0.38"/>
+      <line x1="716" y1="210" x2="716" y2="415" stroke="#3b82f6" stroke-width="0.8" opacity="0.38"/>
+    </g>
+    <!-- Regular bench rows populated by JS into <g id="rack-grid"> -->
+    <g id="rack-grid"></g>
+    <!-- Priority bench rows populated by JS into <g id="priority-racks"> -->
     <g id="priority-racks"></g>
+    <!-- Separator: dashed amber line between regular rows and priority rows -->
+    <line x1="44" y1="349" x2="816" y2="349" stroke="#f59e0b" stroke-width="0.8" stroke-dasharray="4 4" opacity="0.5"/>
+    <!-- Priority zone label sits in the 16px gap between regular rows and priority rows -->
+    <text x="430" y="360" text-anchor="middle" fill="#f59e0b" font-size="8.5" font-weight="700" letter-spacing="0.07em">PRIORITY ZONE</text>
+    <!-- Directional arrows on each track: stem + small head, painted AFTER grid -->
+    <g id="track-arrows" stroke="#f59e0b" stroke-width="1.5" fill="#f59e0b" opacity="0.9">
+      <line x1="128" y1="255" x2="128" y2="294"/>
+      <path d="M124,294 L132,294 L128,302 Z"/>
+      <line x1="226" y1="255" x2="226" y2="294"/>
+      <path d="M222,294 L230,294 L226,302 Z"/>
+      <line x1="324" y1="255" x2="324" y2="294"/>
+      <path d="M320,294 L328,294 L324,302 Z"/>
+      <line x1="422" y1="255" x2="422" y2="294"/>
+      <path d="M418,294 L426,294 L422,302 Z"/>
+      <line x1="520" y1="255" x2="520" y2="294"/>
+      <path d="M516,294 L524,294 L520,302 Z"/>
+      <line x1="618" y1="255" x2="618" y2="294"/>
+      <path d="M614,294 L622,294 L618,302 Z"/>
+      <line x1="716" y1="255" x2="716" y2="294"/>
+      <path d="M712,294 L720,294 L716,302 Z"/>
+    </g>
 
     <!-- ══════════════ ZONE: AUTOMATED TRANSFER LANE ══════════════ -->
     <rect x="10" y="466" width="840" height="28" rx="4"
@@ -458,65 +484,65 @@ body {
 
     <!-- ══════════════ ZONE: POLLINATION CELLS ══════════════ -->
     <!-- Cells generated below (6 static cell groups) -->
-    <!-- Cell 0: x=13, cx=72 -->
-    <rect x="13"  y="530" width="118" height="115" rx="5" fill="#08041a" stroke="#a78bfa" stroke-width="1.5"/>
-    <text x="72"  y="542" text-anchor="middle" fill="#a78bfa" font-size="8.5" font-weight="700">Station 1</text>
-    <circle cx="72"  cy="560" r="7" fill="#1e1040" stroke="#a78bfa" stroke-width="1.5"/>
-    <rect   x="67"  y="568" width="10" height="12" rx="2" fill="#1e1040" stroke="#7c3aed" stroke-width="1"/>
-    <text   x="72"  y="591" text-anchor="middle" fill="#94a3b8" font-size="8.5">Technician stays here</text>
-    <rect   x="47"  y="598" width="50" height="8" rx="2" fill="#0f172a" stroke="#334155" stroke-width="1"/>
-    <text   x="72"  y="604" text-anchor="middle" fill="#64748b" font-size="8">cart dock</text>
-    <text   x="72"  y="636" text-anchor="middle" fill="#a78bfa" font-size="8.5">Scan→Poll→Confirm</text>
+    <!-- Cell 0: x=56, cx=115 -->
+    <rect x="56"  y="530" width="118" height="115" rx="5" fill="#08041a" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="115"  y="542" text-anchor="middle" fill="#a78bfa" font-size="8.5" font-weight="700">Station 1</text>
+    <circle cx="115"  cy="560" r="7" fill="#1e1040" stroke="#a78bfa" stroke-width="1.5"/>
+    <rect   x="110"  y="568" width="10" height="12" rx="2" fill="#1e1040" stroke="#7c3aed" stroke-width="1"/>
+    <text   x="115"  y="591" text-anchor="middle" fill="#94a3b8" font-size="8.5">Technician stays here</text>
+    <rect   x="90"  y="598" width="50" height="8" rx="2" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+    <text   x="115"  y="604" text-anchor="middle" fill="#64748b" font-size="8">cart dock</text>
+    <text   x="115"  y="636" text-anchor="middle" fill="#a78bfa" font-size="8.5">Dispatch→Pollinate→Send</text>
 
-    <!-- Cell 1: x=139, cx=198 -->
-    <rect x="139" y="530" width="118" height="115" rx="5" fill="#08041a" stroke="#a78bfa" stroke-width="1.5"/>
-    <text x="198" y="542" text-anchor="middle" fill="#a78bfa" font-size="8.5" font-weight="700">Station 2</text>
-    <circle cx="198" cy="560" r="7" fill="#1e1040" stroke="#a78bfa" stroke-width="1.5"/>
-    <rect   x="193" y="568" width="10" height="12" rx="2" fill="#1e1040" stroke="#7c3aed" stroke-width="1"/>
-    <text   x="198" y="591" text-anchor="middle" fill="#94a3b8" font-size="8.5">Technician stays here</text>
-    <rect   x="173" y="598" width="50" height="8" rx="2" fill="#0f172a" stroke="#334155" stroke-width="1"/>
-    <text   x="198" y="604" text-anchor="middle" fill="#64748b" font-size="8">cart dock</text>
-    <text   x="198" y="636" text-anchor="middle" fill="#a78bfa" font-size="8.5">Scan→Poll→Confirm</text>
+    <!-- Cell 1: x=182, cx=241 -->
+    <rect x="182" y="530" width="118" height="115" rx="5" fill="#08041a" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="241" y="542" text-anchor="middle" fill="#a78bfa" font-size="8.5" font-weight="700">Station 2</text>
+    <circle cx="241" cy="560" r="7" fill="#1e1040" stroke="#a78bfa" stroke-width="1.5"/>
+    <rect   x="236" y="568" width="10" height="12" rx="2" fill="#1e1040" stroke="#7c3aed" stroke-width="1"/>
+    <text   x="241" y="591" text-anchor="middle" fill="#94a3b8" font-size="8.5">Technician stays here</text>
+    <rect   x="216" y="598" width="50" height="8" rx="2" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+    <text   x="241" y="604" text-anchor="middle" fill="#64748b" font-size="8">cart dock</text>
+    <text   x="241" y="636" text-anchor="middle" fill="#a78bfa" font-size="8.5">Dispatch→Pollinate→Send</text>
 
-    <!-- Cell 2: x=265, cx=324 -->
-    <rect x="265" y="530" width="118" height="115" rx="5" fill="#08041a" stroke="#a78bfa" stroke-width="1.5"/>
-    <text x="324" y="542" text-anchor="middle" fill="#a78bfa" font-size="8.5" font-weight="700">Station 3</text>
-    <circle cx="324" cy="560" r="7" fill="#1e1040" stroke="#a78bfa" stroke-width="1.5"/>
-    <rect   x="319" y="568" width="10" height="12" rx="2" fill="#1e1040" stroke="#7c3aed" stroke-width="1"/>
-    <text   x="324" y="591" text-anchor="middle" fill="#94a3b8" font-size="8.5">Technician stays here</text>
-    <rect   x="299" y="598" width="50" height="8" rx="2" fill="#0f172a" stroke="#334155" stroke-width="1"/>
-    <text   x="324" y="604" text-anchor="middle" fill="#64748b" font-size="8">cart dock</text>
-    <text   x="324" y="636" text-anchor="middle" fill="#a78bfa" font-size="8.5">Scan→Poll→Confirm</text>
+    <!-- Cell 2: x=308, cx=367 -->
+    <rect x="308" y="530" width="118" height="115" rx="5" fill="#08041a" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="367" y="542" text-anchor="middle" fill="#a78bfa" font-size="8.5" font-weight="700">Station 3</text>
+    <circle cx="367" cy="560" r="7" fill="#1e1040" stroke="#a78bfa" stroke-width="1.5"/>
+    <rect   x="362" y="568" width="10" height="12" rx="2" fill="#1e1040" stroke="#7c3aed" stroke-width="1"/>
+    <text   x="367" y="591" text-anchor="middle" fill="#94a3b8" font-size="8.5">Technician stays here</text>
+    <rect   x="342" y="598" width="50" height="8" rx="2" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+    <text   x="367" y="604" text-anchor="middle" fill="#64748b" font-size="8">cart dock</text>
+    <text   x="367" y="636" text-anchor="middle" fill="#a78bfa" font-size="8.5">Dispatch→Pollinate→Send</text>
 
-    <!-- Cell 3: x=391, cx=450 -->
-    <rect x="391" y="530" width="118" height="115" rx="5" fill="#08041a" stroke="#a78bfa" stroke-width="1.5"/>
-    <text x="450" y="542" text-anchor="middle" fill="#a78bfa" font-size="8.5" font-weight="700">Station 4</text>
-    <circle cx="450" cy="560" r="7" fill="#1e1040" stroke="#a78bfa" stroke-width="1.5"/>
-    <rect   x="445" y="568" width="10" height="12" rx="2" fill="#1e1040" stroke="#7c3aed" stroke-width="1"/>
-    <text   x="450" y="591" text-anchor="middle" fill="#94a3b8" font-size="8.5">Technician stays here</text>
-    <rect   x="425" y="598" width="50" height="8" rx="2" fill="#0f172a" stroke="#334155" stroke-width="1"/>
-    <text   x="450" y="604" text-anchor="middle" fill="#64748b" font-size="8">cart dock</text>
-    <text   x="450" y="636" text-anchor="middle" fill="#a78bfa" font-size="8.5">Scan→Poll→Confirm</text>
+    <!-- Cell 3: x=434, cx=493 -->
+    <rect x="434" y="530" width="118" height="115" rx="5" fill="#08041a" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="493" y="542" text-anchor="middle" fill="#a78bfa" font-size="8.5" font-weight="700">Station 4</text>
+    <circle cx="493" cy="560" r="7" fill="#1e1040" stroke="#a78bfa" stroke-width="1.5"/>
+    <rect   x="488" y="568" width="10" height="12" rx="2" fill="#1e1040" stroke="#7c3aed" stroke-width="1"/>
+    <text   x="493" y="591" text-anchor="middle" fill="#94a3b8" font-size="8.5">Technician stays here</text>
+    <rect   x="468" y="598" width="50" height="8" rx="2" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+    <text   x="493" y="604" text-anchor="middle" fill="#64748b" font-size="8">cart dock</text>
+    <text   x="493" y="636" text-anchor="middle" fill="#a78bfa" font-size="8.5">Dispatch→Pollinate→Send</text>
 
-    <!-- Cell 4: x=517, cx=576 -->
-    <rect x="517" y="530" width="118" height="115" rx="5" fill="#08041a" stroke="#a78bfa" stroke-width="1.5"/>
-    <text x="576" y="542" text-anchor="middle" fill="#a78bfa" font-size="8.5" font-weight="700">Station 5</text>
-    <circle cx="576" cy="560" r="7" fill="#1e1040" stroke="#a78bfa" stroke-width="1.5"/>
-    <rect   x="571" y="568" width="10" height="12" rx="2" fill="#1e1040" stroke="#7c3aed" stroke-width="1"/>
-    <text   x="576" y="591" text-anchor="middle" fill="#94a3b8" font-size="8.5">Technician stays here</text>
-    <rect   x="551" y="598" width="50" height="8" rx="2" fill="#0f172a" stroke="#334155" stroke-width="1"/>
-    <text   x="576" y="604" text-anchor="middle" fill="#64748b" font-size="8">cart dock</text>
-    <text   x="576" y="636" text-anchor="middle" fill="#a78bfa" font-size="8.5">Scan→Poll→Confirm</text>
+    <!-- Cell 4: x=560, cx=619 -->
+    <rect x="560" y="530" width="118" height="115" rx="5" fill="#08041a" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="619" y="542" text-anchor="middle" fill="#a78bfa" font-size="8.5" font-weight="700">Station 5</text>
+    <circle cx="619" cy="560" r="7" fill="#1e1040" stroke="#a78bfa" stroke-width="1.5"/>
+    <rect   x="614" y="568" width="10" height="12" rx="2" fill="#1e1040" stroke="#7c3aed" stroke-width="1"/>
+    <text   x="619" y="591" text-anchor="middle" fill="#94a3b8" font-size="8.5">Technician stays here</text>
+    <rect   x="594" y="598" width="50" height="8" rx="2" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+    <text   x="619" y="604" text-anchor="middle" fill="#64748b" font-size="8">cart dock</text>
+    <text   x="619" y="636" text-anchor="middle" fill="#a78bfa" font-size="8.5">Dispatch→Pollinate→Send</text>
 
-    <!-- Cell 5: x=643, cx=702 -->
-    <rect x="643" y="530" width="118" height="115" rx="5" fill="#08041a" stroke="#a78bfa" stroke-width="1.5"/>
-    <text x="702" y="542" text-anchor="middle" fill="#a78bfa" font-size="8.5" font-weight="700">Station 6</text>
-    <circle cx="702" cy="560" r="7" fill="#1e1040" stroke="#a78bfa" stroke-width="1.5"/>
-    <rect   x="697" y="568" width="10" height="12" rx="2" fill="#1e1040" stroke="#7c3aed" stroke-width="1"/>
-    <text   x="702" y="591" text-anchor="middle" fill="#94a3b8" font-size="8.5">Technician stays here</text>
-    <rect   x="677" y="598" width="50" height="8" rx="2" fill="#0f172a" stroke="#334155" stroke-width="1"/>
-    <text   x="702" y="604" text-anchor="middle" fill="#64748b" font-size="8">cart dock</text>
-    <text   x="702" y="636" text-anchor="middle" fill="#a78bfa" font-size="8.5">Scan→Poll→Confirm</text>
+    <!-- Cell 5: x=686, cx=745 -->
+    <rect x="686" y="530" width="118" height="115" rx="5" fill="#08041a" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="745" y="542" text-anchor="middle" fill="#a78bfa" font-size="8.5" font-weight="700">Station 6</text>
+    <circle cx="745" cy="560" r="7" fill="#1e1040" stroke="#a78bfa" stroke-width="1.5"/>
+    <rect   x="740" y="568" width="10" height="12" rx="2" fill="#1e1040" stroke="#7c3aed" stroke-width="1"/>
+    <text   x="745" y="591" text-anchor="middle" fill="#94a3b8" font-size="8.5">Technician stays here</text>
+    <rect   x="720" y="598" width="50" height="8" rx="2" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+    <text   x="745" y="604" text-anchor="middle" fill="#64748b" font-size="8">cart dock</text>
+    <text   x="745" y="636" text-anchor="middle" fill="#a78bfa" font-size="8.5">Dispatch→Pollinate→Send</text>
 
     <!-- ══════════════ ZONE: POST-POLLINATION ══════════════ -->
     <rect x="300" y="668" width="260" height="48" rx="5"
@@ -530,25 +556,17 @@ body {
       <line x1="430" y1="65" x2="430" y2="99"
         stroke="#60a5fa" stroke-width="1.5" marker-end="url(#arr-blue)"/>
 
-      <!-- Regular Storage → Priority Hot Zone (re-slotting arrows) -->
-      <line x1="200" y1="328" x2="200" y2="348"
-        stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arr-amber)"/>
-      <line x1="430" y1="328" x2="430" y2="348"
-        stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arr-amber)"/>
-      <line x1="660" y1="328" x2="660" y2="348"
-        stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arr-amber)"/>
-
-      <!-- Priority Hot Zone → Transfer Lane -->
-      <line x1="430" y1="438" x2="430" y2="463"
+      <!-- Storage → Transfer Lane (shuttle indexes benches out) -->
+      <line x1="430" y1="445" x2="430" y2="463"
         stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arr-amber)"/>
 
       <!-- Transfer Lane → Pollination Zone → Cells (cross the zone border) -->
-      <line x1="72"  y1="494" x2="72"  y2="527" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr-purple)"/>
-      <line x1="198" y1="494" x2="198" y2="527" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr-purple)"/>
-      <line x1="324" y1="494" x2="324" y2="527" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr-purple)"/>
-      <line x1="450" y1="494" x2="450" y2="527" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr-purple)"/>
-      <line x1="576" y1="494" x2="576" y2="527" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr-purple)"/>
-      <line x1="702" y1="494" x2="702" y2="527" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr-purple)"/>
+      <line x1="115" y1="494" x2="115" y2="527" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr-purple)"/>
+      <line x1="241" y1="494" x2="241" y2="527" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr-purple)"/>
+      <line x1="367" y1="494" x2="367" y2="527" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr-purple)"/>
+      <line x1="493" y1="494" x2="493" y2="527" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr-purple)"/>
+      <line x1="619" y1="494" x2="619" y2="527" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr-purple)"/>
+      <line x1="745" y1="494" x2="745" y2="527" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr-purple)"/>
 
       <!-- Cells → Post-Pollination -->
       <line x1="430" y1="647" x2="430" y2="665"
@@ -558,12 +576,12 @@ body {
     <!-- ══════════════ MANUAL MODE OVERLAY ══════════════ -->
     <g id="manual-paths" style="display:none">
       <!-- Red dashed lines: each cell top → deep in Regular Storage -->
-      <line x1="72"  y1="530" x2="160" y2="250" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.75"/>
-      <line x1="198" y1="530" x2="260" y2="210" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.75"/>
-      <line x1="324" y1="530" x2="360" y2="235" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.75"/>
-      <line x1="450" y1="530" x2="500" y2="215" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.75"/>
-      <line x1="576" y1="530" x2="600" y2="240" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.75"/>
-      <line x1="702" y1="530" x2="700" y2="220" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.75"/>
+      <line x1="115" y1="530" x2="160" y2="250" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.75"/>
+      <line x1="241" y1="530" x2="260" y2="210" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.75"/>
+      <line x1="367" y1="530" x2="360" y2="235" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.75"/>
+      <line x1="493" y1="530" x2="500" y2="215" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.75"/>
+      <line x1="619" y1="530" x2="600" y2="240" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.75"/>
+      <line x1="745" y1="530" x2="700" y2="220" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.75"/>
       <!-- Label -->
       <rect x="300" y="254" width="260" height="22" rx="3" fill="#1a0505" stroke="#7f1d1d" stroke-width="1"/>
       <text x="430" y="269" text-anchor="middle" fill="#ef4444" font-size="9.5" font-weight="700">~6× MORE TRAVEL DISTANCE</text>
@@ -695,37 +713,44 @@ const EXIT_TARGET   = { x: 430, y: 676 }; // post-poll center
 // ═══════════════════════════════════════════════════════════
 (function buildRacks() {
   const SVG_NS = 'http://www.w3.org/2000/svg';
+  // 8 carts per row: width=94, gap=4, pitch=98, startX=32 → last right edge=812 (leaves room for right rail at x=816)
+  // Row pitch=23 (22px cart + 1px gap) keeps rows compact and opens a 16px separator gap for visible arrows
+  const CART_W = 94, COL_PITCH = 98, START_X = 32;
+  const CART_H = 22, ROW_PITCH = 23;
+
   const rGrid = document.getElementById('rack-grid');
   for (let row = 0; row < 6; row++) {
-    for (let col = 0; col < 10; col++) {
-      const rx = 28 + col * 78;
-      const ry = 186 + row * 23;
+    for (let col = 0; col < 8; col++) {
       const r = document.createElementNS(SVG_NS, 'rect');
-      r.setAttribute('x', rx); r.setAttribute('y', ry);
-      r.setAttribute('width', '70'); r.setAttribute('height', '18');
+      r.setAttribute('x', START_X + col * COL_PITCH);
+      r.setAttribute('y', 212 + row * ROW_PITCH);
+      r.setAttribute('width', CART_W); r.setAttribute('height', CART_H);
       r.setAttribute('rx', '2');
       r.setAttribute('fill', '#0a1428'); r.setAttribute('stroke', '#1d4ed8');
       r.setAttribute('stroke-width', '0.8');
       rGrid.appendChild(r);
     }
   }
+  // Regular rows end at y=349. Priority starts at y=365 (16px gap for zone label).
   const pGrid = document.getElementById('priority-racks');
-  const pxs   = [28, 184, 340, 496, 652];
-  for (let i = 0; i < 5; i++) {
-    const r = document.createElementNS(SVG_NS, 'rect');
-    r.setAttribute('x', pxs[i]); r.setAttribute('y', '387');
-    r.setAttribute('width', '140'); r.setAttribute('height', '30');
-    r.setAttribute('rx', '3');
-    r.setAttribute('fill', '#130900'); r.setAttribute('stroke', '#f59e0b');
-    r.setAttribute('stroke-width', '1');
-    pGrid.appendChild(r);
+  for (let row = 0; row < 2; row++) {
+    for (let col = 0; col < 8; col++) {
+      const r = document.createElementNS(SVG_NS, 'rect');
+      r.setAttribute('x', START_X + col * COL_PITCH);
+      r.setAttribute('y', 365 + row * ROW_PITCH);
+      r.setAttribute('width', CART_W); r.setAttribute('height', CART_H);
+      r.setAttribute('rx', '2');
+      r.setAttribute('fill', '#130900'); r.setAttribute('stroke', '#f59e0b');
+      r.setAttribute('stroke-width', '0.8');
+      pGrid.appendChild(r);
+    }
   }
 })();
 
 // ═══════════════════════════════════════════════════════════
 //  STATE
 // ═══════════════════════════════════════════════════════════
-const state = { mode: 'g2p', showArrows: true };
+const state = { mode: 'g2p' };
 
 // ═══════════════════════════════════════════════════════════
 //  EVENT LISTENERS
@@ -750,13 +775,6 @@ document.getElementById('btn-g2p').addEventListener('click', () => {
   tv.classList.remove('muted');
 });
 
-document.getElementById('btn-flow-arrows').addEventListener('click', () => {
-  state.showArrows = !state.showArrows;
-  const btn = document.getElementById('btn-flow-arrows');
-  const grp = document.getElementById('flow-arrows-group');
-  grp.style.display = state.showArrows ? '' : 'none';
-  btn.classList.toggle('toggle-active', state.showArrows);
-});
 
 
 </script>

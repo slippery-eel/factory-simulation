@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PRD — Ohalo Seed Production</title>
+  <title>PRD - Living Factory - Logistics Automation</title>
   <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -207,12 +207,11 @@ strong { color: #cbd5e1; }
 
   <!-- COVER -->
   <div class="cover">
-    <div class="cover-eyebrow">PRD · Ohalo Living Factory · Scenario A — Logistics Automation</div>
+    <div class="cover-eyebrow">PRD · Ohalo Living Factory · Scenario A · Logistics Automation</div>
     <div class="cover-title">The Facility Orchestrator</div>
     <div class="cover-sub">
-      Real-time dispatch intelligence that automates cart movement using biological deadlines and keeps every
-      digital pollination record perfectly in sync with its physical plant —
-      freeing 24 FTE of logistics motion and unlocking +34% throughput capacity with the same team.
+      Real-time dispatch engine that automates cart movement using biological deadlines and keeps every
+      digital pollination record perfectly in sync with its physical plant.
     </div>
   </div>
 
@@ -221,19 +220,19 @@ strong { color: #cbd5e1; }
     <div class="panel">
       <div class="panel-title">The Problem</div>
       <ul class="bl">
-        <li><strong>33% of skilled technician time</strong> is logistics — locating, staging, and transferring carts. Not pollination.</li>
-        <li><strong>Priority crosses have a 48-hour viability window.</strong> A cart in the wrong aisle misses the deadline with no recovery path.</li>
+        <li><strong>33% of skilled technician time</strong> is logistics (prepping / moving carts). Not pollination.</li>
+        <li><strong>Priority plants have a 48-hour viability window.</strong> A cart in the wrong aisle misses the deadline and can't be used.</li>
         <li>No system currently tracks cart location, biological age, or station readiness in real time.</li>
-        <li>Technicians idle waiting for carts; carts wait untracked in aisles. Both erode throughput.</li>
+        <li>Potentially logistical issues like technicians waiting for carts; carts wait untracked in aisles (reducing throughput).</li>
       </ul>
     </div>
     <div class="panel">
       <div class="panel-title">Why Scenario A First</div>
       <ul class="bl">
-        <li><strong>Half the capex</strong> of workstation robotics — $2M vs $4M — with greater annual savings ($3.46M/yr).</li>
-        <li><strong>~7-month payback.</strong> Net $3.31M/yr after opex.</li>
-        <li><strong>Decouples labor from elapsed time</strong> — technicians start the next session while the AMR is still in transit. Throughput scales without headcount.</li>
-        <li>Builds the movement data layer that justifies robotic pollination in Phase 3.</li>
+        <li><strong>Less the capex</strong> of workstation robotics with greater annual savings ($3.46M/yr).</li>
+        <li><strong>~1 year payback.</strong> Net $4.45M/yr after opex.</li>
+        <li><strong>Decouples labor from elapsed time</strong>: technicians start the next session while the cart is still in transit.</li>
+        <li>Builds the movement data layer.</li>
       </ul>
     </div>
   </div>
@@ -258,13 +257,13 @@ strong { color: #cbd5e1; }
       </div>
       <div class="arch-arrow">→</div>
       <div class="arch-node hw">
-        <div class="arch-node-name">AMRs / Conveyor</div>
-        <div class="arch-node-sub">Physical cart movement · 3–5 min cycle</div>
+        <div class="arch-node-name">Conveyor / Shuttle Robots</div>
+        <div class="arch-node-sub">Physical cart movement</div>
       </div>
       <div class="arch-arrow">→</div>
       <div class="arch-node hw">
         <div class="arch-node-name">Pollination Cell</div>
-        <div class="arch-node-sub">HMI · Begin → Complete · pollen scan</div>
+        <div class="arch-node-sub">30 min pollination session</div>
       </div>
       <div class="arch-arrow">→</div>
       <div class="arch-node">
@@ -291,45 +290,45 @@ strong { color: #cbd5e1; }
         <span class="tag tag-sw">Software</span>
       </div>
       <ul class="bl">
-        <li>Ranks every cart in the warehouse using <strong>FEFO — First Expiring, First Out</strong> combined with travel distance, station readiness, and batch cross-compatibility.</li>
-        <li>Recomputes priority scores every 60 seconds across all in-flight carts and automatically issues move tasks to AMRs, conveyors, or operators.</li>
-        <li>Soon-expiring plants are always staged nearest to pollination cells, delivered just-in-time to available technicians.</li>
+        <li>Ranks every cart in the warehouse using <strong>FEFO (First Expiring, First Out)</strong> combined with travel distance, station readiness, and batch cross-compatibility.</li>
+        <li>Recomputes priority scores every 60 seconds across all carts and automatically issues move tasks to shuttle robots and conveyors, or operators.</li>
+        <li>Soon-expiring plants are always staged nearest to pollination cells (priority zone), delivered just-in-time to available technicians.</li>
       </ul>
       <div class="bpq-grid">
         <div class="bpq-box">
           <div class="bpq-box-label">Ranking Inputs</div>
           <ul class="bl">
-            <li>Time remaining on 48-hr biological deadline</li>
+            <li>Within 48 hour window? + Time remaining on 48-hrs</li>
+            <li>Station readiness: technician available + cell clear</li>
             <li>Travel distance to nearest ready pollination cell</li>
-            <li>Station readiness — technician available + cell clear</li>
-            <li>Batch compatibility — pollen donor match for the cross</li>
+            <li>Batch compatibility: pollen donor match for the cross</li>
           </ul>
         </div>
         <div class="bpq-box">
           <div class="bpq-box-label">Dispatch Outputs</div>
           <ul class="bl">
-            <li>AMR move task — cart ID, origin slot, destination cell</li>
+            <li>Shuttle move task: cart ID, origin slot, destination cell</li>
             <li>Conveyor lane assignment for transfer segments</li>
-            <li>Technician HMI alert — "next cart arriving in N min"</li>
+            <li>Technician HMI alerts: "next cart arriving in N min", etc</li>
             <li>Supervisor alert if no safe dispatch path exists within window</li>
           </ul>
         </div>
       </div>
       <div class="callout">
-        <strong>Design principle:</strong> The BPQ never lets a technician wait for a cart. It is the 48-hour biological clock expressed as a dispatch engine.
+        <strong>Design interface:</strong> Operators would see a list of HOT items (less than 5 hrs left in window), followed by priority items (within window but not urgent), ranked by the above logic.
       </div>
     </div>
 
     <!-- BITS TO ATOMS -->
     <div class="feature-block">
       <div class="feature-title">
-        Bits-to-Atoms Sync — Digital Cross Record
+        Bits-to-Atoms Sync · Digital Cross Record
         <span class="tag tag-core">Core Feature</span>
         <span class="tag tag-sw">Software</span>
       </div>
       <ul class="bl" style="margin-bottom:4px">
-        <li>Every cart receives a <strong>persistent UUID at propagation</strong> — linked to the cross spec (parent lines, pollen donor, batch date) — carried by RFID tags through the entire facility.</li>
-        <li>Every physical transition triggers a software event. The digital seed record is never ahead of, or behind, the physical plant.</li>
+        <li>Every cart receives a <strong>persistent UUID at propagation / receiving</strong> - linked to all relevant plant data - carried by RFID tags through the entire facility.</li>
+        <li>Every physical transition triggers a (software) event. The digital record is always in sync with the physical plant (assuming the plants stay in their carts).</li>
       </ul>
       <table class="event-table">
         <thead>
@@ -341,40 +340,37 @@ strong { color: #cbd5e1; }
         </thead>
         <tbody>
           <tr>
-            <td class="ev-name">Propagation Created</td>
-            <td class="ev-trigger">Operator scan at prop bench</td>
-            <td class="ev-sw">Creates CartID · links cross spec · starts biological clock · assigns warehouse slot</td>
+            <td class="ev-name">Warehouse Intake</td>
+            <td class="ev-trigger">Cart scanned into facility</td>
+            <td class="ev-sw">Creates CartID · starts biological clock · assigns storage zone</td>
           </tr>
           <tr>
-            <td class="ev-name">Warehouse Slotted</td>
-            <td class="ev-trigger">RFID read at rack entry</td>
-            <td class="ev-sw">Confirms physical location · BPQ calculates initial dispatch window</td>
+            <td class="ev-name">Storage Slotting</td>
+            <td class="ev-trigger">RFID read at storage rack</td>
+            <td class="ev-sw">Confirms location · BPQ calculates dispatch priority</td>
           </tr>
           <tr>
-            <td class="ev-name">AMR Dispatched</td>
-            <td class="ev-trigger">BPQ issues move task; AMR confirms pickup</td>
-            <td class="ev-sw">State → IN_TRANSIT · logs departure · updates ETA at destination cell</td>
+            <td class="ev-name">Cart Dispatch</td>
+            <td class="ev-trigger">BPQ issues move task</td>
+            <td class="ev-sw">State → IN_TRANSIT · AMR assigned · ETA updated at destination cell</td>
           </tr>
           <tr>
-            <td class="ev-name">Cell Arrival</td>
-            <td class="ev-trigger">RFID reader at cell entry gate</td>
-            <td class="ev-sw">State → STAGED · notifies technician HMI · logs AMR travel time</td>
+            <td class="ev-name">Pollination Cell Arrival</td>
+            <td class="ev-trigger">RFID read at pollination cell</td>
+            <td class="ev-sw">State → STAGED · technician notified · delivery logged</td>
           </tr>
           <tr>
-            <td class="ev-name">Pollination Start / Complete</td>
-            <td class="ev-trigger">Technician taps Begin / Complete + pollen scan</td>
-            <td class="ev-sw">Start: stamps time, locks cross record. Complete: records pollen lot + tech ID · state → COMPLETED · releases cell</td>
+            <td class="ev-name">Pollination Complete</td>
+            <td class="ev-trigger">Technician confirms cross + pollen scan</td>
+            <td class="ev-sw">Records pollen lot + technician ID · state → COMPLETED</td>
           </tr>
           <tr>
             <td class="ev-name">Post-Poll Transfer</td>
-            <td class="ev-trigger">AMR pickup confirm at cell exit</td>
-            <td class="ev-sw">State → POST_POLLINATION · routes to post-poll zone · closes biological clock</td>
+            <td class="ev-trigger">AMR pickup at completed cell</td>
+            <td class="ev-sw">Routes cart to recovery zone · closes biological timer</td>
           </tr>
         </tbody>
       </table>
-      <div class="callout green">
-        <strong>Integrity rule:</strong> A missed scan raises a reconciliation alert within 60 seconds and holds dependent dispatches until resolved. State never advances silently.
-      </div>
     </div>
   </div>
 
@@ -384,11 +380,11 @@ strong { color: #cbd5e1; }
       <div class="panel-title">Hardware Layer</div>
       <p style="font-size:12px;color:#64748b;margin-bottom:10px">All hardware directed via REST/MQTT — no vendor lock-in.</p>
       <ul class="bl">
-        <li><strong>AMRs (≥2)</strong> — cart retrieval and cell delivery. 3–5 min cycle. Redundant pair ensures no single failure blocks dispatch.</li>
-        <li><strong>Conveyor lanes</strong> — fixed-path transfer on high-traffic corridors. Reduces AMR congestion.</li>
-        <li><strong>RFID readers</strong> — at rack entries, conveyor merge points, cell gates. Event trigger within 2 sec of read.</li>
-        <li><strong>Workstation HMIs</strong> — 2-tap workflow per cell (Begin → Complete + pollen scan). No keyboard during session.</li>
-        <li><strong>Facility dashboard</strong> — live WIP, BPQ queue depth, deadline risk, AMR status, shift throughput vs target.</li>
+        <li><strong>Shuttle Robots (≥2)</strong>: cart retrieval and cell delivery. 3–5 min cycle. Having a pair ensures no single failure point.</li>
+        <li><strong>Conveyor lanes</strong>: storage rails / racks and transfer lanes for faster movement / reconfig.</li>
+        <li><strong>RFID readers</strong>: at rack entries, conveyor merge points, cell gates, etc. Events trigger when RFIDs cross readers.</li>
+        <li><strong>Workstation HMIs</strong>: optimized UI for priority visibility, dispatch, pollination and completion.</li>
+        <li><strong>Facility dashboard</strong>: live WIP, BPQ queue, deadline risk, robot status, shift throughput vs target.</li>
       </ul>
     </div>
     <div class="panel">
@@ -397,41 +393,21 @@ strong { color: #cbd5e1; }
         <div class="phase-row">
           <div><span class="phase-badge ph1">Phase 1</span><div style="font-size:11px;color:#64748b;margin-top:3px">Months 1–6</div></div>
           <div class="phase-name">Orchestrator + BPQ</div>
-          <div class="phase-scope">RFID, 2-AMR fleet, BPQ engine, HMIs, Bits-to-Atoms sync, dashboard, manual override.</div>
+          <div class="phase-scope">Basic implementation with conveyors, RFIDs, BPQ engine, HMIs, Bits-to-Atoms sync, dashboard, manual orchestation/override.</div>
         </div>
         <div class="phase-row">
           <div><span class="phase-badge ph2">Phase 2</span><div style="font-size:11px;color:#64748b;margin-top:3px">Months 7–12</div></div>
           <div class="phase-name">Predictive Scheduling</div>
-          <div class="phase-scope">ML pre-stages carts 30–60 min before projected window. Integrates with weekly cross schedule.</div>
+          <div class="phase-scope">ML pre-stages carts and moves shutte robots autonomously. Integrates with weekly cross schedule.</div>
         </div>
         <div class="phase-row">
           <div><span class="phase-badge ph3">Phase 3</span><div style="font-size:11px;color:#64748b;margin-top:3px">Year 2+</div></div>
           <div class="phase-name">Robotic Pollination</div>
-          <div class="phase-scope">Robotic arm integration (Scenario B hardware) — justified by Phase 1 data layer. Supervisor-override-only loop.</div>
+          <div class="phase-scope">Robotic arm integration (Scenario B hardware). Supervisor-override-only loop.</div>
         </div>
       </div>
     </div>
   </div>
-
-  <!-- SUCCESS CRITERIA -->
-  <div class="panel">
-    <div class="panel-title">Phase 1 Success Criteria</div>
-    <div class="three-col">
-      <ul class="bl">
-        <li><strong>Movement touch time ≤ 0.06 hrs/session</strong> (from 0.25 — 76% reduction)</li>
-        <li><strong>Deadline breach &lt; 0.5%</strong> of priority batches per week</li>
-      </ul>
-      <ul class="bl">
-        <li><strong>Dispatch latency &lt; 3 min</strong> from BPQ trigger to AMR pickup</li>
-        <li><strong>Cross record accuracy ≥ 99.5%</strong> — no silent state drift</li>
-      </ul>
-      <ul class="bl">
-        <li><strong>Labor savings ≥ $3.0M/yr</strong> confirmed by Month 12</li>
-        <li><strong>System uptime ≥ 95%</strong> during operating hours</li>
-      </ul>
-    </div>
-  </div>
-
 </div>
 </body>
 </html>
