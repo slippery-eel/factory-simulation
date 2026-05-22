@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PRD — Ohalo Seed Production</title>
+  <style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #0f172a;
+  color: #e2e8f0;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 14px;
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 20px 16px 60px; gap: 16px;
+}
+
+.tab-bar {
+  display: flex; gap: 4px;
+  background: #1e293b; border: 1px solid #334155;
+  border-radius: 10px; padding: 6px;
+  width: 100%; max-width: 1240px;
+}
+.tab-btn {
+  flex: 1; text-align: center; padding: 9px 20px;
+  border-radius: 6px; font-size: 13px; font-weight: 600;
+  color: #64748b; text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+}
+.tab-btn:hover { background: #0f172a; color: #94a3b8; }
+.tab-active    { background: #0f172a; color: #e2e8f0; }
+
+.page-wrap { width: 100%; max-width: 1240px; display: flex; flex-direction: column; gap: 16px; }
+
+/* Cover */
+.cover {
+  background: linear-gradient(135deg, #1e293b 0%, #0f2744 100%);
+  border: 1px solid #334155; border-radius: 12px;
+  padding: 26px 32px 22px; position: relative; overflow: hidden;
+}
+.cover::before {
+  content: ''; position: absolute; top: -60px; right: -60px;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.cover-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; color: #6366f1; text-transform: uppercase; margin-bottom: 8px; }
+.cover-title   { font-size: 24px; font-weight: 800; color: #e2e8f0; line-height: 1.2; margin-bottom: 8px; }
+.cover-sub     { font-size: 13.5px; color: #94a3b8; line-height: 1.65; max-width: 720px; }
+
+/* Panel */
+.panel { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 20px 24px; }
+.panel-title {
+  font-size: 11.5px; font-weight: 700; color: #e2e8f0;
+  text-transform: uppercase; letter-spacing: 0.09em;
+  padding-bottom: 12px; margin-bottom: 14px;
+  border-bottom: 1px solid #334155;
+  display: flex; align-items: center; gap: 10px;
+}
+.badge {
+  font-size: 10px; font-weight: 700; padding: 2px 8px;
+  border-radius: 20px; text-transform: uppercase; letter-spacing: 0.06em;
+  background: #6366f1; color: #fff;
+}
+
+/* Layout */
+.two-col   { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+/* Text */
+strong { color: #cbd5e1; }
+.sh {
+  font-size: 10.5px; font-weight: 700; color: #6366f1;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+/* Bullet list */
+.bl { list-style: disc; padding-left: 16px; display: flex; flex-direction: column; gap: 6px; }
+.bl li { font-size: 12.5px; color: #94a3b8; line-height: 1.5; }
+.bl li strong { color: #cbd5e1; }
+
+/* ── Architecture diagram ── */
+.arch-panel {
+  background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 20px 24px;
+}
+.arch-title {
+  font-size: 11.5px; font-weight: 700; color: #e2e8f0;
+  text-transform: uppercase; letter-spacing: 0.09em;
+  padding-bottom: 12px; margin-bottom: 18px;
+  border-bottom: 1px solid #334155;
+}
+.arch-flow {
+  display: flex; align-items: stretch; gap: 0; overflow-x: auto;
+}
+.arch-node {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: #0f172a; border: 1px solid #334155;
+  border-radius: 8px; padding: 12px 14px; min-width: 130px;
+  text-align: center; flex: 1;
+}
+.arch-node.bpq {
+  background: rgba(99,102,241,0.12); border-color: #6366f1;
+  box-shadow: 0 0 18px rgba(99,102,241,0.2);
+}
+.arch-node.hw  { background: rgba(245,158,11,0.07); border-color: #78350f; }
+.arch-node-name {
+  font-size: 12px; font-weight: 700; color: #e2e8f0; margin-bottom: 4px;
+}
+.arch-node.bpq .arch-node-name { color: #a5b4fc; }
+.arch-node.hw  .arch-node-name { color: #fbbf24; }
+.arch-node-sub  { font-size: 10.5px; color: #475569; line-height: 1.4; }
+.arch-node.bpq .arch-node-sub { color: #818cf8; opacity: 0.8; }
+.arch-node.hw  .arch-node-sub { color: #92400e; opacity: 1; color: #d97706; }
+.arch-arrow {
+  display: flex; align-items: center; justify-content: center;
+  color: #334155; font-size: 18px; padding: 0 6px; flex-shrink: 0;
+}
+.arch-legend {
+  display: flex; gap: 20px; margin-top: 12px; flex-wrap: wrap;
+}
+.arch-legend-item {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: #64748b;
+}
+.legend-dot {
+  width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0;
+}
+.legend-dot.sw  { background: #6366f1; }
+.legend-dot.hw  { background: #f59e0b; }
+.legend-dot.bio { background: #334155; border: 1px solid #475569; }
+
+/* Feature block */
+.feature-block {
+  background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 16px 18px;
+}
+.feature-block + .feature-block { margin-top: 12px; }
+.feature-title {
+  font-size: 13.5px; font-weight: 700; color: #e2e8f0;
+  margin-bottom: 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.tag {
+  font-size: 10px; font-weight: 700; padding: 2px 7px;
+  border-radius: 4px; text-transform: uppercase; letter-spacing: 0.07em;
+}
+.tag-core { background: rgba(99,102,241,0.2); color: #818cf8; }
+.tag-sw   { background: rgba(52,211,153,0.15); color: #34d399; }
+
+/* BPQ sub-boxes */
+.bpq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+.bpq-box { background: #1e293b; border: 1px solid #1e3a5f; border-radius: 6px; padding: 11px 13px; }
+.bpq-box-label { font-size: 10px; font-weight: 700; color: #6366f1; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+
+/* Callout */
+.callout {
+  margin-top: 12px; padding: 10px 14px;
+  background: #0f172a; border-left: 3px solid #6366f1; border-radius: 0 6px 6px 0;
+  font-size: 12.5px; color: #94a3b8; line-height: 1.6;
+}
+.callout.green { border-left-color: #34d399; }
+.callout strong { color: #c7d2fe; }
+.callout.green strong { color: #6ee7b7; }
+
+/* Event table */
+.event-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 12px; }
+.event-table th {
+  text-align: left; padding: 7px 10px;
+  font-size: 10px; font-weight: 700; color: #64748b;
+  text-transform: uppercase; letter-spacing: 0.07em;
+  border-bottom: 1px solid #334155;
+}
+.event-table td { padding: 7px 10px; border-bottom: 1px solid #1e3a5f; color: #94a3b8; vertical-align: top; line-height: 1.45; }
+.event-table tr:last-child td { border-bottom: none; }
+.ev-name    { color: #c7d2fe; font-weight: 600; white-space: nowrap; }
+.ev-trigger { color: #64748b; font-style: italic; }
+.ev-sw      { color: #34d399; font-size: 11px; }
+
+/* Phase rows */
+.phase-list { display: flex; flex-direction: column; gap: 10px; }
+.phase-row { display: grid; grid-template-columns: 90px 160px 1fr; gap: 12px; align-items: start; font-size: 12.5px; }
+.phase-badge { font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 4px; white-space: nowrap; display: inline-block; }
+.ph1 { background: rgba(99,102,241,0.2); color: #818cf8; }
+.ph2 { background: rgba(52,211,153,0.15); color: #34d399; }
+.ph3 { background: rgba(245,158,11,0.15); color: #f59e0b; }
+.phase-name  { color: #cbd5e1; font-weight: 600; }
+.phase-scope { color: #64748b; line-height: 1.5; }
+
+@media (max-width: 760px) {
+  .two-col, .three-col, .bpq-grid { grid-template-columns: 1fr; }
+  .phase-row { grid-template-columns: 1fr; }
+  .arch-node { min-width: 100px; }
+}
+  </style>
+</head>
+<body>
+
+<nav class="tab-bar">
+  <a href="simulation.html" class="tab-btn">Simulation</a>
+  <a href="opportunity-analysis.html" class="tab-btn">Opportunity Analysis &amp; ROI</a>
+  <a href="layout.html" class="tab-btn">Layout</a>
+  <a href="prd.html" class="tab-btn tab-active">PRD</a>
+</nav>
+
+<div class="page-wrap">
+
+  <!-- COVER -->
+  <div class="cover">
+    <div class="cover-eyebrow">PRD · Ohalo Living Factory · Scenario A — Logistics Automation</div>
+    <div class="cover-title">The Facility Orchestrator</div>
+    <div class="cover-sub">
+      Real-time dispatch intelligence that automates cart movement using biological deadlines and keeps every
+      digital pollination record perfectly in sync with its physical plant —
+      freeing 24 FTE of logistics motion and unlocking +34% throughput capacity with the same team.
+    </div>
+  </div>
+
+  <!-- PROBLEM + WHY A -->
+  <div class="two-col">
+    <div class="panel">
+      <div class="panel-title">The Problem</div>
+      <ul class="bl">
+        <li><strong>33% of skilled technician time</strong> is logistics — locating, staging, and transferring carts. Not pollination.</li>
+        <li><strong>Priority crosses have a 48-hour viability window.</strong> A cart in the wrong aisle misses the deadline with no recovery path.</li>
+        <li>No system currently tracks cart location, biological age, or station readiness in real time.</li>
+        <li>Technicians idle waiting for carts; carts wait untracked in aisles. Both erode throughput.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Why Scenario A First</div>
+      <ul class="bl">
+        <li><strong>Half the capex</strong> of workstation robotics — $2M vs $4M — with greater annual savings ($3.46M/yr).</li>
+        <li><strong>~7-month payback.</strong> Net $3.31M/yr after opex.</li>
+        <li><strong>Decouples labor from elapsed time</strong> — technicians start the next session while the AMR is still in transit. Throughput scales without headcount.</li>
+        <li>Builds the movement data layer that justifies robotic pollination in Phase 3.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ARCHITECTURE DIAGRAM -->
+  <div class="arch-panel">
+    <div class="arch-title">Facility Flow Overview</div>
+    <div class="arch-flow">
+      <div class="arch-node">
+        <div class="arch-node-name">Propagation</div>
+        <div class="arch-node-sub">Cart + cross ID created · clock starts</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node hw">
+        <div class="arch-node-name">RFID Slotting</div>
+        <div class="arch-node-sub">Warehouse location confirmed · slot assigned</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node bpq">
+        <div class="arch-node-name">⚡ Biological Priority Queue</div>
+        <div class="arch-node-sub">FEFO dispatch engine · recomputes every 60s</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node hw">
+        <div class="arch-node-name">AMRs / Conveyor</div>
+        <div class="arch-node-sub">Physical cart movement · 3–5 min cycle</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node hw">
+        <div class="arch-node-name">Pollination Cell</div>
+        <div class="arch-node-sub">HMI · Begin → Complete · pollen scan</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node">
+        <div class="arch-node-name">Post-Pollination</div>
+        <div class="arch-node-sub">Clock closed · cross record complete</div>
+      </div>
+    </div>
+    <div class="arch-legend">
+      <div class="arch-legend-item"><div class="legend-dot sw"></div>Software (BPQ orchestration)</div>
+      <div class="arch-legend-item"><div class="legend-dot hw"></div>Hardware (AMRs, RFID, HMIs)</div>
+      <div class="arch-legend-item"><div class="legend-dot bio"></div>Biological process step</div>
+    </div>
+  </div>
+
+  <!-- CORE FEATURES -->
+  <div class="panel">
+    <div class="panel-title">Core Features <div class="badge">Phase 1</div></div>
+
+    <!-- BPQ -->
+    <div class="feature-block">
+      <div class="feature-title">
+        Biological Priority Queue (BPQ)
+        <span class="tag tag-core">Core Feature</span>
+        <span class="tag tag-sw">Software</span>
+      </div>
+      <ul class="bl">
+        <li>Ranks every cart in the warehouse using <strong>FEFO — First Expiring, First Out</strong> combined with travel distance, station readiness, and batch cross-compatibility.</li>
+        <li>Recomputes priority scores every 60 seconds across all in-flight carts and automatically issues move tasks to AMRs, conveyors, or operators.</li>
+        <li>Soon-expiring plants are always staged nearest to pollination cells, delivered just-in-time to available technicians.</li>
+      </ul>
+      <div class="bpq-grid">
+        <div class="bpq-box">
+          <div class="bpq-box-label">Ranking Inputs</div>
+          <ul class="bl">
+            <li>Time remaining on 48-hr biological deadline</li>
+            <li>Travel distance to nearest ready pollination cell</li>
+            <li>Station readiness — technician available + cell clear</li>
+            <li>Batch compatibility — pollen donor match for the cross</li>
+          </ul>
+        </div>
+        <div class="bpq-box">
+          <div class="bpq-box-label">Dispatch Outputs</div>
+          <ul class="bl">
+            <li>AMR move task — cart ID, origin slot, destination cell</li>
+            <li>Conveyor lane assignment for transfer segments</li>
+            <li>Technician HMI alert — "next cart arriving in N min"</li>
+            <li>Supervisor alert if no safe dispatch path exists within window</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout">
+        <strong>Design principle:</strong> The BPQ never lets a technician wait for a cart. It is the 48-hour biological clock expressed as a dispatch engine.
+      </div>
+    </div>
+
+    <!-- BITS TO ATOMS -->
+    <div class="feature-block">
+      <div class="feature-title">
+        Bits-to-Atoms Sync — Digital Cross Record
+        <span class="tag tag-core">Core Feature</span>
+        <span class="tag tag-sw">Software</span>
+      </div>
+      <ul class="bl" style="margin-bottom:4px">
+        <li>Every cart receives a <strong>persistent UUID at propagation</strong> — linked to the cross spec (parent lines, pollen donor, batch date) — carried by RFID tags through the entire facility.</li>
+        <li>Every physical transition triggers a software event. The digital seed record is never ahead of, or behind, the physical plant.</li>
+      </ul>
+      <table class="event-table">
+        <thead>
+          <tr>
+            <th style="width:20%">Physical Event</th>
+            <th style="width:26%">Trigger</th>
+            <th>Software Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="ev-name">Propagation Created</td>
+            <td class="ev-trigger">Operator scan at prop bench</td>
+            <td class="ev-sw">Creates CartID · links cross spec · starts biological clock · assigns warehouse slot</td>
+          </tr>
+          <tr>
+            <td class="ev-name">Warehouse Slotted</td>
+            <td class="ev-trigger">RFID read at rack entry</td>
+            <td class="ev-sw">Confirms physical location · BPQ calculates initial dispatch window</td>
+          </tr>
+          <tr>
+            <td class="ev-name">AMR Dispatched</td>
+            <td class="ev-trigger">BPQ issues move task; AMR confirms pickup</td>
+            <td class="ev-sw">State → IN_TRANSIT · logs departure · updates ETA at destination cell</td>
+          </tr>
+          <tr>
+            <td class="ev-name">Cell Arrival</td>
+            <td class="ev-trigger">RFID reader at cell entry gate</td>
+            <td class="ev-sw">State → STAGED · notifies technician HMI · logs AMR travel time</td>
+          </tr>
+          <tr>
+            <td class="ev-name">Pollination Start / Complete</td>
+            <td class="ev-trigger">Technician taps Begin / Complete + pollen scan</td>
+            <td class="ev-sw">Start: stamps time, locks cross record. Complete: records pollen lot + tech ID · state → COMPLETED · releases cell</td>
+          </tr>
+          <tr>
+            <td class="ev-name">Post-Poll Transfer</td>
+            <td class="ev-trigger">AMR pickup confirm at cell exit</td>
+            <td class="ev-sw">State → POST_POLLINATION · routes to post-poll zone · closes biological clock</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="callout green">
+        <strong>Integrity rule:</strong> A missed scan raises a reconciliation alert within 60 seconds and holds dependent dispatches until resolved. State never advances silently.
+      </div>
+    </div>
+  </div>
+
+  <!-- HARDWARE + ROLLOUT -->
+  <div class="two-col">
+    <div class="panel">
+      <div class="panel-title">Hardware Layer</div>
+      <p style="font-size:12px;color:#64748b;margin-bottom:10px">All hardware directed via REST/MQTT — no vendor lock-in.</p>
+      <ul class="bl">
+        <li><strong>AMRs (≥2)</strong> — cart retrieval and cell delivery. 3–5 min cycle. Redundant pair ensures no single failure blocks dispatch.</li>
+        <li><strong>Conveyor lanes</strong> — fixed-path transfer on high-traffic corridors. Reduces AMR congestion.</li>
+        <li><strong>RFID readers</strong> — at rack entries, conveyor merge points, cell gates. Event trigger within 2 sec of read.</li>
+        <li><strong>Workstation HMIs</strong> — 2-tap workflow per cell (Begin → Complete + pollen scan). No keyboard during session.</li>
+        <li><strong>Facility dashboard</strong> — live WIP, BPQ queue depth, deadline risk, AMR status, shift throughput vs target.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Phased Rollout</div>
+      <div class="phase-list">
+        <div class="phase-row">
+          <div><span class="phase-badge ph1">Phase 1</span><div style="font-size:11px;color:#64748b;margin-top:3px">Months 1–6</div></div>
+          <div class="phase-name">Orchestrator + BPQ</div>
+          <div class="phase-scope">RFID, 2-AMR fleet, BPQ engine, HMIs, Bits-to-Atoms sync, dashboard, manual override.</div>
+        </div>
+        <div class="phase-row">
+          <div><span class="phase-badge ph2">Phase 2</span><div style="font-size:11px;color:#64748b;margin-top:3px">Months 7–12</div></div>
+          <div class="phase-name">Predictive Scheduling</div>
+          <div class="phase-scope">ML pre-stages carts 30–60 min before projected window. Integrates with weekly cross schedule.</div>
+        </div>
+        <div class="phase-row">
+          <div><span class="phase-badge ph3">Phase 3</span><div style="font-size:11px;color:#64748b;margin-top:3px">Year 2+</div></div>
+          <div class="phase-name">Robotic Pollination</div>
+          <div class="phase-scope">Robotic arm integration (Scenario B hardware) — justified by Phase 1 data layer. Supervisor-override-only loop.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUCCESS CRITERIA -->
+  <div class="panel">
+    <div class="panel-title">Phase 1 Success Criteria</div>
+    <div class="three-col">
+      <ul class="bl">
+        <li><strong>Movement touch time ≤ 0.06 hrs/session</strong> (from 0.25 — 76% reduction)</li>
+        <li><strong>Deadline breach &lt; 0.5%</strong> of priority batches per week</li>
+      </ul>
+      <ul class="bl">
+        <li><strong>Dispatch latency &lt; 3 min</strong> from BPQ trigger to AMR pickup</li>
+        <li><strong>Cross record accuracy ≥ 99.5%</strong> — no silent state drift</li>
+      </ul>
+      <ul class="bl">
+        <li><strong>Labor savings ≥ $3.0M/yr</strong> confirmed by Month 12</li>
+        <li><strong>System uptime ≥ 95%</strong> during operating hours</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

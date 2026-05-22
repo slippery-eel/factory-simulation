@@ -439,6 +439,7 @@
   <a href="simulation.html" class="tab-btn">Simulation</a>
   <a href="opportunity-analysis.html" class="tab-btn tab-active">Opportunity Analysis &amp; ROI</a>
   <a href="layout.html" class="tab-btn">Layout</a>
+  <a href="prd.html" class="tab-btn">PRD</a>
 </nav>
 
 <!-- ══════════════════ BASELINE PARAMETERS ══════════════════ -->
@@ -599,56 +600,21 @@
       </div>
     </div>
 
-    <!-- ── Section: Labor Time Breakdown ── -->
-    <div class="section-header section-header-first">Labor Time Breakdown <span style="font-weight:400;font-size:10px;color:#475569;text-transform:none;letter-spacing:0">(skilled technician touch time)</span></div>
-
-    <div class="comp-row">
-      <div class="comp-label">Movement/setup technician time <span class="comp-label-unit">hrs / session</span></div>
-      <div class="comp-cell" id="base-mvmt-labor"><span class="comp-value">—</span></div>
-      <div class="comp-cell col-a" id="a-mvmt-labor"><span class="comp-value">—</span><span class="comp-delta"></span></div>
-      <div class="comp-cell col-b" id="b-mvmt-labor"><span class="comp-value">—</span><span class="comp-delta"></span></div>
-    </div>
-
-    <div class="comp-row">
-      <div class="comp-label">Pollination technician time <span class="comp-label-unit">hrs / session</span></div>
-      <div class="comp-cell" id="base-poll-labor"><span class="comp-value">—</span></div>
-      <div class="comp-cell col-a" id="a-poll-labor"><span class="comp-value">—</span><span class="comp-delta"></span></div>
-      <div class="comp-cell col-b" id="b-poll-labor"><span class="comp-value">—</span><span class="comp-delta"></span></div>
-    </div>
-
-    <div class="comp-row">
-      <div class="comp-label">Total technician time/session <span class="comp-label-unit">hrs / session</span></div>
-      <div class="comp-cell" id="base-total-labor"><span class="comp-value">—</span></div>
-      <div class="comp-cell col-a" id="a-total-labor"><span class="comp-value">—</span><span class="comp-delta"></span></div>
-      <div class="comp-cell col-b" id="b-total-labor"><span class="comp-value">—</span><span class="comp-delta"></span></div>
-    </div>
-
-    <!-- ── Section: Elapsed Cycle Time ── -->
-    <div class="section-header">Elapsed Cycle Time <span style="font-weight:400;font-size:10px;color:#475569;text-transform:none;letter-spacing:0">(physical process duration — drives throughput &amp; bio risk)</span></div>
-
-    <div class="comp-row">
-      <div class="comp-label">Movement/setup elapsed time <span class="comp-label-unit">hrs / session</span></div>
-      <div class="comp-cell" id="base-mvmt-elapsed"><span class="comp-value">—</span></div>
-      <div class="comp-cell col-a" id="a-mvmt-elapsed"><span class="comp-value">—</span><span class="comp-delta"></span></div>
-      <div class="comp-cell col-b" id="b-mvmt-elapsed"><span class="comp-value">—</span><span class="comp-delta"></span></div>
-    </div>
-
-    <div class="comp-row">
-      <div class="comp-label">Pollination elapsed time <span class="comp-label-unit">hrs / session</span></div>
-      <div class="comp-cell" id="base-poll-elapsed"><span class="comp-value">—</span></div>
-      <div class="comp-cell col-a" id="a-poll-elapsed"><span class="comp-value">—</span><span class="comp-delta"></span></div>
-      <div class="comp-cell col-b" id="b-poll-elapsed"><span class="comp-value">—</span><span class="comp-delta"></span></div>
-    </div>
-
-    <div class="comp-row">
-      <div class="comp-label">Total elapsed cycle time/session <span class="comp-label-unit">hrs / session</span></div>
-      <div class="comp-cell" id="base-total-elapsed"><span class="comp-value">—</span></div>
-      <div class="comp-cell col-a" id="a-total-elapsed"><span class="comp-value">—</span><span class="comp-delta"></span></div>
-      <div class="comp-cell col-b" id="b-total-elapsed"><span class="comp-value">—</span><span class="comp-delta"></span></div>
+    <!-- ── Session Timeline ── -->
+    <div style="grid-column: 1 / -1; padding: 18px 0 2px;">
+      <p class="chart-note" style="margin-bottom:10px;">
+        Each row = one pollination session.&nbsp;
+        <strong style="color:#f59e0b">■</strong> Movement/setup &nbsp;·&nbsp;
+        <strong style="color:#818cf8">■</strong> Pollination &nbsp;·&nbsp;
+        <strong style="color:#e2e8f0">Solid bar</strong> = technician touch time &nbsp;·&nbsp;
+        <span style="opacity:0.45">Faded bar</span> = physical elapsed clock &nbsp;·&nbsp;
+        <span style="color:#334155; border:1px dashed #1e3a5f; padding:0 3px; border-radius:2px; font-size:10px">free</span> = technician free while cart travels (Scenario A)
+      </p>
+      <svg id="gantt-svg" class="chart-svg" viewBox="0 0 760 175" preserveAspectRatio="xMidYMid meet"></svg>
     </div>
 
     <!-- ── Section: Labor ── -->
-    <div class="section-header">Labor</div>
+    <div class="section-header section-header-first">Labor</div>
 
     <div class="comp-row">
       <div class="comp-label">Labor hours / week <span class="comp-label-unit">hrs / wk</span></div>
@@ -704,20 +670,6 @@
 
 
   </div>
-</div>
-
-<!-- ══════════════════ SESSION TIMELINE ══════════════════ -->
-<div class="panel">
-  <div class="panel-title">Session Timeline — Technician Labor vs. Elapsed Clock</div>
-  <p class="chart-note">
-    Each row = one pollination session.&nbsp;
-    <strong style="color:#f59e0b">■</strong> Movement/setup &nbsp;·&nbsp;
-    <strong style="color:#818cf8">■</strong> Pollination &nbsp;·&nbsp;
-    <strong style="color:#e2e8f0">Solid bar</strong> = technician touch time &nbsp;·&nbsp;
-    <span style="opacity:0.45">Faded bar</span> = physical elapsed clock &nbsp;·&nbsp;
-    <span style="color:#334155; border: 1px dashed #1e3a5f; padding: 0 3px; border-radius:2px; font-size:10px">free</span> = technician free while cart travels (Scenario A)
-  </p>
-  <svg id="gantt-svg" class="chart-svg" viewBox="0 0 760 175" preserveAspectRatio="xMidYMid meet"></svg>
 </div>
 
 <!-- ══════════════════ CASH FLOW ══════════════════ -->
@@ -894,7 +846,7 @@
     const xS   = CW / maxE;
 
     const MOVE_C = '#f59e0b', POLL_C = '#818cf8';
-    const ROW_H = 45, LH = 14, EH = 7;
+    const ROW_H = 45, LH = 14, EH = 10;
 
     function n(tag, a) {
       const e = document.createElementNS('http://www.w3.org/2000/svg', tag);
@@ -903,6 +855,7 @@
     }
     function app(e) { if (e) svg.appendChild(e); }
     function tx(s, x, y, a) { const t = n('text', Object.assign({x, y}, a)); t.textContent = s; return t; }
+    function fmtH(h) { return parseFloat(h.toFixed(2)) + 'h'; }
 
     // X-axis gridlines + tick labels
     const step = maxE <= 0.5 ? 0.1 : maxE <= 1.5 ? 0.25 : 0.5;
@@ -919,7 +872,19 @@
     rows.forEach((r, i) => {
       const yRow    = MT + i * ROW_H;
       const yLabor  = yRow + 8;
-      const yElapse = yRow + 28;
+      const yElapse = yRow + 26;
+
+      // Helpers: label centered inside a bar if wide enough
+      function lbl(text, bx, bw, minW) {
+        if (bw < (minW || 20)) return;
+        app(tx(text, bx + bw / 2, yLabor + LH / 2 + 3.5,
+          {'text-anchor':'middle', fill:'#0f172a', 'font-size':'7.5', 'font-weight':'600', 'font-family':'monospace'}));
+      }
+      function elbl(text, bx, bw) {
+        if (bw < 28) return;
+        app(tx(text, bx + bw / 2, yElapse + EH / 2 + 2.5,
+          {'text-anchor':'middle', fill:'#64748b', 'font-size':'7', 'font-weight':'600', 'font-family':'monospace'}));
+      }
 
       // Row labels
       app(tx(r.label, ML - 8, yRow + 18,
@@ -928,24 +893,27 @@
         {'text-anchor':'end', fill:'#475569', 'font-size':'8', 'font-family':'Segoe UI,sans-serif'}));
 
       // Elapsed track (faded: physical phase durations)
-      if (r.movE  > 0) app(n('rect', {x:ML,              y:yElapse, width:r.movE *xS, height:EH, fill:MOVE_C, opacity:'0.28', rx:'2'}));
-      if (r.pollE > 0) app(n('rect', {x:ML+r.movE*xS,    y:yElapse, width:r.pollE*xS, height:EH, fill:POLL_C, opacity:'0.28', rx:'2'}));
+      const movEW = r.movE * xS, pollEW = r.pollE * xS;
+      if (r.movE  > 0) { app(n('rect', {x:ML,        y:yElapse, width:movEW,  height:EH, fill:MOVE_C, opacity:'0.28', rx:'2'})); elbl(fmtH(r.movE),  ML,        movEW); }
+      if (r.pollE > 0) { app(n('rect', {x:ML+movEW,  y:yElapse, width:pollEW, height:EH, fill:POLL_C, opacity:'0.28', rx:'2'})); elbl(fmtH(r.pollE), ML+movEW, pollEW); }
 
-      // Labor track: movement labor (tech touch time)
-      if (r.movL  > 0) app(n('rect', {x:ML,              y:yLabor,  width:r.movL *xS, height:LH, fill:MOVE_C, opacity:'0.88', rx:'2'}));
+      // Labor track: movement labor
+      const movLW = r.movL * xS;
+      if (r.movL > 0) { app(n('rect', {x:ML, y:yLabor, width:movLW, height:LH, fill:MOVE_C, opacity:'0.88', rx:'2'})); lbl(fmtH(r.movL), ML, movLW); }
 
       // Free gap: tech is freed before cart finishes moving
       const gapPx = (r.movE - r.movL) * xS;
       if (gapPx > 2) {
-        app(n('rect', {x:ML + r.movL * xS, y:yLabor, width:gapPx, height:LH,
+        app(n('rect', {x:ML + movLW, y:yLabor, width:gapPx, height:LH,
           fill:'#0a1628', opacity:'0.9', rx:'2',
           stroke:'#1e3a5f', 'stroke-width':'0.75', 'stroke-dasharray':'2 2'}));
-        if (gapPx > 28) app(tx('free', ML + r.movL * xS + gapPx / 2, yLabor + LH / 2 + 3.5,
+        if (gapPx > 28) app(tx('free', ML + movLW + gapPx / 2, yLabor + LH / 2 + 3.5,
           {'text-anchor':'middle', fill:'#334155', 'font-size':'7', 'font-family':'Segoe UI,sans-serif'}));
       }
 
       // Pollination labor (starts at movE — tech waits for cart to arrive)
-      if (r.pollL > 0) app(n('rect', {x:ML + r.movE * xS, y:yLabor, width:r.pollL * xS, height:LH, fill:POLL_C, opacity:'0.88', rx:'2'}));
+      const pollLX = ML + movEW, pollLW = r.pollL * xS;
+      if (r.pollL > 0) { app(n('rect', {x:pollLX, y:yLabor, width:pollLW, height:LH, fill:POLL_C, opacity:'0.88', rx:'2'})); lbl(fmtH(r.pollL), pollLX, pollLW); }
     });
   }
 
