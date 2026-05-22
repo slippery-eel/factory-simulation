@@ -432,22 +432,9 @@
     .chart-svg  { width: 100%; height: auto; display: block; min-height: 80px; }
     .chart-note { font-size: 11px; color: #475569; margin-bottom: 14px; line-height: 1.7; }
 
-    /* ── Export PDF button ── */
-    #export-pdf-btn {
-      position: fixed; top: 14px; right: 16px; z-index: 9999;
-      background: #0f2744; color: #93c5fd;
-      border: 1px solid #1d4ed8; border-radius: 6px;
-      padding: 6px 13px; font-size: 12px; font-weight: 600; font-family: inherit;
-      cursor: pointer; transition: background 0.15s, color 0.15s; letter-spacing: 0.01em;
-    }
-    #export-pdf-btn:hover { background: #1d4ed8; color: #e2e8f0; }
-    #export-pdf-btn:disabled { opacity: 0.5; cursor: default; }
-    @media print { #export-pdf-btn { display: none !important; } }
   </style>
 </head>
 <body>
-
-<button id="export-pdf-btn" onclick="exportCombinedPDF()" title="Export Opportunity Analysis, Layout &amp; PRD as one PDF">↓ Export PDF</button>
 
 <nav class="tab-bar">
   <a href="simulation.html" class="tab-btn">Simulation</a>
@@ -1293,80 +1280,6 @@
     .forEach(id => document.getElementById(id).addEventListener('input', updateDecision));
 </script>
 
-<script>
-// ── Export combined PDF ────────────────────────────────────────────────────
-async function exportCombinedPDF() {
-  const btn = document.getElementById('export-pdf-btn');
-  const orig = btn.textContent;
-  btn.textContent = 'Loading…';
-  btn.disabled = true;
-  const pages = [
-    { url: 'opportunity-analysis.html', label: 'Opportunity Analysis & ROI' },
-    { url: 'layout.html',               label: 'Layout' },
-    { url: 'prd.html',                  label: 'PRD — Facility Orchestrator' },
-  ];
-  try {
-    const htmls = await Promise.all(pages.map(p =>
-      fetch(p.url).then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
-    ));
-    const parser = new DOMParser();
-    const docs = htmls.map(h => parser.parseFromString(h, 'text/html'));
-
-    const seenStyles = new Set();
-    const allStyles = docs.flatMap(d =>
-      Array.from(d.querySelectorAll('style')).map(s => s.textContent)
-    ).filter(s => { if (seenStyles.has(s)) return false; seenStyles.add(s); return true; });
-
-    const sections = docs.map((d, i) => {
-      d.querySelector('nav.tab-bar, .tab-bar')?.remove();
-      d.querySelector('#export-pdf-btn')?.remove();
-      return `<section class="xprt-section">
-        <div class="xprt-label">${pages[i].label}</div>
-        ${d.body.innerHTML.trim()}
-      </section>`;
-    }).join('\n<div class="xprt-break"></div>\n');
-
-    const scripts = docs.map(d =>
-      Array.from(d.querySelectorAll('script:not([src])')).map(s => s.textContent).join('\n')
-    ).map(src => src.trim() ? `(function(){\n${src}\n})();` : '').join('\n\n');
-
-    const base = window.location.href.replace(/[^/]+$/, '');
-    const win = window.open('', '_blank');
-    win.document.write(`<!DOCTYPE html>
-<html><head>
-<meta charset="UTF-8">
-<title>Living Factory — Export</title>
-<base href="${base}">
-<style>
-${allStyles.join('\n')}
-body{max-width:1240px;margin:0 auto;padding:20px 20px 60px;display:flex;flex-direction:column;gap:16px;}
-.xprt-section{display:contents;}
-.xprt-label{font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:#475569;border-bottom:1px solid #1e293b;padding-bottom:5px;margin-bottom:10px;}
-.xprt-break{page-break-after:always;break-after:page;height:0;}
-.tab-bar,#export-pdf-btn{display:none!important;}
-@page{margin:10mm 12mm;}
-@media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}.xprt-break{page-break-after:always!important;break-after:page!important;}.tab-bar,#export-pdf-btn{display:none!important;}}
-</style>
-</head><body>
-${sections}
-<script>
-${scripts}
-setTimeout(function(){window.print();},1400);
-<\/script>
-</body></html>`);
-    win.document.close();
-  } catch (e) {
-    if (window.location.protocol === 'file:') {
-      alert('Export requires a local HTTP server.\n\nRun: python -m http.server 8080\nThen open: http://localhost:8080\n\nAlternatively, print each tab individually with Ctrl+P.');
-    } else {
-      alert('Export failed: ' + e.message);
-    }
-  } finally {
-    btn.textContent = orig;
-    btn.disabled = false;
-  }
-}
-</script>
 
 </body>
 </html>
